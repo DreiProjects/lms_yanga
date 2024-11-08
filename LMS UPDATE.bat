@@ -1,2 +1,2 @@
 
-start cmd /k "git pull main"
+start cmd /k "git pull main master"
