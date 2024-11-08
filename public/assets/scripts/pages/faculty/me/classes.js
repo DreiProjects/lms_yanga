@@ -454,7 +454,7 @@ function NewResource(section_id, professor_id) {
                             text: group.title
                         }))
                     ], (value) => {
-                        if (value === 0) {
+                        if (value == 0) {
                             NewResourceGroup().then((res) => {
                                 const id = MakeID(10);
                                 AddNewComboItem(group_id, res.resource_group_id, res.title);
