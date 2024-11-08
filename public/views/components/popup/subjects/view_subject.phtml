@@ -1,13 +1,15 @@
 <?php
-global $APPLICATION, $ALL_USER_TYPES,$SESSION;
+global $APPLICATION,$SESSION;
 
 $data = json_decode($_POST['data'], true);
 
-$id = $data['id'];
+$courseControl = $APPLICATION->FUNCTIONS->COURSE_CONTROL;
 
-$control =$APPLICATION->FUNCTIONS->CLASSROOM_CONTROL;
+$courses = $courseControl->getAllRecords(false);
 
-$classroom = $control->get($id, true);
+$courses = ObjectToCombo("course_name", "course_id", $courses);
+
+$record = $APPLICATION->FUNCTIONS->SUBJECT_CONTROL->get($data['id'], true);
 
 ?>
 <div class="main-popup-container">
@@ -16,7 +18,7 @@ $classroom = $control->get($id, true);
         <div class="main-popup-content">
             <div class="popup-top">
                 <div class="headline">
-                    <h1>View Classroom</h1>
+                    <h1>New Subject</h1>
                 </div>
                 <div class="paragraph">
                     <p>Provide Information</p>
@@ -33,35 +35,37 @@ $classroom = $control->get($id, true);
                     <div class="form-group-container flex">
                         <div class="form-group tooltip">
                             <div class="tooltiptext">
-                                <span>Classroom Name</span>
+                                <span>Subject Name</span>
                             </div>
-                            <label for=""><span>Classroom Name</span></label>
+                            <label for=""><span>Subject Name</span></label>
                             <div class="error-container">
-                                <input type="text" name="classroom_name" placeholder="Classroom Name" value="<?=  $classroom->classroom_name ?>">
+                                <input type="text" name="subject_name" placeholder="Subject Name" value="<?= $record->subject_name ?>">
                             </div>
                         </div>
                     </div>
                     <div class="form-group-container flex">
                         <div class="form-group tooltip">
                             <div class="tooltiptext">
-                                <span>Building</span>
+                                <span>Subject Code</span>
                             </div>
-                            <label for=""><span>Building</span></label>
-
+                            <label for=""><span>Subject Code</span></label>
                             <div class="error-container">
-                                <input type="text" name="building" placeholder="Building"  value="<?=  $classroom->building ?>">
+                                <input type="text" name="subject_code" placeholder="Subject Name" value="<?= $record->subject_code ?>">
                             </div>
                         </div>
                     </div>
                     <div class="form-group-container flex">
                         <div class="form-group tooltip">
                             <div class="tooltiptext">
-                                <span>Floor</span>
+                                <span>Under Course</span>
                             </div>
-                            <label for=""><span>Floor</span></label>
+                            <label for=""><span>Under Course</span></label>
 
                             <div class="error-container">
-                                <input type="text" name="floor" placeholder="Floor"  value="<?=  $classroom->floor ?>">
+                                <?= CreateComboBox("course_id", "Main Course", $courses, false, [
+                                    "text" => $record->course->course_name,
+                                    "value" => $record->course_id,
+                                ]) ?>
                             </div>
                         </div>
                     </div>

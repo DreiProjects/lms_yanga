@@ -100,7 +100,7 @@ function setupSectionManagement() {
                         course_id: course.course_id,
                         professor_id: selectInput.value,
                         semester: GetComboValue(semester).value,
-                        flag: "uploaded",
+                        flag: "created",
                         students: []
                     }
 
@@ -472,16 +472,19 @@ function setupImportSummary() {
     const importBtn = document.getElementById('importBtn');
 
     wizzard.nextBtn.addEventListener('click', () => {
-        const activeTab = document.querySelector('.tab-pane.active');
-        if (activeTab.id === 'step4') {
-            updateImportSummary();
-        }
+        updateImportSummary();
     });
 
     importBtn.addEventListener('click', () => {
-        ImportNowStudents(getSummary()).then(() => {
-            window.location.reload();
-        });
+        const summary = getSummary();
+
+        if (summary.students.length) { 
+            ImportNowStudents(summary).then(() => {
+                window.location.reload();
+            });
+        } else {
+            alert("Please add students first");
+        }
     });
 
     tableBulkEntryGenerator.onStep(4, () => {

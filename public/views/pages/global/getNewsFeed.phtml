@@ -10,7 +10,14 @@ $POSTS = $postControl->getLatestRecords(false, true, null, "date_created ");
 
 $ANNOUNCEMENTS = $APPLICATION->FUNCTIONS->ANNOUNCEMENT_CONTROL->getAllRecords(true);
 
-$EVENTS = $APPLICATION->FUNCTIONS->EVENT_CONTROL->getAllRecords(true);
+$allEvents = $APPLICATION->FUNCTIONS->EVENT_CONTROL->getAllRecords(true);
+$EVENTS = array_filter($allEvents, function($event) {
+    return strtotime($event->date_start) >= strtotime(date('Y-m-d'));
+});
+usort($EVENTS, function($a, $b) {
+    return strtotime($a->date_start) - strtotime($b->date_start);
+});
+$EVENTS = array_slice($EVENTS, 0, 3);
 
 ?>
 

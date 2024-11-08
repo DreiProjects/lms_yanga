@@ -1354,6 +1354,10 @@ body {
   overflow: hidden;
   height: 100%;
   min-height: 600px;
+  -webkit-box-orient: horizontal !important;
+  -webkit-box-direction: normal !important;
+      -ms-flex-direction: row !important;
+          flex-direction: row !important;
 }
 
 .tab-container .tab-menu .tab-header {
@@ -1537,7 +1541,7 @@ body {
 .tab-container {
   width: 100%;
   margin-top: 20px;
-  display: block !important;
+  display: block;
 }
 
 .tab-nav {

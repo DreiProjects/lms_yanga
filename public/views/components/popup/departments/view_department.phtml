@@ -3,7 +3,7 @@ global $APPLICATION, $ALL_USER_TYPES,$SESSION;
 
 $data = json_decode($_POST['data'], true);
 
-$record = $APPLICATION->FUNCTIONS->DEPARTMENT_CONTROL->get($_POST['id'], true);
+$record = $APPLICATION->FUNCTIONS->DEPARTMENT_CONTROL->get($data['id'], true);
 
 ?>
 <div class="main-popup-container">
@@ -12,7 +12,7 @@ $record = $APPLICATION->FUNCTIONS->DEPARTMENT_CONTROL->get($_POST['id'], true);
         <div class="main-popup-content">
             <div class="popup-top">
                 <div class="headline">
-                    <h1>New Department</h1>
+                    <h1>View Department</h1>
                 </div>
                 <div class="paragraph">
                     <p>Provide Information</p>

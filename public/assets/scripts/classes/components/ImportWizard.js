@@ -8,13 +8,11 @@ export default class ImportWizard {
         this.currentStep = 1;
         this.steps = [
             { required: true },
-            { required: true },
-            { required: true },
             { required: false },
+            { required: false },
+            { required: true },
             { required: true }
         ];
-
-        
 
         this.init();
     }

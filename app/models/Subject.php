@@ -7,6 +7,8 @@ use Application\abstract\SubjectAbstract;
 
 class Subject extends SubjectAbstract
 {
+    public $course;
+
     public function __construct($data = [])
     {
         $this->applyData($data, SubjectAbstract::class);
@@ -15,6 +17,7 @@ class Subject extends SubjectAbstract
 
     private function init(): void
     {
-
+        global $APPLICATION;
+        $this->course = $APPLICATION->FUNCTIONS->COURSE_CONTROL->get($this->course_id, true);
     }
 }

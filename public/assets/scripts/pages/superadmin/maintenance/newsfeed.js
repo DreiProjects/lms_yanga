@@ -50,11 +50,12 @@ function PublishPost(data) {
 function PublishAnnouncement(data) {
     return new Promise((resolve) => {
         AddRecord("announcements", {data: JSON.stringify(data)}).then((res) => {
-            console.log(data)
             NewNotification({
                 title: res.code === 200 ? 'Success' : 'Failed',
                 message: res.code === 200 ? 'Successfully Added' : 'Task Failed to perform!'
-            }, 3000, res.code === 200 ? NotificationType.SUCCESS : NotificationType.ERROR)
+            }, 3000, res.code === 200 ? NotificationType.SUCCESS : NotificationType.ERROR);
+
+            resolve();
         })
     })
 }
@@ -62,11 +63,12 @@ function PublishAnnouncement(data) {
 function PublishEvent(data) {
     return new Promise((resolve) => {
         AddRecord("events", {data: JSON.stringify(data)}).then((res) => {
-            console.log(res);
             NewNotification({
                 title: res.code === 200 ? 'Success' : 'Failed',
                 message: res.code === 200 ? 'Successfully Added' : 'Task Failed to perform!'
-            }, 3000, res.code === 200 ? NotificationType.SUCCESS : NotificationType.ERROR)
+            }, 3000, res.code === 200 ? NotificationType.SUCCESS : NotificationType.ERROR);
+
+            resolve();
         })
     })
 }
@@ -173,7 +175,11 @@ function CreateNewEvent() {
                 }
 
             }).then(() => {
-                PublishEvent(data).then(() => popup.Remove());
+                PublishEvent(data).then(() => {
+                    popup.Remove();
+
+                    location.reload();
+                });
             })
         }, ['poster'])
     }))
@@ -197,7 +203,11 @@ function CreateNewAnnouncement() {
             } );
 
         ListenToForm(form, function (data) {
-            PublishAnnouncement(data).then(() => popup.Remove());
+            PublishAnnouncement(data).then(() => {
+                popup.Remove();
+
+                location.reload();
+            });
         })
     }));
 }

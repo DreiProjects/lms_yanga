@@ -84,8 +84,6 @@ function ViewRequest(id) {
 }
 
 function AddRequest() {
-    const body= document.querySelector(".main-table-body");
-
     const popup = new Popup(`${TARGET}/add_new_${MINI_TARGET}`, null, {
         backgroundDismiss: false,
     });

@@ -454,14 +454,16 @@ function ViewRequest(id) {
         const subjectsC = pop.ELEMENT.querySelector('.subjects-content');
         const TABLE_PICKER = new SidePicker(picker);
 
-        let selected_user;
+        let selected_user = {professor_id: selectInput.getAttribute("data-value")};
         let students = [], subjects = [];
+
 
         ListenToForm(form, function (data) {
             data.course_id = GetComboValue(course_id).value;
             data.semester = GetComboValue(semester).value;
             data.year_level = GetComboValue(year_level).value;
 
+            data.adviser_id = selected_user.professor_id;
 
             EditRecord(TARGET, {data: JSON.stringify({id, data, students, subjects})}).then((res) => {
                 popup.Remove();
@@ -478,7 +480,7 @@ function ViewRequest(id) {
         select.addEventListener("click", function() {
             SelectSomething(`professors/select_professors`, "professors", "PROFESSOR_CONTROL", null, true).then(user => {
                 selected_user = user;
-                selectInput.value = user.professor_id;
+                selectInput.value = user.displayName;
             });
         })
 

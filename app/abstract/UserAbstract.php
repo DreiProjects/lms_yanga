@@ -18,7 +18,9 @@ abstract class UserAbstract extends ModelDefaultFunctions
 
     public $gender;
 
+    public $birthdate;
     public $image;
+
     public $user_type;
     public $date_created;
 

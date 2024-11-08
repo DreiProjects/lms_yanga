@@ -53,9 +53,9 @@ $courses = ObjectToCombo("course_name", "course_id", $courses);
                                 <span>Select Professor</span>
                             </div>
                             <div class="error-container">
-                                <div class="custom-select-box select-professor">
+                                <div class="custom-select-box select-professor" data-value="<?= $section->adviser_id ?>">
                                     <div class="main-content">
-                                        <input type="text" name="adviser_id" placeholder="Select Professor" readonly  value="<?= $section->adviser_id ?>">
+                                        <input type="text" name="adviser_id" placeholder="Select Professor" readonly  value="<?= $section->adviser->displayName ?>">
 
                                         <div class="icon">
                                             <svg width="256px" height="256px" viewBox="0 0 256 256" id="Flat" xmlns="http://www.w3.org/2000/svg">
@@ -76,7 +76,7 @@ $courses = ObjectToCombo("course_name", "course_id", $courses);
 
                             <div class="error-container">
                                 <?= CreateComboBox("semester", "Semester", CasesToCombo(Semesters::cases()), false, [
-                                        "text" => $section->semester,
+                                        "text" => Semesters::from($section->semester)->name,
                                         "value" => $section->semester
                                 ]) ?>
                             </div>
@@ -89,7 +89,7 @@ $courses = ObjectToCombo("course_name", "course_id", $courses);
 
                             <div class="error-container">
                                 <?= CreateComboBox("year_level", "Year Level", CasesToCombo(YearLevels::cases()), false, [
-                                    "text" => $section->year_level,
+                                    "text" => YearLevels::from($section->year_level)->name,
                                     "value" => $section->year_level
                                 ]) ?>
                             </div>
@@ -102,7 +102,7 @@ $courses = ObjectToCombo("course_name", "course_id", $courses);
 
                             <div class="error-container">
                                 <?= CreateComboBox("course_id", "Main Course", $courses, false , [
-                                    "text" => $section->course_id,
+                                    "text" => $section->course->course_name,
                                     "value" => $section->course_id
                                 ]) ?>
                             </div>
