@@ -112,21 +112,23 @@ $passing_types = array_map(function($passing_type) {
                     <?php endif ?>
 
                 </div>
-                <div class="popup-footer">
-                    <div class="form-group-container submit-group right-side">
-                        <div class="form-group">
-                            <?php if ($complied->grade_score): ?>
-                                <div class="link edit-btn" data-category="<?= GradeScoreCategories::ACTIVITY->value ?>" data-comply-id="<?= $complied->comply_id ?>" data-id="<?= $complied->grade_score['grade_score_id'] ?>">
-                                    <span>Edit Grade</span>
-                                </div>
-                            <?php else: ?>
-                                <div class="link grade-btn" data-category="<?= GradeScoreCategories::ACTIVITY->value ?>" data-id="<?= $complied->comply_id ?>">
-                                    <span>Grade Activity</span>
-                                </div>
-                            <?php endif; ?>
+                <?php if($SESSION->user_type == 2): ?>
+                    <div class="popup-footer">
+                        <div class="form-group-container submit-group right-side">
+                            <div class="form-group">
+                                <?php if ($complied->grade_score): ?>
+                                    <div class="link edit-btn" data-category="<?= GradeScoreCategories::ACTIVITY->value ?>" data-comply-id="<?= $complied->comply_id ?>" data-id="<?= $complied->grade_score['grade_score_id'] ?>">
+                                        <span>Edit Grade</span>
+                                    </div>
+                                <?php else: ?>
+                                    <div class="link grade-btn" data-category="<?= GradeScoreCategories::ACTIVITY->value ?>" data-id="<?= $complied->comply_id ?>">
+                                        <span>Grade Activity</span>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
                         </div>
                     </div>
-                </div>
+                <?php endif; ?>
             </form>
         </div>
     </div>

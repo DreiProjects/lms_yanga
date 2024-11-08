@@ -181,24 +181,49 @@ export default class GradingPlatformEditor {
     }
 
     initializeOriginalGrades() {
+        this.originalGrades = {};  // Reset original grades
+        
         this.table.querySelectorAll('tbody tr').forEach(row => {
             const userId = row.dataset.student;
-            this.originalGrades[userId] = this.studentScores[userId] ? 
-                JSON.parse(JSON.stringify(this.studentScores[userId])) : 
-                { scores: {}, weightedScores: {}, finalGrade: 0, collegeGrade: 0, status: {} };
             
+            // Initialize the structure for this student
+            this.originalGrades[userId] = {
+                scores: {},
+                weightedScores: {},
+                scoreIds: {},
+                status: {},
+                finalGrade: this.studentScores[userId].finalGrade,
+                collegeGrade: this.studentScores[userId].collegeGrade
+            };
+
+            // Copy all scores and their IDs
             this.categories.forEach(category => {
                 const categoryId = category.category_id;
-                // Initialize scores only if category has columns
-                if (this.columnStructure[categoryId].totalColumns > 0) {
-                    this.originalGrades[userId].scores[categoryId] = {};
+                
+                // Initialize scores object for this category
+                this.originalGrades[userId].scores[categoryId] = {};
+                this.originalGrades[userId].scoreIds[categoryId] = {};
+                
+                // Copy scores and IDs
+                if (this.studentScores[userId].scores[categoryId]) {
+                    Object.keys(this.studentScores[userId].scores[categoryId]).forEach(columnId => {
+                        this.originalGrades[userId].scores[categoryId][columnId] = 
+                            this.studentScores[userId].scores[categoryId][columnId];
+                        
+                        if (this.studentScores[userId].scoreIds[categoryId]) {
+                            this.originalGrades[userId].scoreIds[categoryId][columnId] = 
+                                this.studentScores[userId].scoreIds[categoryId][columnId];
+                        }
+                    });
                 }
-                // Always initialize weighted scores
+                
+                // Copy weighted scores
                 this.originalGrades[userId].weightedScores[categoryId] = 
-                    this.columnStructure[categoryId].totalColumns === 0 ? 
-                    category.percentage : 0;
+                    this.studentScores[userId].weightedScores[categoryId];
             });
         });
+        
+        console.log('Original Grades Initialized:', this.originalGrades); // Debug log
     }
 
     saveGrades() {
@@ -319,24 +344,47 @@ export default class GradingPlatformEditor {
     }
 
     discardGrades() {
+        console.log('Starting discard with original grades:', this.originalGrades); // Debug log
+        
         this.table.querySelectorAll('tbody tr').forEach(row => {
             const userId = row.dataset.student;
+            
+            // Restore student scores from original grades
             this.studentScores[userId] = JSON.parse(JSON.stringify(this.originalGrades[userId]));
             
-            // Only reset inputs for categories with columns
-            row.querySelectorAll('.grade-input').forEach(input => {
-                const category = input.dataset.category;
-                const column = input.dataset.column;
-                const scoreKey = `${userId}-${category}-${column}`;
+            // Update all visible inputs
+            this.categories.forEach(category => {
+                const categoryId = category.category_id;
                 
-                if (this.columnStructure[category].totalColumns > 0) {
-                    this.studentScores[userId].status[scoreKey] = 'original';
-                    input.textContent = this.studentScores[userId].scores[category][column] || '0';
+                if (this.columnStructure[categoryId]) {
+                    this.columnStructure[categoryId].columnIds.forEach(columnId => {
+                        const input = row.querySelector(
+                            `.grade-input[data-category="${categoryId}"][data-column-id="${columnId}"]`
+                        );
+                        
+                        if (input) {
+                            const originalScore = this.originalGrades[userId]?.scores[categoryId]?.[columnId] ?? 0;
+                            console.log(`Restoring score for student ${userId}, category ${categoryId}, column ${columnId}: ${originalScore}`); // Debug log
+                            input.textContent = originalScore;
+                        }
+                    });
                 }
             });
             
+            // Update final and college grades
+            const finalGradeCell = row.querySelector('.final-grade');
+            const collegeGradeCell = row.querySelector('.college-grade');
+            
+            if (finalGradeCell) {
+                finalGradeCell.textContent = this.originalGrades[userId].finalGrade.toFixed(2);
+            }
+            if (collegeGradeCell) {
+                collegeGradeCell.textContent = this.originalGrades[userId].collegeGrade.toFixed(1);
+            }
+            
             this.recalculateGrades(row);
         });
+        
         this.setUnsavedChanges(false);
     }
 

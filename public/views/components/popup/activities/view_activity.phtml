@@ -98,9 +98,9 @@ $is_editable = $SESSION->user_type == 2;
                     <div class="form-group-container flex">
                         <div class="form-group tooltip">
                             <div class="tooltiptext">
-                                <span>Description (Optional)</span>
+                                <span>Description <?= $is_editable ? "( Optional )" : "" ?></span>
                             </div>
-                            <label for=""><span>Description (Optional)</span></label>
+                            <label for=""><span>Description <?= $is_editable ? "( Optional )" : "" ?></span></label>
 
                             <div class="error-container">
                                 <textarea name="description" placeholder="Description" <?= !$is_editable ? "readonly" : "" ?>><?= $activity->description ?></textarea>
@@ -110,9 +110,9 @@ $is_editable = $SESSION->user_type == 2;
                     <div class="form-group-container flex">
                         <div class="form-group tooltip">
                             <div class="tooltiptext">
-                                <span>Due Date (Optional)</span>
+                                <span>Due Date <?= $is_editable ? "( Optional )" : "" ?></span>
                             </div>
-                            <label for=""><span>Due Date (Optional)</span></label>
+                            <label for=""><span>Due Date <?= $is_editable ? "( Optional )" : "" ?></span></label>
                             <div class="error-container">
                                 <input type="date" name="due_date" placeholder="Due Date" value="<?= $activity->due_date ?>" <?= !$is_editable ? "readonly" : "" ?>>
                             </div>
@@ -121,11 +121,21 @@ $is_editable = $SESSION->user_type == 2;
                     <div class="form-group-container flex">
                         <div class="form-group tooltip">
                             <div class="tooltiptext">
-                                <span>File (Optional)</span>
+                                <span>File <?= $is_editable ? "( Optional )" : "" ?></span>
                             </div>
-                            <label for=""><span>File (Optional)</span></label>
+                            <label for=""><span>File <?= $is_editable ? "( Optional )" : "" ?></span></label>
                             <div class="error-container">
-                                <input type="file" name="file" placeholder="File" <?= !$is_editable ? "readonly" : "" ?>>
+                                <?php if($activity->file): ?>
+                                    <div class="file-info">
+                                        <a href="<?= $activity->file ?>" download>
+                                            <?= basename($activity->file) ?>
+                                        </a>
+                                    </div>
+                                <?php endif; ?>
+                                
+                                <?php if($is_editable): ?>
+                                    <input type="file" name="file" placeholder="File">
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>

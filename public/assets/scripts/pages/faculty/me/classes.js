@@ -378,7 +378,7 @@ function Activities() {
 
             if (viewCompliedBtn) {
                 viewCompliedBtn.addEventListener("click", () => {
-                    ViewCompliedActivity(viewCompliedBtn.dataset.id);
+                    ViewCompliedActivity(activity.dataset.id, viewCompliedBtn.dataset.id);
                 });
             }
 
