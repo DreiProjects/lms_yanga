@@ -48,13 +48,19 @@ class Student extends StudentAbstract
     private function initOther()
     {
         global $APPLICATION;
-
-
     }
 
     public function getSectionStudent() {
         global $APPLICATION;
 
-        return $APPLICATION->FUNCTIONS->SECTION_STUDENT_CONTROL->getBy("student_id", $this->user_id, true);
+        $records = $APPLICATION->FUNCTIONS->SECTION_STUDENT_CONTROL->filterRecords([
+            "student_id" => $this->user_id
+        ], true);
+
+        if (empty($records)) {
+            return null;
+        }
+
+        return $records[0];
     }
 }

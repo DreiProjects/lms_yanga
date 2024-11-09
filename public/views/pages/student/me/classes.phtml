@@ -6,23 +6,25 @@ $student = $SESSION->getAsStudent();;
 
 $sectionStudent = $student->getSectionStudent();
 
-$section = $sectionStudent->section;
+if ($sectionStudent != null) {
+    $section = $sectionStudent->section;
 
-$subjects = $section->subjects;
+    $subjects = $section->subjects;
+    // Group subjects by professor
+    $subjectsByProfessor = [];
 
-// Group subjects by professor
-$subjectsByProfessor = [];
-
-foreach ($subjects as $subject) {
-    $professorId = $subject->professor->professor_id;
-    if (!isset($subjectsByProfessor[$professorId])) {
-        $subjectsByProfessor[$professorId] = [
-            'professor' => $subject->professor,
-            'subjects' => []
-        ];
+    foreach ($subjects as $subject) {
+        $professorId = $subject->professor->professor_id;
+        if (!isset($subjectsByProfessor[$professorId])) {
+            $subjectsByProfessor[$professorId] = [
+                'professor' => $subject->professor,
+                'subjects' => []
+            ];
+        }
+        $subjectsByProfessor[$professorId]['subjects'][] = $subject;
     }
-    $subjectsByProfessor[$professorId]['subjects'][] = $subject;
 }
+
 ?>
 
 
@@ -87,7 +89,8 @@ foreach ($subjects as $subject) {
                         <div class="main-table-body main-table-requests" >
 
                             <div class="cards-flex-container">
-                                <?php foreach ($subjectsByProfessor as $subProf): ?>
+                                <?php if ($sectionStudent != null): ?>
+                                    <?php foreach ($subjectsByProfessor as $subProf): ?>
                                     <div class="card-flex-container" data-id="<?= $section->section_id ?>" data-professor_id="<?= $subProf['professor']->professor_id ?>">
                                         <div class="title">
                                             <h3><?= implode(", ", array_map(fn($subject) => $subject->subject->subject_name, $subProf['subjects'])) ?></h3>
@@ -100,6 +103,7 @@ foreach ($subjects as $subject) {
                                         </div>
                                     </div>
                                 <?php endforeach; ?>
+                                <?php endif ?>
                             </div>
                         </div>
                     </div>
