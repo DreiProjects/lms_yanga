@@ -19,4 +19,12 @@ class UserControl extends ControlDefaultFunctions
 
         return $this->addRecord($data);
     }
+
+    public function isEmailExists($email) {
+        return $this->alreadyExists(['email' => $email])->code == 200;
+    }
+
+    public function getExistingEmails() {
+        return array_column($this->getAllRecords(false), 'email');
+    }
 }

@@ -30,6 +30,8 @@ class StudentControl extends ControlDefaultFunctions
     {   
         global $APPLICATION;
 
+        $userControl = $APPLICATION->FUNCTIONS->USER_CONTROL;
+
         $students = $summary['students'];
         $subjects = $summary['subjects'];
         $section = $summary['section'];
@@ -37,6 +39,7 @@ class StudentControl extends ControlDefaultFunctions
         $section_id = null;
         $subject_ids = [];
         $student_ids = [];
+
 
         if (isset($section)) {
             if ($section['flag'] == "created") {
@@ -104,9 +107,15 @@ class StudentControl extends ControlDefaultFunctions
                 }
             }
         }
-
+        
         if (isset($students)) {
             foreach ($students as $student) {
+                if ($userControl->isEmailExists($student['email'])) {
+                    while($userControl->isEmailExists($student['email'])) {
+                        $student['email'] = $this->generateEmail($student['firstName'], $student['lastName'], $userControl->getExistingEmails());
+                    }
+                }
+
                 $studentData = [
                     "firstname" => $student['firstName'],
                     "lastname" => $student['lastName'],
@@ -143,5 +152,33 @@ class StudentControl extends ControlDefaultFunctions
         }
 
         // return $this->addRecord($summary);
+    }
+
+    function generateEmail($firstName, $lastName, $existingEmails = []) {
+        // Clean and format the names
+        $firstName = strtolower(trim($firstName));
+        $lastName = strtolower(trim($lastName));
+        
+        // Remove special characters and spaces
+        $firstName = preg_replace('/[^a-z0-9]/', '', $firstName);
+        $lastName = preg_replace('/[^a-z0-9]/', '', $lastName);
+        
+        // Base email format: firstname.lastname@domain.com
+        $domain = "gmail.com"; // Change this to your domain
+        $baseEmail = $firstName . "." . $lastName . "@" . $domain;
+        
+        // If base email is not taken, return it
+        if (!in_array($baseEmail, $existingEmails)) {
+            return $baseEmail;
+        }
+        
+        // If email exists, add numbers until we find a unique one
+        $counter = 1;
+        do {
+            $newEmail = $firstName . "." . $lastName . $counter . "@" . $domain;
+            $counter++;
+        } while (in_array($newEmail, $existingEmails));
+        
+        return $newEmail;
     }
 }
