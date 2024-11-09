@@ -21,18 +21,17 @@ class SectionControl extends ControlDefaultFunctions
         return null;
     }
 
-    public function edit($data)
+    public function edit($id, $data)
     {
         global $APPLICATION;
 
-        $mortuary = $data['data'];
-        $id = $data['id'];
+        $mainData = $data['data'];
         $students = $data['students'];
         $subjects = $data['subjects'];
         $control = $APPLICATION->FUNCTIONS->SECTION_STUDENT_CONTROL;
         $subjectControl = $APPLICATION->FUNCTIONS->SECTION_SUBJECT_CONTROL;
 
-        $edit = $this->editRecord($id, $mortuary);
+        $edit = $this->editRecord($id, $mainData);
 
         if ($edit->code == 200) {
             foreach ($students as $student) {
@@ -58,9 +57,13 @@ class SectionControl extends ControlDefaultFunctions
             foreach ($subjects as $subject) {
                 $subject['section_id'] = $id;
 
-                $schedules = $subject['schedules'];
+                $schedules = [];
 
-                unset($subject['schedules']);
+                if (isset($subject['schedules'])) {
+                    $schedules = $subject['schedules'];
+
+                    unset($subject['schedules']);
+                }
 
                 $_ID = null;
 
