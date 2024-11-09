@@ -112,8 +112,8 @@ class StudentControl extends ControlDefaultFunctions
                     "lastname" => $student['lastName'],
                     "middlename" => $student['middleName'],
                     "email" => $student['email'],
-                    "password" => md5($student['no']),
-                    "no" => $student['no'],
+                    "password" => md5($student['password']),
+                    "no" => $student['uniqueId'],
                     "user_type" => 1
                 ];
 

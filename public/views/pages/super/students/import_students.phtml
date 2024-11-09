@@ -6,8 +6,6 @@ $control = $APPLICATION->FUNCTIONS->USER_CONTROL;
 $sectionControl = $APPLICATION->FUNCTIONS->SECTION_CONTROL;
 $RECORDS = $control->filterRecords(['user_type' => 2],true);
 $SECTIONS = $sectionControl->getAllRecords(true);
-
-
 ?>
 
 <?php include "public/views/pages/structures/html_headings.phtml" ?>
