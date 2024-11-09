@@ -1,13 +1,14 @@
 <?php
 
-global $APPLICATION, $COURSE_HEADER_BODY;
 
-$control = $APPLICATION->FUNCTIONS->COURSE_CONTROL;
-$RECORDS = $control->getAllRecords(true);
+global $APPLICATION, $SECTIONS_HEADER_BODY;
+
+$control = $APPLICATION->FUNCTIONS->SECTION_CONTROL;
+$RECORDS = $control->getAllRecords(false);
 ?>
 
 <?= CreateTable([
-    "content" => $COURSE_HEADER_BODY,
+    "content" => $SECTIONS_HEADER_BODY,
     "data" => $RECORDS,
-    "id" => "course_id"
+    "id" => "section_id"
 ]) ?>
