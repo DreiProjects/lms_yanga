@@ -5,7 +5,9 @@ import {
     GetComboValue,
     ListenToForm,
     MakeID,
-    ManageComboBoxes
+    ManageComboBoxes,
+    Ajax
+    ,ToData
 } from "../../../modules/component/Tool.js";
 import {AddRecord, UploadFileFromFile} from "../../../modules/app/SystemFunctions.js";
 import {NewNotification, NotificationType} from "../../../classes/components/NotificationPopup.js";
@@ -38,11 +40,17 @@ function ListenToDropZone(drop_zone, callback) {
 
 function PublishPost(data) {
     return new Promise((resolve) => {
+        if (data.section_subject_id == '') {
+            delete data.section_subject_id;
+        } 
+
         AddRecord(TARGET, {data: JSON.stringify(data)}).then((res) => {
             NewNotification({
                 title: res.code === 200 ? 'Success' : 'Failed',
                 message: res.code === 200 ? 'Successfully Added' : 'Task Failed to perform!'
-            }, 3000, res.code === 200 ? NotificationType.SUCCESS : NotificationType.ERROR)
+            }, 3000, res.code === 200 ? NotificationType.SUCCESS : NotificationType.ERROR);
+
+            resolve()
         })
     })
 }
@@ -73,7 +81,7 @@ function PublishEvent(data) {
     })
 }
 
-function CreateNewPost() {
+function CreateNewPost(section_subject_id) {
     const popup = new Popup(`${TARGET}/create_new_${MINI_TARGET}`, null, {
         backgroundDismiss: false,
     });
@@ -120,6 +128,7 @@ function CreateNewPost() {
         
         ListenToForm(form, function (data) {
             return new Promise((resolve, reject) => {
+
                 if (uploadedFiles.length > 0) {
                     Promise.all([...uploadedFiles].map(async (file) => {
                         return await UploadFileFromFile(file, MakeID(), "public/assets/media/uploads/").then((res) => res.body.path);
@@ -127,13 +136,15 @@ function CreateNewPost() {
                         return PublishPost({
                             content: data.content,
                             post_type: post_type ? GetComboValue(post_type).value : 2,
-                            files: fff
+                            files: fff,
+                            section_subject_id
                         }).then(resolve).finally(() => popup.Remove());
                     })   
                 } else {
                     PublishPost({
                         content: data.content,
                         post_type: post_type ? GetComboValue(post_type).value : 2,
+                        section_subject_id
                     }).then(resolve).finally(() => popup.Remove());
                 }
             })
@@ -208,7 +219,7 @@ function CreateNewAnnouncement() {
 
                 location.reload();
             });
-        })
+        })  
     }));
 }
 
@@ -224,6 +235,101 @@ function CreateNewComment(post_id, comment) {
     })
 }
 
+function RenderPostSubjects(subject_id) {
+    const renderedPosts = document.querySelector(".rendered-posts");
+    return new Promise((resolve) => {
+        Ajax({
+            url: `/components/containers/global/getSubjectPosts`,
+            type: "POST",
+            data: ToData({subject_id}),
+            success: (html) => {
+                renderedPosts.innerHTML = html;
+
+                const posts = renderedPosts.querySelectorAll(".post-container");
+
+                for (const post of posts) {
+                    ListenToPost(post);
+                }
+            },
+        });
+    })
+}
+
+function ManagePostSubjects() {
+    const subjectItems = document.querySelectorAll(".subject-item");
+
+    for (const subjectItem of subjectItems) {
+        const subjectID = subjectItem.dataset.subjectId;
+
+        subjectItem.addEventListener("click", function() {
+            subjectItems.forEach(item => {
+                item.classList.remove('active');
+            });
+
+            subjectItem.classList.add('active');
+
+            RenderPostSubjects(subjectID).then(html => {
+                console.log(html);
+            });
+        })
+    }
+}
+
+function ListenToPost(post) {
+    const splide = post.querySelector(".splide.user-post-gallery");
+    const postMedia = post.querySelector(".post-media");
+    const likeButton = post.querySelector(".like-button");
+    const likeCount = post.querySelector(".reaction-content-result span");
+    const commentButton = post.querySelector(".comment-button");
+    const commentInput = post.querySelector(".comment-input input");
+
+
+    if (splide && postMedia) {
+        const ss = new Splide(splide);
+
+        ss.mount();
+    }
+
+    function UpdateLikeButton(code) {
+        if (code == 200) {
+            likeButton.classList.add("active");
+        } else {
+            likeButton.classList.remove("active");
+        }
+    }
+
+    if (commentButton) {
+        commentButton.addEventListener("click", function () {
+            commentInput.focus();
+        })
+    }
+
+    if (commentInput) {
+        commentInput.addEventListener("keypress", function (ev) {
+            if (ev.key == "Enter") {
+                CreateNewComment(post.dataset.id, commentInput.value);
+                commentInput.value = "";
+            }
+        })
+    }
+
+    if (likeButton) {
+        likeButton.addEventListener("click", function () {
+            LikeAPost(post.dataset.id).then((res) => {
+                UpdateLikeButton(res.code);
+
+                likeCount.textContent = `${res.body.likes} People like this`;
+
+                if (res.body.likes == 0) {
+                    likeCount.parentElement.classList.add("hide-component");
+                } else {
+                    likeCount.parentElement.classList.remove("hide-component");
+                }
+            });
+        })
+    }
+}
+
 function ManageAllPosts() {
     const posts = document.querySelectorAll(".post-container");
     const creator = document.querySelector(".announcement-creator");
@@ -231,58 +337,7 @@ function ManageAllPosts() {
     // const announcement 
 
     for (const post of posts) {
-        const splide = post.querySelector(".splide.user-post-gallery");
-        const postMedia = post.querySelector(".post-media");
-        const likeButton = post.querySelector(".like-button");
-        const likeCount = post.querySelector(".reaction-content-result span");
-        const commentButton = post.querySelector(".comment-button");
-        const commentInput = post.querySelector(".comment-input input");
-        const commentsContainer = post.querySelector(".comments-container");
-
-        if (splide && postMedia) {
-            const ss = new Splide(splide);
-
-            ss.mount();
-        }
-
-        function UpdateLikeButton(code) {
-            if (code == 200) {
-                likeButton.classList.add("active");
-            } else {
-                likeButton.classList.remove("active");
-            }
-        }
-
-        if (commentButton) {
-            commentButton.addEventListener("click", function () {
-                commentInput.focus();
-            })
-        }
-
-        if (commentInput) {
-            commentInput.addEventListener("keypress", function (ev) {
-                if (ev.key == "Enter") {
-                    CreateNewComment(post.dataset.id, commentInput.value);
-                    commentInput.value = "";
-                }
-            })
-        }
-
-        if (likeButton) {
-            likeButton.addEventListener("click", function () {
-                LikeAPost(post.dataset.id).then((res) => {
-                    UpdateLikeButton(res.code);
-
-                    likeCount.textContent = `${res.body.likes} People like this`;
-
-                    if (res.body.likes == 0) {
-                        likeCount.parentElement.classList.add("hide-component");
-                    } else {
-                        likeCount.parentElement.classList.remove("hide-component");
-                    }
-                });
-            })
-        }
+        ListenToPost(post);
     }
 
     if (creator) {
@@ -302,13 +357,15 @@ function ManageAllPosts() {
 function Init() {
     const creator = document.querySelector(".post-creator-container");
     const creatorTextArea = creator.querySelector(".textarea-container");
+    const subject_id = document.querySelector(".newsfeed-main-container").dataset.subjectId;
     
     creatorTextArea.addEventListener("click", function () {
-        CreateNewPost();
+        CreateNewPost(subject_id);
     })
 
 
     ManageAllPosts();
+    ManagePostSubjects();
 }
 
 document.addEventListener("DOMContentLoaded", Init);

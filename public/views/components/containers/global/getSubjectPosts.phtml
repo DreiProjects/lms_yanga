@@ -1,0 +1,18 @@
+<?php
+
+global $APPLICATION, $USER_HEADER_BODY, $SESSION;
+
+$postControl = $APPLICATION->FUNCTIONS->POSTS_CONTROL;
+
+$professor = $SESSION->getAsProfessor();
+
+$classes = $professor->getClasses();
+
+$selectedSubject = count($classes) > 0 ? array_filter($classes, function($class) {
+    return $class->section_subject_id == $_POST['subject_id'];
+})[0] : null;
+
+$POSTS = $selectedSubject ? $postControl->filterRecords(['section_subject_id' => $selectedSubject->section_subject_id], true) : [];
+?>
+
+<?php echo renderPosts($POSTS, $SESSION); ?>

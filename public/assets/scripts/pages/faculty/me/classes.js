@@ -884,16 +884,25 @@ async function Attendance() {
     }
 
     function updateSummary() {
+        const month = parseInt(monthSelect.value);
+        const year = parseInt(yearSelect.value);
+        const daysInMonth = getDaysInMonth(month, year);
+        const startDate = new Date(year, month - 1, 1);
+        const endDate = new Date(year, month - 1, daysInMonth);
+
         students.forEach(student => {
             let presentCount = 0;
             let absentCount = 0;
             let lateCount = 0;
 
             for (let date in attendanceData) {
-                const state = attendanceData[date][student.user_id];
-                if (state === 'present') presentCount++;
-                if (state === 'absent') absentCount++;
-                if (state === 'late') lateCount++;
+                const currentDate = new Date(date);
+                if (currentDate >= startDate && currentDate <= endDate) {
+                    const state = attendanceData[date][student.user_id];
+                    if (state === 'present') presentCount++;
+                    if (state === 'absent') absentCount++;
+                    if (state === 'late') lateCount++;
+                }
             }
 
             const summaryCell = document.querySelector(`.summary-cell[data-student="${student.user_id}"]`);

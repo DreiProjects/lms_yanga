@@ -727,3 +727,111 @@ function GenerateRandomReferenceNumber($length = 8, $prefix = 'REF') {
     
     return $referenceNumber;
 }
+function renderPosts($POSTS, $SESSION) {
+    $output = '';
+    
+    foreach ($POSTS as $POST) {
+        $output .= '<div class="post-container" data-id="' . $POST->post_id . '">';
+        $output .= '<div class="post-head">';
+        $output .= '<div class="photo">';
+        $output .= '<div class="image">';
+        $output .= '<img src="' . $POST->author->photoURL . '" alt="">';
+        $output .= '</div>';
+        $output .= '</div>';
+        $output .= '<div class="texts">';
+        $output .= '<p class="primary">' . ucwords($POST->author->displayName) . '</p>';
+        $output .= '<p class="secondary">' . $POST->author->typeName . '</p>';
+        $output .= '</div>';
+        $output .= '</div>';
+        $output .= '<div class="post-body">';
+        $output .= '<div class="post-content">';
+        $output .= $POST->content;
+        $output .= '</div>';
+        
+        if (count($POST->medias) > 0) {
+            $output .= '<div class="post-media">';
+            $output .= '<section class="splide user-post-gallery">';
+            $output .= '<div class="splide__track">';
+            $output .= '<ul class="splide__list">';
+            foreach ($POST->medias as $media) {
+                $output .= '<img src="/' . $media->filepath . '" class="post-img" alt="">';
+            }
+            $output .= '</ul>';
+            $output .= '</div>';
+            $output .= '</section>';
+            $output .= '</div>';
+        }
+        
+        $output .= '</div>';
+        $output .= '<div class="post-footer">';
+        $output .= '<div class="reaction-container">';
+        $output .= '<div class="date-content">';
+        $output .= '<small>' . date('F j, Y \a\t g:i A', strtotime($POST->date_created)) . '</small>';
+        $output .= '</div>';
+        $output .= '<div class="reaction-content">';
+        $output .= '<div class="icon-button like-button ' . ($POST->isLiked ? 'active' : '') . '">';
+        $output .= '<div class="icon">';
+        $output .= UseIcon('heart-thin');
+        $output .= '</div>';
+        $output .= '<div class="text">';
+        $output .= '<span>Like</span>';
+        $output .= '</div>';
+        $output .= '</div>';
+        $output .= '<div class="icon-button comment-button">';
+        $output .= '<div class="icon">';
+        $output .= UseIcon('chat-thin');
+        $output .= '</div>';
+        $output .= '<div class="text">';
+        $output .= '<span>' . (count($POST->comments) == 0 ? 'Comment' : (count($POST->comments) > 1 ? count($POST->comments) . ' Comments' : count($POST->comments) . ' Comment')) . '</span>';
+        $output .= '</div>';
+        $output .= '</div>';
+        $output .= '</div>';
+        $output .= '</div>';
+        $output .= '<div class="reaction-content-result ' . (count($POST->likes) == 0 ? 'hide-component' : '') . '">';
+        $output .= '<span>' . count($POST->likes) . ' People like this</span>';
+        $output .= '</div>';
+        
+        $output .= '<div class="comments-section">';
+        $output .= '<div class="comment-input">';
+        $output .= '<div class="photo">';
+        $output .= '<div class="image">';
+        $output .= '<img src="' . $SESSION->getPhotoURL() . '" alt="">';
+        $output .= '</div>';
+        $output .= '</div>';
+        $output .= '<div class="input-container">';
+        $output .= '<input type="text" placeholder="Write a comment..." class="comment-text">';
+        $output .= '<button class="submit-comment">';
+        $output .= UseIcon('send');
+        $output .= '</button>';
+        $output .= '</div>';
+        $output .= '</div>';
+        
+        $output .= '<div class="comments-container">';
+        if (isset($POST->comments) && count($POST->comments) > 0) {
+            foreach ($POST->comments as $comment) {
+                $output .= '<div class="comment-item">';
+                $output .= '<div class="photo">';
+                $output .= '<div class="image">';
+                $output .= '<img src="' . $comment->author->photoURL . '" alt="">';
+                $output .= '</div>';
+                $output .= '</div>';
+                $output .= '<div class="comment-content">';
+                $output .= '<div class="comment-header">';
+                $output .= '<span class="author-name">' . ucwords($comment->author->displayName) . '</span>';
+                $output .= '<span class="comment-time">' . date('F j, Y \a\t g:i A', strtotime($comment->date_created)) . '</span>';
+                $output .= '</div>';
+                $output .= '<div class="comment-text">';
+                $output .= $comment->comment;
+                $output .= '</div>';
+                $output .= '</div>';
+                $output .= '</div>';
+            }
+        }
+        $output .= '</div>';
+        $output .= '</div>';
+        $output .= '</div>';
+        $output .= '</div>';
+    }
+    
+    return $output;
+}
