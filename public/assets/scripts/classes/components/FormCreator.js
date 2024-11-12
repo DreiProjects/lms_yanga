@@ -5,19 +5,24 @@ import {
 } from "../../modules/app/SystemFunctions.js";
 
 export class FormQuestion {
-    constructor(containerId) {
+    constructor(containerId, isPreview = false, questionData = null) {
+        this.questionData = questionData;
         this.containerId = containerId;
         this.choiceCount = 2;
         this.element = this.createQuestionElement();
         this.callback = null;
+        this.isPreview = isPreview;
         this.initializeEventListeners();
         this.updateQuestionType();
-        this.initializeDragAndDrop();
-        this.updateQuestionNumber();
+        if (!isPreview) {
+            this.initializeDragAndDrop();
+            this.updateQuestionNumber();
+        }
     }
 
     addCallback(callback) {
         this.callback = callback;
+        console.log(this.callback);
     }
 
     createQuestionElement() {
@@ -97,6 +102,121 @@ export class FormQuestion {
         return div;
     }
 
+    getQuestionDataFromPreview() {
+        const questionData = this.questionData;
+
+        return  {
+            formID: questionData.form_id,
+            questionNumber: questionData.question_number,
+            title: questionData.question,
+            type: questionData.question_type,
+            choices: questionData.choices ? questionData.choices.map((choice) => choice.choice) : [],
+            imageUrl: questionData.image_url
+        }
+    }
+
+    renderForAnswer() {
+        const questionData = this.isPreview ? this.getQuestionDataFromPreview() : this.getQuestionSummary();
+        const div = document.createElement('div');
+        div.className = 'question-container preview-mode';
+
+        let answerHTML = '';
+        switch(questionData.type) {
+            case 'multiple-choice':
+                answerHTML = questionData.choices.map((choice, idx) => `
+                    <div class="choice-item">
+                        <span class="choice-type-indicator" style="border-radius: 50%"></span>
+                        <input type="radio" name="q${questionData.questionNumber}" value="${choice}" id="q${questionData.questionNumber}_${idx}" class="form-check-input" style="display: none;">
+                        <label class="choice-input" for="q${questionData.questionNumber}_${idx}">${choice}</label>
+                    </div>
+                `).join('');
+                break;
+            case 'checkbox':
+                answerHTML = questionData.choices.map((choice, idx) => `
+                    <div class="choice-item">
+                        <span class="choice-type-indicator" style="border-radius: 4px"></span>
+                        <input type="checkbox" name="q${questionData.questionNumber}" value="${choice}" id="q${questionData.questionNumber}_${idx}" class="form-check-input" style="display: none;">
+                        <label class="choice-input" for="q${questionData.questionNumber}_${idx}">${choice}</label>
+                    </div>
+                `).join('');
+                break;
+            case 'dropdown':
+                answerHTML = `
+                    <div class="choice-item">
+                        <select class="choice-input" name="q${questionData.questionNumber}">
+                            <option value="">Select an answer</option>
+                            ${questionData.choices.map(choice => `
+                                <option value="${choice}">${choice}</option>
+                            `).join('')}
+                        </select>
+                    </div>
+                `;
+                break;
+            case 'short-answer':
+                answerHTML = `
+                    <input type="text" class="choice-input" name="q${questionData.questionNumber}" placeholder="Your answer">
+                    <div class="text-answer-message">
+                        <i data-feather="info" class="info-icon"></i>
+                        This is a short answer question type. Enter a brief response.
+                    </div>
+                `;
+                break;
+            case 'paragraph':
+                answerHTML = `
+                    <textarea class="choice-input" name="q${questionData.questionNumber}" rows="3" placeholder="Your answer"></textarea>
+                    <div class="text-answer-message">
+                        <i data-feather="info" class="info-icon"></i>
+                        This is a paragraph question type. Enter a longer response.
+                    </div>
+                `;
+                break;
+        }
+
+        div.innerHTML = `
+            <div class="question-number">${questionData.questionNumber}</div>
+            <div class="question-header">
+                <div class="question-input">
+                    <div class="question-title" style="border: none; background: none;">${questionData.title}</div>
+                </div>
+            </div>
+            ${questionData.imageUrl ? `
+                <div class="question-image-container" style="display: block; position: relative;">
+                    <img src="${questionData.imageUrl}" class="question-image" style="max-width: 100%; margin: 1rem 0;">
+                </div>
+            ` : ''}
+            <div class="choices-container">
+                ${answerHTML}
+            </div>
+        `;
+
+        // Add click handlers for choice items
+        const choiceItems = div.querySelectorAll('.choice-item');
+        choiceItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const input = item.querySelector('input');
+                if (input) {
+                    if (input.type === 'radio') {
+                        // Unselect all other choices
+                        choiceItems.forEach(otherItem => {
+                            otherItem.classList.remove('selected');
+                            otherItem.querySelector('.choice-type-indicator').style.background = '';
+                        });
+                    }
+                    input.checked = !input.checked;
+                    if (input.checked) {
+                        item.classList.add('selected');
+                        item.querySelector('.choice-type-indicator').style.background = '#3b82f6';
+                    } else {
+                        item.classList.remove('selected');
+                        item.querySelector('.choice-type-indicator').style.background = '';
+                    }
+                }
+            });
+        });
+
+        return div;
+    }
+
     getQuestionSummary() {
         const questionNumber = this.element.querySelector('.question-number').textContent;
         const title = this.element.querySelector('.question-title').value;
@@ -118,10 +238,14 @@ export class FormQuestion {
 
     updateQuestionNumber() {
         const container = document.getElementById(this.containerId);
+        if (!container) return;
+        
         const questions = container.querySelectorAll('.question-container');
         questions.forEach((question, index) => {
             const numberElement = question.querySelector('.question-number');
-            numberElement.textContent = `${index + 1}`;
+            if (numberElement) {
+                numberElement.textContent = `${index + 1}`;
+            }
         });
     }
 
@@ -281,6 +405,9 @@ export class FormQuestion {
         this.element.style.opacity = '0';
         this.element.style.transform = 'translateY(-10px)';
         setTimeout(() => {
+            if (this.callback) {
+                this.callback(null); // Notify parent that this question is deleted
+            }
             this.element.remove();
             this.updateQuestionNumber();
         }, 200);
@@ -338,6 +465,7 @@ export class FormQuestion {
         this.updateQuestionNumber();
 
         if (this.callback) {
+            newQuestion.addCallback(this.callback);
             this.callback(newQuestion);
         }
     }
@@ -359,9 +487,7 @@ export default class FormCreator {
 
     initialize() {
         // Add initial question
-        const initialQuestion = new FormQuestion(this.containerId);
-        this.container.appendChild(initialQuestion.element);
-        this.questions.push(initialQuestion);
+        this.addNewQuestion();
 
         if (this.addQuestionBtn) {  
             // Add new question button handler
@@ -378,7 +504,6 @@ export default class FormCreator {
             this.saveBtn.addEventListener('click', () => this.saveForm());
         }
 
-
         // Initialize form title and description inputs
         this.initializeFormMetadata();
 
@@ -389,6 +514,7 @@ export default class FormCreator {
         const titleInput = document.getElementById('formTitle');
         const descriptionInput = document.getElementById('formDescription');
         const obj = this;
+        
         if (titleInput) {
             titleInput.addEventListener('input', (e) => {
                 obj.title = e.target.textContent;
@@ -399,22 +525,31 @@ export default class FormCreator {
 
         if (descriptionInput) {
             descriptionInput.addEventListener('input', (e) => {
-            obj.description = e.target.textContent  ;
+                obj.description = e.target.textContent;
             });
 
             obj.description = descriptionInput.textContent;
         }
-
     }
 
     addNewQuestion() {
         const newQuestion = new FormQuestion(this.containerId);
 
         newQuestion.addCallback((question) => {
-            this.questions.push(question);
+            if (question === null) {
+                // Question was deleted
+                const index = this.questions.findIndex(q => q === newQuestion);
+                if (index !== -1) {
+                    this.questions.splice(index, 1);
+                }
+            } else {
+                // Question was added or duplicated
+                this.questions.push(question);
+            }
         });
 
         this.container.appendChild(newQuestion.element);
+        this.questions.push(newQuestion);
         feather.replace();
         newQuestion.element.scrollIntoView({ behavior: 'smooth' });
         newQuestion.updateQuestionNumber();
@@ -452,9 +587,7 @@ export default class FormCreator {
             });
 
             ManageComboBoxes(popup.ELEMENT);
-
         }));
-
     }
 
     resetForm() {
@@ -474,11 +607,74 @@ export default class FormCreator {
         this.description = '';
         this.formType = 'quiz';
         
-        // Reset input fields
-        // document.getElementById('formTitle').value = '';
-        // document.getElementById('formDescription').value = '';
-        // document.getElementById('formType').value = 'quiz';
-        
         feather.replace();
+    }
+}
+
+export class FormRenderer {
+    constructor(containerId, formData) {
+        this.containerId = containerId;
+        this.container = document.getElementById(containerId);
+        this.formData = formData;
+        this.answers = new Map();
+        this.initialize();
+    }
+
+    initialize() {
+        this.container.innerHTML = '';
+        
+        const header = document.createElement('div');
+        header.className = 'form-header';
+        header.innerHTML = `
+            <h2>${this.formData.title}</h2>
+            <p>${this.formData.description}</p>
+        `;
+        this.container.appendChild(header);
+
+        this.formData.questions.forEach((questionData, index) => {
+            const question = new FormQuestion(this.containerId, true, questionData);
+            const renderedQuestion = question.renderForAnswer();
+            this.container.appendChild(renderedQuestion);
+            
+            // Add event listeners for answer capture
+            const inputs = renderedQuestion.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                input.addEventListener('change', (e) => {
+                    if (questionData.type === 'checkbox') {
+                        const checkedBoxes = renderedQuestion.querySelectorAll('input:checked');
+                        this.answers.set(index, Array.from(checkedBoxes).map(cb => cb.value));
+                    } else {
+                        this.answers.set(index, e.target.value);
+                    }
+                });
+            });
+        });
+
+        feather.replace();
+    }
+
+    saveForm() {
+        const formAnswers = {
+            formId: this.formData.id,
+            answers: Array.from(this.answers.entries()).map(([questionIndex, answer]) => ({
+                questionIndex,
+                answer
+            }))
+        };
+        
+        console.log('Saving answers:', formAnswers);
+        return formAnswers;
+    }
+
+    resetAnswers() {
+        this.answers.clear();
+        const inputs = this.container.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {a
+            if (input.type === 'checkbox' || input.type === 'radio') {
+                input.checked = false;
+            } else {
+                input.value = '';
+            }
+        });
     }
 }

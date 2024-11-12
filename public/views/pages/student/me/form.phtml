@@ -57,14 +57,11 @@ if ($type == "exam") {
                 <div class="main-body-body">
                     <div class="create-form-container">
                         <div class="create-form-header">
-                            <h3>Create New Form</h3>
-                            <p>Create a new assessment form for your students. Fill in the details below to get started.</p>
+                            <h3>Displaying Form</h3>
+                            <p>Please answer the questions below to complete the form.</p>
                         </div>
                         <div class="create-form-body" data-form_id="<?= $main_form->form_id ?>">
                             <div class="form-content">
-                                <h1 class="form-title" id="formTitle" contenteditable="false"><?= $main_form->title ?></h1>
-                                <p class="form-description" id="formDescription" contenteditable="false"><?= $main_form->description ?></p>
-                                
                                 <div id="questionsContainer" >
                                     <!-- Questions will be dynamically added here -->
                                 </div>
@@ -485,6 +482,74 @@ if ($type == "exam") {
                         .create-form-header p {
                             color: #64748b;
                             font-size: 0.95rem;
+                        }
+
+                        /* Add these styles to your existing CSS */
+                        .question-container .choice-item {
+                            cursor: pointer;
+                            user-select: none;
+                        }
+
+                        .question-container .choice-item:hover {
+                            background: #f8fafc;
+                        }
+
+                        .question-container .choice-item.selected .choice-input {
+                            color: #3b82f6;
+                            border-color: #3b82f6;
+                        }
+
+                        .question-container .choice-input {
+                            cursor: pointer;
+                            background: white;
+                        }
+
+                        .question-container textarea.choice-input {
+                            min-height: 100px;
+                            resize: vertical;
+                        }
+
+                        .question-container .question-title {
+                            font-weight: 500;
+                            color: #1e293b;
+                            margin-bottom: 1rem;
+                        }
+
+                        .question-container .text-answer-message {
+                            margin-top: 1rem;
+                        }
+
+                        /* Add these new styles for the previesw/answer mode */
+                        .question-container.preview-mode {
+                            padding: 1rem;
+                            min-height: auto;
+                            cursor: default;
+                            margin-top: 1rem;
+                        }
+
+                        .preview-mode .question-header {
+                            margin-bottom: 0.75rem;
+                            margin-left: 1.5rem;
+                        }
+
+                        .preview-mode .choices-container {
+                            margin-bottom: 0.5rem;
+                            margin-left: 1.5rem;
+                        }
+
+                        .preview-mode .text-answer-message {
+                            margin-bottom: 0.5rem;
+                            margin-left: 1.5rem;
+                            padding: 0.5rem;
+                        }
+
+                        .preview-mode .question-image-container {
+                            margin: 0.5rem 0;
+                        }
+
+                        .preview-mode .question-image {
+                            max-height: 200px;
+                            object-fit: contain;
                         }
                     </style>
                 </div>
