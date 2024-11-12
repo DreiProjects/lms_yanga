@@ -11,10 +11,13 @@ $uuid = $this->param3;
 
 $main_form = null;
 $record = null;
+$alreadyTaken = false;
 
 if ($type == "exam") {
     $record = $APPLICATION->FUNCTIONS->EXAM_CONTROL->get($id, true);
     $main_form = $APPLICATION->FUNCTIONS->FORM_CONTROL->get($record->form_id, true);
+
+    $alreadyTaken = $main_form->isStudentTaken($student->user_id);
 }
 
 
@@ -55,10 +58,16 @@ if ($type == "exam") {
             </div>
             <div class="main-content">
                 <div class="main-body-body">
-                    <div class="create-form-container">
+                    <?php if ($alreadyTaken): ?>
                         <div class="create-form-header">
-                            <h3>Displaying Form</h3>
-                            <p>Please answer the questions below to complete the form.</p>
+                            <h3><?= $main_form->title ?></h3>
+                            <p>You have already taken this form.</p>
+                        </div>
+                    <?php else: ?>
+                        <div class="create-form-container">
+                                <div class="create-form-header">
+                                <h3>Displaying Form</h3>
+                                <p>Please answer the questions below to complete the form.</p>
                         </div>
                         <div class="create-form-body" data-form_id="<?= $main_form->form_id ?>">
                             <div class="form-content">
@@ -69,11 +78,11 @@ if ($type == "exam") {
 
                             <div class="form-actions-container">
                                 <div class="form-actions">
-                                    <button id="submitFormBtn" class="action-btn primary">
+                                    <button id="saveFormBtn" class="action-btn primary">
                                         <i data-feather="save"></i>
                                         Submit Form
                                     </button>
-                                    <button id="resetAnswersBtn" class="action-btn danger">
+                                    <button id="resetFormBtn" class="action-btn danger">
                                         <i data-feather="refresh-cw"></i>
                                         Reset Answers
                                     </button>
@@ -185,6 +194,7 @@ if ($type == "exam") {
                             </style>
                         </div>
                     </div>
+                    <?php endif; ?>
                     <style>
                         .form-content {
                             max-width: 600px;

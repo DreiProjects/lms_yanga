@@ -199,9 +199,12 @@ function Exams() {
       });
 
       const takeExamBtn = item.querySelector(".take-exam-btn");
-      takeExamBtn.addEventListener("click", () => {
-        TakeExam(item.dataset.id);
-      });
+      
+      if (takeExamBtn) {
+        takeExamBtn.addEventListener("click", () => {
+          TakeExam(item.dataset.id);
+        });
+      }
     });
   }
 
@@ -808,6 +811,475 @@ function StickyNotes() {
   });
 }
 
+function GetSectionStudents(sectionSubjectId) {
+  return new Promise((resolve) => {
+    SelectModel(sectionSubjectId, "SECTION_SUBJECT_CONTROL").then((res) => {
+      SelectModelByFilter(
+        JSON.stringify({ section_id: res.section_id }),
+        "SECTION_STUDENT_CONTROL"
+      ).then(resolve);
+    });
+  });
+}
+
+function GetSubjectAttendance(sectionSubjectId) {
+ return new Promise((resolve) => {
+    SelectModelByFilter(JSON.stringify({ section_subject_id: sectionSubjectId }), "SUBJECT_ATTENDANCE_CONTROL").then(attendances => {
+      if (attendances.length > 0) {
+        resolve(attendances[0]);
+      } else {
+        resolve(null);
+      }
+    });
+ });
+}
+
+// Handle attendance functionality
+async function Attendance() {
+    const container = document.getElementById('attendanceTableContainer');
+    const students = await GetSectionStudents(container.dataset.sectionSubjectId);
+    const monthSelect = document.getElementById('monthSelect');
+    const yearSelect = document.getElementById('yearSelect');
+    const attendance = await GetSubjectAttendance(container.dataset.sectionSubjectId);
+    
+    let selectedCells = new Set();
+    let lastSelectedCell = null;
+    let isMouseDown = false;
+    let attendanceData = attendance ? JSON.parse(attendance.attendance_data) : {};
+    let originalAttendanceData = JSON.parse(JSON.stringify(attendanceData));
+    let hasChanges = false;
+
+    function getDaysInMonth(month, year) {
+        return new Date(year, month, 0).getDate();
+    }
+
+    function saveAttendanceState(studentId, date, state) {
+        if (!attendanceData[date]) {
+            attendanceData[date] = {};
+        }
+        
+        // Check if state is actually different before marking as changed
+        const originalState = originalAttendanceData[date]?.[studentId];
+        if (state !== originalState) {
+            hasChanges = true;
+        }
+        
+        attendanceData[date][studentId] = state;
+        updateButtonStates();
+        updateSummary();
+    }
+
+    function getAttendanceState(studentId, date) {
+        return attendanceData[date]?.[studentId] || null;
+    }
+
+    function updateButtonStates() {
+        const saveBtn = document.querySelector('.save-attendance');
+        const discardBtn = document.querySelector('.discard-attendance');
+        
+        if (saveBtn && discardBtn) {
+            saveBtn.disabled = !hasChanges;
+            discardBtn.disabled = !hasChanges;
+        }
+    }
+
+    function updateSummary() {
+        students.forEach(student => {
+            let presentCount = 0;
+            let absentCount = 0;
+            let lateCount = 0;
+
+            for (let date in attendanceData) {
+                const state = attendanceData[date][student.user_id];
+                if (state === 'present') presentCount++;
+                if (state === 'absent') absentCount++;
+                if (state === 'late') lateCount++;
+            }
+
+            const summaryCell = document.querySelector(`.summary-cell[data-student="${student.user_id}"]`);
+            summaryCell.innerHTML = `
+                <span class="present-count">${presentCount}</span> /
+                <span class="absent-count">${absentCount}</span> /
+                <span class="late-count">${lateCount}</span>
+            `;
+        });
+    }
+
+    function generateTable() {
+        const month = parseInt(monthSelect.value);
+        const year = parseInt(yearSelect.value);
+        const daysInMonth = getDaysInMonth(month, year);
+
+        // Add save and discard buttons at the top
+        let tableHTML = ``;
+
+        tableHTML += `
+            <table class="attendance-table">
+                <thead>
+                    <tr>
+                        <th class="student-name-header">Student Name</th>
+        `;
+
+        for (let day = 1; day <= daysInMonth; day++) {
+            tableHTML += `<th class="date-header">${day}</th>`;
+        }
+
+        tableHTML += `<th class="summary-header">Summary (P/A/L)</th></tr></thead><tbody>`;
+
+        students.forEach(student => {
+            tableHTML += `
+                <tr>
+                    <td class="student-name">${student.displayName}</td>
+            `;
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const state = getAttendanceState(student.user_id, date);
+                const stateClass = state ? ` ${state}` : '';
+                const stateIcon = state ? `<i data-feather="${getIconForState(state)}" style="color: ${getColorForState(state)}"></i>` : '';
+                
+                tableHTML += `
+                    <td class="attendance-cell${stateClass}" 
+                        data-student="${student.user_id}" 
+                        data-date="${date}"
+                        tabindex="0">
+                        ${stateIcon}
+                    </td>
+                `;
+            }
+
+            tableHTML += `<td class="summary-cell" data-student="${student.user_id}"></td></tr>`;
+        });
+
+        tableHTML += `</tbody></table>`;
+
+        container.innerHTML = tableHTML;
+        feather.replace();
+
+        // Store original state
+        originalAttendanceData = JSON.parse(JSON.stringify(attendanceData));
+        hasChanges = false;
+
+        // Add save and discard handlers
+        document.querySelector('.save-attendance').addEventListener('click', saveChanges);
+        document.querySelector('.discard-attendance').addEventListener('click', discardChanges);
+
+        // Add mouse and keyboard handlers for attendance cells
+        const cells = document.querySelectorAll('.attendance-cell');
+        
+        cells.forEach(cell => {
+            // Mouse selection handlers
+            cell.addEventListener('mousedown', function(e) {
+                isMouseDown = true;
+                toggleCellSelection(this, e);
+            });
+
+            cell.addEventListener('mouseover', function(e) {
+                if (isMouseDown) {
+                    toggleCellSelection(this, e);
+                }
+            });
+
+            // Keyboard navigation handlers
+            cell.addEventListener('keydown', function(e) {
+                const currentIndex = Array.from(cells).indexOf(this);
+                let nextIndex;
+
+                switch(e.key) {
+                    case 'ArrowLeft':
+                        nextIndex = currentIndex - 1;
+                        break;
+                    case 'ArrowRight':
+                        nextIndex = currentIndex + 1;
+                        break;
+                    case 'ArrowUp':
+                        nextIndex = currentIndex - daysInMonth;
+                        break;
+                    case 'ArrowDown':
+                        nextIndex = currentIndex + daysInMonth;
+                        break;
+                    case ' ':
+                        toggleCellSelection(this, e);
+                        break;
+                    case 'Alt':
+                        if (selectedCells.has(this)) {
+                            selectedCells.delete(this);
+                            this.classList.remove('selected');
+                            if (selectedCells.size === 0) {
+                                document.querySelectorAll('.attendance-floating-container').forEach(container => {
+                                    container.remove();
+                                });
+                            }
+                        }
+                        break;
+                }
+
+                if (nextIndex >= 0 && nextIndex < cells.length) {
+                    cells[nextIndex].focus();
+                    if (e.shiftKey) {
+                        toggleCellSelection(cells[nextIndex], e);
+                    }
+                }
+            });
+        });
+
+        // Handle mouseup event on document level
+        document.addEventListener('mouseup', () => {
+            isMouseDown = false;
+        });
+
+        // Update summary after generating table
+        updateSummary();
+    }
+
+    async function saveChanges() {
+        if (!hasChanges) return;
+        
+        try {
+            AddRecord("subject_attendances", {data: JSON.stringify({
+              section_subject_id: container.dataset.sectionSubjectId,
+              attendance_data: JSON.stringify(attendanceData)
+             })}).then((res) => {
+                console.log(res);
+            });
+
+            // Update original data after successful save
+            originalAttendanceData = JSON.parse(JSON.stringify(attendanceData));
+            hasChanges = false;
+            updateButtonStates();
+            
+            // Show success message
+            alert('Attendance saved successfully!');
+        } catch (error) {
+            console.error('Error saving attendance:', error);
+            alert('Failed to save attendance. Please try again.');
+        }
+    }
+
+    function discardChanges() {
+        if (!hasChanges) return;
+        
+        // Restore original data
+        attendanceData = JSON.parse(JSON.stringify(originalAttendanceData));
+        hasChanges = false;
+        // Regenerate table with original data
+        generateTable();
+    }
+
+    function getIconForState(state) {
+        const icons = {
+            present: 'check-circle',
+            absent: 'x-circle',
+            late: 'clock'
+        };
+        return icons[state];
+    }
+
+    function getColorForState(state) {
+        const colors = {
+            present: '#22c55e',
+            absent: '#ef4444',
+            late: '#eab308'
+        };
+        return colors[state];
+    }
+
+    function toggleCellSelection(cell, event) {
+        if (event.altKey) {
+            // Remove cell from selection
+            if (selectedCells.has(cell)) {
+                selectedCells.delete(cell);
+                cell.classList.remove('selected');
+                if (selectedCells.size === 0) {
+                    document.querySelectorAll('.attendance-floating-container').forEach(container => {
+                        container.remove();
+                    });
+                }
+            }
+            return;
+        }
+
+        if (event.ctrlKey || event.metaKey) {
+            // Toggle individual cell
+            if (selectedCells.has(cell)) {
+                selectedCells.delete(cell);
+                cell.classList.remove('selected');
+            } else {
+                selectedCells.add(cell);
+                cell.classList.add('selected');
+            }
+        } else if (event.shiftKey && lastSelectedCell) {
+            // Select range of cells
+            const cells = Array.from(document.querySelectorAll('.attendance-cell'));
+            const start = cells.indexOf(lastSelectedCell);
+            const end = cells.indexOf(cell);
+            const range = cells.slice(
+                Math.min(start, end),
+                Math.max(start, end) + 1
+            );
+            
+            selectedCells.clear();
+            document.querySelectorAll('.attendance-cell').forEach(c => c.classList.remove('selected'));
+            
+            range.forEach(c => {
+                selectedCells.add(c);
+                c.classList.add('selected');
+            });
+        } else {
+            // Clear previous selection if no modifier key
+            if (!event.shiftKey && !event.ctrlKey && !event.metaKey) {
+                selectedCells.clear();
+                document.querySelectorAll('.attendance-cell').forEach(c => c.classList.remove('selected'));
+            }
+            selectedCells.add(cell);
+            cell.classList.add('selected');
+        }
+        
+        lastSelectedCell = cell;
+
+        if (selectedCells.size > 0) {
+            showAttendanceOptions(event);
+        }
+    }
+
+    function showAttendanceOptions(event) {
+        // Remove any existing floating containers
+        document.querySelectorAll('.attendance-floating-container').forEach(container => {
+            container.remove();
+        });
+
+        // Create floating container
+        const floatingContainer = document.createElement('div');
+        floatingContainer.className = 'attendance-floating-container';
+        
+        // Create buttons
+        const states = [
+            { name: 'present', icon: 'check-circle', color: '#22c55e' },
+            { name: 'absent', icon: 'x-circle', color: '#ef4444' },
+            { name: 'late', icon: 'clock', color: '#eab308' },
+            { name: 'clear', icon: 'trash-2', color: '#6b7280' }
+        ];
+
+        states.forEach(state => {
+            const button = document.createElement('button');
+            button.className = 'attendance-state-btn';
+            button.innerHTML = `<i data-feather="${state.icon}"></i>`;
+            button.style.color = state.color;
+
+            button.addEventListener('click', () => {
+                selectedCells.forEach(cell => {
+                    // Remove all states and icons
+                    states.forEach(s => cell.classList.remove(s.name));
+                    cell.innerHTML = '';
+                    
+                    // Only add state and icon if not clearing
+                    if (state.name !== 'clear') {
+                        cell.classList.add(state.name);
+                        const icon = document.createElement('i');
+                        icon.setAttribute('data-feather', state.icon);
+                        icon.style.color = state.color;
+                        cell.appendChild(icon);
+                        
+                        // Save the attendance state
+                        saveAttendanceState(
+                            cell.dataset.student,
+                            cell.dataset.date,
+                            state.name
+                        );
+                    } else {
+                        // Clear the attendance state
+                        saveAttendanceState(
+                            cell.dataset.student,
+                            cell.dataset.date,
+                            null
+                        );
+                    }
+                });
+                
+                feather.replace();
+                floatingContainer.remove();
+                selectedCells.clear();
+                document.querySelectorAll('.attendance-cell').forEach(c => c.classList.remove('selected'));
+            });
+
+            floatingContainer.appendChild(button);
+        });
+
+        // Position the floating container near the last selected cell
+        const rect = lastSelectedCell.getBoundingClientRect();
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+
+        floatingContainer.style.top = `${rect.top + scrollTop - 50}px`;
+        floatingContainer.style.left = `${rect.left + scrollLeft - 50}px`;
+
+        // Add to document
+        document.body.appendChild(floatingContainer);
+        
+        // Initialize Feather icons
+        feather.replace();
+
+        // Close when clicking outside
+        document.addEventListener('click', function closeFloating(event) {
+            const isClickInsideCell = Array.from(selectedCells).some(cell => cell.contains(event.target));
+            if (!floatingContainer.contains(event.target) && !isClickInsideCell) {
+                floatingContainer.remove();
+                selectedCells.clear();
+                document.querySelectorAll('.attendance-cell').forEach(c => c.classList.remove('selected'));
+            }
+        });
+    }
+
+    // Event listeners for controls
+    monthSelect.addEventListener('change', generateTable);
+    yearSelect.addEventListener('change', generateTable);
+
+    document.querySelector('.prev-month').addEventListener('click', () => {
+        let month = parseInt(monthSelect.value);
+        let year = parseInt(yearSelect.value);
+        
+        month--;
+        if (month < 1) {
+            month = 12;
+            year--;
+            yearSelect.value = year;
+        }
+        monthSelect.value = month;
+        generateTable();
+    });
+
+    document.querySelector('.next-month').addEventListener('click', () => {
+        let month = parseInt(monthSelect.value);
+        let year = parseInt(yearSelect.value);
+      
+        month++;
+        if (month > 12) {
+            month = 1;
+            year++;
+            yearSelect.value = year;
+        }
+        monthSelect.value = month;
+        generateTable();
+    });
+
+    document.querySelector('.prev-year').addEventListener('click', () => {
+        let year = parseInt(yearSelect.value);
+        yearSelect.value = year - 1;
+        generateTable();
+    });
+
+    document.querySelector('.next-year').addEventListener('click', () => {
+        let year = parseInt(yearSelect.value);
+        yearSelect.value = year + 1;
+        generateTable();
+    });
+
+    // Initial table generation
+    generateTable();
+
+    feather.replace();
+}
+
 // Handle cards functionality
 function Cards() {
   const cards = document.querySelectorAll(
@@ -837,6 +1309,7 @@ function Cards() {
           Exams();
           Grades();
           StickyNotes();
+          Attendance();
         }
       );
     });

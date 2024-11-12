@@ -106,19 +106,67 @@ export class FormQuestion {
         const questionData = this.questionData;
 
         return  {
+            question_id: questionData.form_question_id,
             formID: questionData.form_id,
             questionNumber: questionData.question_number,
             title: questionData.question,
             type: questionData.question_type,
             choices: questionData.choices ? questionData.choices.map((choice) => choice.choice) : [],
+            choices_id: questionData.choices ? questionData.choices.map((choice) => choice.form_question_choice_id) : [],
             imageUrl: questionData.image_url
         }
+    }
+
+    getQuestionSummaryAnswer() {
+        const questionData = this.isPreview ? this.getQuestionDataFromPreview() : this.getQuestionSummary();
+        const questionElement = this.element;
+        let answer = null;
+        let choice_id = null;
+
+        switch(questionData.type) {
+            case 'multiple-choice':
+                const selectedRadio = questionElement.querySelector('input[type="radio"]:checked');
+                if (selectedRadio) {
+                    answer = selectedRadio.value;
+                    choice_id = selectedRadio.dataset.choiceId;
+                }
+                break;
+            case 'checkbox':
+                const selectedCheckboxes = questionElement.querySelectorAll('input[type="checkbox"]:checked');
+                if (selectedCheckboxes.length > 0) {
+                    answer = Array.from(selectedCheckboxes).map(cb => cb.value);
+                    choice_id = Array.from(selectedCheckboxes).map(cb => cb.dataset.choiceId);
+                }
+                break;
+            case 'dropdown':
+                const selectedOption = questionElement.querySelector('select').selectedOptions[0];
+                if (selectedOption) {
+                    answer = selectedOption.value;
+                    choice_id = selectedOption.dataset.choiceId;
+                }
+                break;
+            case 'short-answer':
+            case 'paragraph':
+                const textInput = questionElement.querySelector('input[type="text"], textarea');
+                if (textInput) {
+                    answer = textInput.value;
+                }
+                break;
+        }
+
+        return {
+            question_id: questionData.question_id,
+            type: questionData.type,
+            answer: answer,
+            choice_id: choice_id
+        };
     }
 
     renderForAnswer() {
         const questionData = this.isPreview ? this.getQuestionDataFromPreview() : this.getQuestionSummary();
         const div = document.createElement('div');
         div.className = 'question-container preview-mode';
+        div.dataset.questionId = questionData.question_id;
 
         let answerHTML = '';
         switch(questionData.type) {
@@ -126,7 +174,7 @@ export class FormQuestion {
                 answerHTML = questionData.choices.map((choice, idx) => `
                     <div class="choice-item">
                         <span class="choice-type-indicator" style="border-radius: 50%"></span>
-                        <input type="radio" name="q${questionData.questionNumber}" value="${choice}" id="q${questionData.questionNumber}_${idx}" class="form-check-input" style="display: none;">
+                        <input type="radio" name="q${questionData.questionNumber}" value="${choice}" data-choice-id="${questionData.choices_id[idx]}" id="q${questionData.questionNumber}_${idx}" class="form-check-input" style="display: none;">
                         <label class="choice-input" for="q${questionData.questionNumber}_${idx}">${choice}</label>
                     </div>
                 `).join('');
@@ -135,7 +183,7 @@ export class FormQuestion {
                 answerHTML = questionData.choices.map((choice, idx) => `
                     <div class="choice-item">
                         <span class="choice-type-indicator" style="border-radius: 4px"></span>
-                        <input type="checkbox" name="q${questionData.questionNumber}" value="${choice}" id="q${questionData.questionNumber}_${idx}" class="form-check-input" style="display: none;">
+                        <input type="checkbox" name="q${questionData.questionNumber}" value="${choice}" data-choice-id="${questionData.choices_id[idx]}" id="q${questionData.questionNumber}_${idx}" class="form-check-input" style="display: none;">
                         <label class="choice-input" for="q${questionData.questionNumber}_${idx}">${choice}</label>
                     </div>
                 `).join('');
@@ -145,8 +193,8 @@ export class FormQuestion {
                     <div class="choice-item">
                         <select class="choice-input" name="q${questionData.questionNumber}">
                             <option value="">Select an answer</option>
-                            ${questionData.choices.map(choice => `
-                                <option value="${choice}">${choice}</option>
+                            ${questionData.choices.map((choice, idx) => `
+                                <option value="${choice}" data-choice-id="${questionData.choices_id[idx]}">${choice}</option>
                             `).join('')}
                         </select>
                     </div>
@@ -615,9 +663,13 @@ export class FormRenderer {
     constructor(containerId, formData) {
         this.containerId = containerId;
         this.container = document.getElementById(containerId);
+        this.saveBtn = document.getElementById('saveFormBtn');
+        this.resetBtn = document.getElementById('resetFormBtn');
         this.formData = formData;
         this.answers = new Map();
         this.initialize();
+        this.initializeEventListeners();
+        this.formId = formData.id;
     }
 
     initialize() {
@@ -634,47 +686,112 @@ export class FormRenderer {
         this.formData.questions.forEach((questionData, index) => {
             const question = new FormQuestion(this.containerId, true, questionData);
             const renderedQuestion = question.renderForAnswer();
+            renderedQuestion.dataset.questionData = JSON.stringify(questionData);
             this.container.appendChild(renderedQuestion);
             
             // Add event listeners for answer capture
             const inputs = renderedQuestion.querySelectorAll('input, select, textarea');
             inputs.forEach(input => {
-                input.addEventListener('change', (e) => {
-                    if (questionData.type === 'checkbox') {
-                        const checkedBoxes = renderedQuestion.querySelectorAll('input:checked');
-                        this.answers.set(index, Array.from(checkedBoxes).map(cb => cb.value));
-                    } else {
-                        this.answers.set(index, e.target.value);
+                if (input.type === 'radio') {
+                    // For radio buttons, listen to the click event on the choice item
+                    const choiceItem = input.closest('.choice-item');
+                    if (choiceItem) {
+                        choiceItem.addEventListener('click', () => {
+                            const choiceId = input.dataset.choiceId;
+                            this.answers.set(questionData.question_id, {
+                                answer_type: 'choices',
+                                answer: [choiceId]
+                            });
+                        });
                     }
-                });
+                } else if (input.type === 'checkbox') {
+                    input.addEventListener('change', () => {
+                        const checkedBoxes = renderedQuestion.querySelectorAll('input:checked');
+                        const choiceIds = Array.from(checkedBoxes).map(cb => cb.dataset.choiceId);
+                        this.answers.set(questionData.question_id, {
+                            answer_type: 'choices',
+                            answer: choiceIds
+                        });
+                    });
+                } else if (input.tagName === 'SELECT') {
+                    input.addEventListener('change', (e) => {
+                        const selectedOption = e.target.options[e.target.selectedIndex];
+                        const choiceId = selectedOption.dataset.choiceId;
+                        this.answers.set(questionData.question_id, {
+                            answer_type: 'choices',
+                            answer: [choiceId]
+                        });
+                    });
+                } else {
+                    // For text inputs and textareas
+                    input.addEventListener('change', (e) => {
+                        this.answers.set(questionData.question_id, {
+                            answer_type: 'text',
+                            answer: e.target.value
+                        });
+                    });
+                }
             });
         });
 
         feather.replace();
     }
 
+    initializeEventListeners() {
+        if (this.saveBtn) {
+            this.saveBtn.addEventListener('click', () => this.saveForm());
+        }
+
+        if (this.resetBtn) {
+            this.resetBtn.addEventListener('click', () => this.resetAnswers());
+        }
+    }
+
     saveForm() {
         const formAnswers = {
-            formId: this.formData.id,
-            answers: Array.from(this.answers.entries()).map(([questionIndex, answer]) => ({
-                questionIndex,
-                answer
-            }))
+            form_id: this.formData.form_id,
+            answers: Array.from(this.container.querySelectorAll('.question-container'))
+                .map(questionElement => {
+                    const questionData = JSON.parse(questionElement.dataset.questionData);
+                    const question = new FormQuestion(this.containerId, true, questionData);
+                    question.element = questionElement;
+                    return question.getQuestionSummaryAnswer();
+                })
+                .filter(answer => answer.answer !== null)
         };
         
-        console.log('Saving answers:', formAnswers);
+        return new Promise((resolve) => {
+            AddRecord("form_completions", {data: JSON.stringify(formAnswers)}).then((res) => {
+                console.log(res);
+                resolve(res);
+            });
+        });
+
+        // console.log('Saving answers:', formAnswers);
         return formAnswers;
     }
 
     resetAnswers() {
         this.answers.clear();
         const inputs = this.container.querySelectorAll('input, select, textarea');
-        inputs.forEach(input => {a
+        inputs.forEach(input => {
             if (input.type === 'checkbox' || input.type === 'radio') {
                 input.checked = false;
+                // Clear the visual styling of the parent choice item
+                const choiceItem = input.closest('.choice-item');
+                if (choiceItem) {
+                    choiceItem.classList.remove('selected');
+                    const indicator = choiceItem.querySelector('.choice-type-indicator');
+                    if (indicator) {
+                        indicator.style.background = '';
+                    }
+                }
+            } else if (input.type === 'select-one') {
+                input.selectedIndex = 0;
             } else {
                 input.value = '';
             }
         });
     }
 }
+

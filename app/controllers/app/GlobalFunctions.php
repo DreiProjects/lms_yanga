@@ -36,6 +36,9 @@ use Application\controllers\system\GradeScoreControl;
 use Application\controllers\system\FormControl;
 use Application\controllers\system\FormQuestionControl;
 use Application\controllers\system\FormQuestionChoicesControl;
+use Application\controllers\system\FormCompletionControl;
+use Application\controllers\system\FormCompletionAnswerControl;
+use Application\controllers\system\SubjectAttendanceControl;
 use Application\models\Professor;
 use Application\models\Section;
 
@@ -116,6 +119,12 @@ class GlobalFunctions
 
     public $FORM_QUESTION_CHOICES_CONTROL;
 
+    public $FORM_COMPLETION_CONTROL;
+
+    public $FORM_COMPLETION_ANSWER_CONTROL;
+
+    public $SUBJECT_ATTENDANCE_CONTROL;
+
     public function __construct($SESSION)
     {
         global $CONNECTION;
@@ -195,5 +204,11 @@ class GlobalFunctions
         $this->FORM_QUESTION_CONTROL = new FormQuestionControl();
 
         $this->FORM_QUESTION_CHOICES_CONTROL = new FormQuestionChoicesControl();
+
+        $this->FORM_COMPLETION_CONTROL = new FormCompletionControl();
+
+        $this->FORM_COMPLETION_ANSWER_CONTROL = new FormCompletionAnswerControl();
+
+        $this->SUBJECT_ATTENDANCE_CONTROL = new SubjectAttendanceControl();
     }
 }

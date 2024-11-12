@@ -35,7 +35,7 @@ foreach ($SUBJECTS as $subject) {
     ], $RESOURCES[$subject->subject_name]);
 
     $ACTIVITIES[$subject->subject_name] = $APPLICATION->FUNCTIONS->ACTIVITY_CONTROL->filterRecords(['section_subject_id' => $subject->section_subject_id], true);
-    $EXAMS[$subject->subject_name] = $APPLICATION->FUNCTIONS->EXAM_CONTROL->filterRecords(['section_subject_id' => $subject->section_subject_id], false);
+    $EXAMS[$subject->subject_name] = $APPLICATION->FUNCTIONS->EXAM_CONTROL->filterRecords(['section_subject_id' => $subject->section_subject_id], true);
 }
 
 // $GRADING_PLATFORM = $APPLICATION->FUNCTIONS->GRADING_PLATFORM_CONTROL->getBy("section_subject_id", $SUBJECTS[0]->section_subject_id, true);
@@ -76,6 +76,7 @@ foreach ($SUBJECTS as $subject) {
                         <li class="tab-item" data-tab="exams">EXAMS</li>
                         <li class="tab-item" data-tab="notes">NOTES</li>
                         <li class="tab-item" data-tab="grades">GRADES</li>
+                        <li class="tab-item" data-tab="attendance">ATTENDANCE</li>
                     </ul>
                     <div class="tab-content">
                         <div class="tab-pane active" id="students">
@@ -293,14 +294,14 @@ foreach ($SUBJECTS as $subject) {
                                             <div class="subject-exams <?= $subject === array_key_first($EXAMS) ? 'active' : '' ?>" data-subject="<?= $subject ?>">
                                                 <h3><?= $subject ?> Exams</h3>
                                                 <?php foreach ($subjectExams as $exam): ?>
-                                                    <div class="exam-item" data-id="<?= $exam['exam_id'] ?>">
+                                                    <div class="exam-item" data-id="<?= $exam->exam_id ?>">
                                                         <div class="exam-info">
-                                                            <h4><?= $exam['title'] ?></h4>
-                                                            <p><?= $exam['description'] ?></p>
+                                                            <h4><?= $exam->title ?></h4>
+                                                            <p><?= $exam->description ?></p>
                                                             <small>
-                                                                Date: <?= $exam['date_start'] ?> | 
-                                                                Duration: <?= $exam['duration'] ?> |
-                                                                Status: <?= $exam['exam_status'] ?>
+                                                                Date: <?= $exam->date_start ?> | 
+                                                                Duration: <?= $exam->duration ?> |
+                                                                Status: <?= $exam->exam_status ?>
                                                             </small>
                                                         </div>
                                                         <div class="exam-actions">
@@ -313,14 +314,27 @@ foreach ($SUBJECTS as $subject) {
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                        <div class="icon-button take-exam-btn" title="Take Exam" data-exam-id="<?= $exam['exam_id'] ?>">
-                                                            <div class="icon">
-                                                                <?= UseIcon("check-thin") ?>
-                                                            </div>
-                                                            <div class="text">
-                                                                <span>Take</span>
-                                                            </div>
-                                                        </div>
+                                                        <?php if($SESSION->user_type == 1): ?>
+                                                            <?php if (!$exam->form->isStudentTaken($SESSION->user_id)): ?>
+                                                                <div class="icon-button take-exam-btn" title="Take Exam" data-exam-id="<?= $exam->exam_id ?>">
+                                                                <div class="icon">
+                                                                    <?= UseIcon("check-thin") ?>
+                                                                </div>
+                                                                <div class="text">
+                                                                    <span>Take</span>
+                                                                </div>
+                                                                </div>  
+                                                            <?php else: ?>
+                                                                <div class="icon-button view-exam-btn" title="View Exam" data-exam-id="<?= $exam->exam_id ?>">
+                                                                    <div class="icon">
+                                                                        <?= UseIcon("check-thin") ?>
+                                                                    </div>
+                                                                    <div class="text">
+                                                                        <span>Already Taken</span>
+                                                                    </div>
+                                                                </div>
+                                                            <?php endif ?>
+                                                        <?php endif; ?>
                                                     </div>
                                                 <?php endforeach; ?>
                                             </div>
@@ -365,6 +379,362 @@ foreach ($SUBJECTS as $subject) {
                             </div>
                         </div>
                         <?php endif ?>
+                        </div>
+
+                    <div class="tab-pane" id="attendance">
+                        <div class="attendance-container">
+                             
+                            <div class="attendance-controls">
+                                <div class="attendance-actions">
+                                    <button class="btn btn-primary save-attendance" disabled>Save Changes</button>
+                                    <button class="btn btn-secondary discard-attendance" disabled>Discard Changes</button>
+                                </div>
+                                <div class="pickers">
+                                    <div class="month-picker">
+                                        <button class="btn btn-icon prev-month">
+                                            <
+                                        </button>
+                                        <select id="monthSelect">
+                                            <?php for($m = 1; $m <= 12; $m++): ?>
+                                                <option value="<?= $m ?>" <?= $m == date('n') ? 'selected' : '' ?>>
+                                                    <?= date('F', mktime(0, 0, 0, $m, 1)) ?>
+                                                </option>
+                                            <?php endfor; ?>
+                                        </select>
+                                        <button class="btn btn-icon next-month">
+                                            >
+                                        </button>
+                                    </div>
+                                    <div class="year-picker">
+                                        <button class="btn btn-icon prev-year">
+                                            <<
+                                        </button>
+                                        <select id="yearSelect">
+                                            <?php for($y = date('Y') - 2; $y <= date('Y') + 2; $y++): ?>
+                                                <option value="<?= $y ?>" <?= $y == date('Y') ? 'selected' : '' ?>>
+                                                    <?= $y ?>
+                                                </option>
+                                            <?php endfor; ?>
+                                        </select>
+                                        <button class="btn btn-icon next-year">
+                                            >>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="attendanceTableContainer" data-section-subject-id="<?= $section->section_id ?>"></div>
+
+                            <style>
+                                .attendance-container {
+                                    padding: 20px;
+                                    overflow-x: auto;
+                                }
+
+                                .attendance-controls {
+                                    display: flex;
+                                    gap: 20px;
+                                    margin-bottom: 20px;
+                                    justify-content: space-between;
+                                    align-items: center;
+                                }
+
+                                .attendance-actions {
+                                    display: flex;
+                                    gap: 10px;
+                                }
+
+                                .pickers {
+                                    display: flex;
+                                    gap: 10px;
+                                }
+
+                                .month-picker,
+                                .year-picker {
+                                    display: flex;
+                                    align-items: center;
+                                    gap: 10px;
+                                }
+
+                                .btn-icon {
+                                    width: 32px;
+                                    height: 32px;
+                                    border-radius: 50%;
+                                    border: 1px solid #e2e8f0;
+                                    background: white;
+                                    cursor: pointer;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    transition: all 0.2s;
+                                }
+
+                                .btn-icon:hover {
+                                    background: #f1f5f9;
+                                }
+
+                                select {
+                                    padding: 8px 12px;
+                                    border-radius: 6px;
+                                    border: 1px solid #e2e8f0;
+                                    background: white;
+                                    min-width: 120px;
+                                }
+
+                                .attendance-table {
+                                    width: 100%;
+                                    border-collapse: collapse;
+                                    background: white;
+                                    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                                }
+
+                                .attendance-table th,
+                                .attendance-table td {
+                                    padding: 12px;
+                                    text-align: center;
+                                    border: 1px solid #e2e8f0;
+                                }
+
+                                .student-name-header {
+                                    position: sticky;
+                                    left: 0;
+                                    background: #f8fafc;
+                                    z-index: 10;
+                                    min-width: 200px;
+                                }
+
+                                .student-name {
+                                    position: sticky;
+                                    left: 0;
+                                    background: white;
+                                    font-weight: 500;
+                                    text-align: left;
+                                }
+
+                                .date-header {
+                                    background: #f8fafc;
+                                    font-weight: 600;
+                                    min-width: 40px;
+                                }
+
+                                .attendance-cell {
+                                    cursor: pointer;
+                                    transition: all 0.2s;
+                                }
+
+                                .attendance-cell:hover {
+                                    background-color: #f1f5f9;
+                                }
+
+                                .attendance-cell.selected {
+                                    background-color: #e0f2fe;
+                                    box-shadow: inset 0 0 0 2px #0ea5e9;
+                                }
+
+                                .attendance-cell.present {
+                                    background-color: #dcfce7;
+                                }
+
+                                .attendance-cell.absent {
+                                    background-color: #fee2e2;
+                                }
+
+                                .attendance-cell.late {
+                                    background-color: #fef9c3;
+                                }
+
+                                .attendance-cell svg {
+                                    width: 16px;
+                                    height: 16px;
+                                }
+
+                                /* Custom scrollbar */
+                                .attendance-container::-webkit-scrollbar {
+                                    height: 8px;
+                                    width: 8px;
+                                }
+
+                                .attendance-container::-webkit-scrollbar-track {
+                                    background: #f1f1f1;
+                                }
+
+                                .attendance-container::-webkit-scrollbar-thumb {
+                                    background: #cbd5e1;
+                                    border-radius: 4px;
+                                }
+
+                                .attendance-container::-webkit-scrollbar-thumb:hover {
+                                    background: #94a3b8;
+                                }
+                            </style>
+
+                            <script>
+                                document.addEventListener('DOMContentLoaded', function() {
+                                    const students = <?= json_encode($RECORDS) ?>;
+                                    const monthSelect = document.getElementById('monthSelect');
+                                    const yearSelect = document.getElementById('yearSelect');
+                                    const container = document.getElementById('attendanceTableContainer');
+
+                                    function getDaysInMonth(month, year) {
+                                        return new Date(year, month, 0).getDate();
+                                    }
+
+                                    function generateTable() {
+                                        const month = parseInt(monthSelect.value);
+                                        const year = parseInt(yearSelect.value);
+                                        const daysInMonth = getDaysInMonth(month, year);
+
+                                        let tableHTML = `
+                                            <table class="attendance-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="student-name-header">Student Name</th>
+                                        `;
+
+                                        for (let day = 1; day <= daysInMonth; day++) {
+                                            tableHTML += `<th class="date-header">${day}</th>`;
+                                        }
+
+                                        tableHTML += `</tr></thead><tbody>`;
+
+                                        students.forEach(student => {
+                                            tableHTML += `
+                                                <tr>
+                                                    <td class="student-name">${student.displayName}</td>
+                                            `;
+
+                                            for (let day = 1; day <= daysInMonth; day++) {
+                                                const date = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                                                tableHTML += `
+                                                    <td class="attendance-cell" 
+                                                        data-student="${student.user_id}" 
+                                                        data-date="${date}">
+                                                    </td>
+                                                `;
+                                            }
+
+                                            tableHTML += `</tr>`;
+                                        });
+
+                                        tableHTML += `</tbody></table>`;
+                                        container.innerHTML = tableHTML;
+
+                                        // Add click handlers for attendance cells
+                                        document.querySelectorAll('.attendance-cell').forEach(cell => {
+                                            cell.addEventListener('click', function(e) {
+                                                // Remove any existing floating containers
+                                                document.querySelectorAll('.attendance-floating-container').forEach(container => {
+                                                    container.remove();
+                                                });
+
+                                                // Create floating container
+                                                const floatingContainer = document.createElement('div');
+                                                floatingContainer.className = 'attendance-floating-container';
+                                                
+                                                // Create buttons
+                                                const states = [
+                                                    { name: 'present', icon: 'check-circle', color: '#22c55e' },
+                                                    { name: 'absent', icon: 'x-circle', color: '#ef4444' },
+                                                    { name: 'late', icon: 'clock', color: '#eab308' }
+                                                ];
+
+                                                states.forEach(state => {
+                                                    const button = document.createElement('button');
+                                                    button.className = 'attendance-state-btn';
+                                                    button.innerHTML = `<i data-feather="${state.icon}"></i>`;
+                                                    button.style.color = state.color;
+
+                                                    button.addEventListener('click', (btnEvent) => {
+                                                        btnEvent.stopPropagation();
+                                                        
+                                                        // Remove all states
+                                                        states.forEach(s => this.classList.remove(s.name));
+                                                        
+                                                        // Add selected state
+                                                        this.classList.add(state.name);
+                                                        
+                                                        // Remove floating container
+                                                        floatingContainer.remove();
+                                                    });
+
+                                                    floatingContainer.appendChild(button);
+                                                });
+
+                                                // Position the floating container
+                                                const rect = this.getBoundingClientRect();
+                                                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                                                const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+
+                                                floatingContainer.style.top = `${rect.top + scrollTop - 50}px`;
+                                                floatingContainer.style.left = `${rect.left + scrollLeft - 50}px`;
+
+                                                // Add to document
+                                                document.body.appendChild(floatingContainer);
+                                                
+                                                // Initialize Feather icons
+                                                feather.replace();
+
+                                                // Close when clicking outside
+                                                document.addEventListener('click', function closeFloating(event) {
+                                                    if (!floatingContainer.contains(event.target) && event.target !== cell) {
+                                                        floatingContainer.remove();
+                                                        document.removeEventListener('click', closeFloating);
+                                                    }
+                                                });
+
+                                                e.stopPropagation();
+                                            });
+                                        });
+                                    }
+
+                                    // Event listeners for controls
+                                    monthSelect.addEventListener('change', generateTable);
+                                    yearSelect.addEventListener('change', generateTable);
+
+                                    document.querySelector('.prev-month').addEventListener('click', () => {
+                                        let month = parseInt(monthSelect.value);
+                                        let year = parseInt(yearSelect.value);
+                                        
+                                        month--;
+                                        if (month < 1) {
+                                            month = 12;
+                                            year--;
+                                            yearSelect.value = year;
+                                        }
+                                        monthSelect.value = month;
+                                        generateTable();
+                                    });
+
+                                    document.querySelector('.next-month').addEventListener('click', () => {
+                                        let month = parseInt(monthSelect.value);
+                                        let year = parseInt(yearSelect.value);
+                                        
+                                        month++;
+                                        if (month > 12) {
+                                            month = 1;
+                                            year++;
+                                            yearSelect.value = year;
+                                        }
+                                        monthSelect.value = month;
+                                        generateTable();
+                                    });
+
+                                    document.querySelector('.prev-year').addEventListener('click', () => {
+                                        let year = parseInt(yearSelect.value);
+                                        yearSelect.value = year - 1;
+                                        generateTable();
+                                    });
+
+                                    document.querySelector('.next-year').addEventListener('click', () => {
+                                        let year = parseInt(yearSelect.value);
+                                        yearSelect.value = year + 1;
+                                        generateTable();
+                                    });
+
+                                    // Initial table generation
+                                    generateTable();
+                                });
+                            </script>
                         </div>
                     </div>
                 </div>
@@ -689,6 +1059,39 @@ foreach ($SUBJECTS as $subject) {
     }
     .failed-grade {
         color: #F29B9B;
+    }
+
+    /* Add these new styles */
+    .attendance-floating-container {
+        position: absolute;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        padding: 8px;
+        display: flex;
+        gap: 8px;
+        z-index: 1000;
+    }
+
+    .attendance-state-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
+
+    .attendance-state-btn:hover {
+        background-color: #f1f5f9;
+    }
+
+    .attendance-state-btn svg {
+        width: 20px;
+        height: 20px;
     }
 </style>
 <style>
