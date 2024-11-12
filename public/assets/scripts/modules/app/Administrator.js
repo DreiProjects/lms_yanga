@@ -11,12 +11,12 @@ export const AUTHENTICATION_TYPE = {
     SUPER_ADMIN: 4
 };
 
-export function SetAuthentication(type, data) {
+export function SetAuthentication(data) {
     return new Promise((resolve) => {
         Ajax({
             url: "/api/post/SetAuthentication",
             type: "POST",
-            data: {type, data: JSON.stringify(data)},
+            data: {data: JSON.stringify(data)},
             success: (res) => {
                 try {
                     resolve(JSON.parse(res));
@@ -28,12 +28,12 @@ export function SetAuthentication(type, data) {
     })
 }
 
-export function TryFinalAuthenticate(type, user_id, data, code) {
+export function TryFinalAuthenticate(user_id, data, code) {
     return new Promise((resolve) => {
         Ajax({
             url: "/api/post/DoAuthenticate",
             type: "POST",
-            data: {type, data: JSON.stringify(data), code, user_id},
+            data: {data: JSON.stringify(data), code, user_id},
             success: (res) => {
                 try {
                     resolve(JSON.parse(res));
@@ -45,12 +45,12 @@ export function TryFinalAuthenticate(type, user_id, data, code) {
     })
 }
 
-export function TryAuthenticate(type, data) {
+export function TryAuthenticate(data) {
     return new Promise((resolve) => {
         Ajax({
             url: "/api/post/TryAuthenticate",
             type: "POST",
-            data: {type, data: JSON.stringify(data)},
+            data: {data: JSON.stringify(data)},
             success: (res) => {
                 try {
                     resolve(JSON.parse(res));

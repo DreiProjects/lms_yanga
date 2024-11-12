@@ -21,6 +21,7 @@ export class TableListener {
         this.enableSelection = true;
         this.selectAsObject = false;
         this.toggleColumn = true;
+        this.storeData = {};
         this.pagination = {
             max: 10,
             current: 1,

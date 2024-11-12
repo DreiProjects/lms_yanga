@@ -13,43 +13,38 @@ function Init() {
     const inputs = form.querySelectorAll('input');
     const loginAs = form.querySelector(".user_type");
 
-    let type_id = AUTHENTICATION_TYPE.SUPER_ADMIN;
-
     ListenToForm(form, function (data) {
-        delete data['user_type'];
-
-        console.log(type_id, data);
-
-        TryAuthenticate(type_id, data).then((res) => {
-            console.log(res)
+        TryAuthenticate(data).then((res) => {
             if (res.code === 200) {
                 const user = res.body.user;
-                ManageEmailVerification( type_id, user.user_id, data);
+                ManageEmailVerification(user.user_id, data);
             } else {
                 ApplyError(['email', 'password'], inputs);
 
                 document.querySelector('input[name=password]').value = "";
             }
-        })
-    })
 
-    ListenToThisCombo(loginAs, function (val) {
-        type_id = val;
+
+            NewNotification({
+                title:  res.code === 200 ? 'Verification Sent!' : 'Authentication Failed!',
+                message: res.message
+            }, 3000,  res.code === 200 ? NotificationType.SUCCESS : NotificationType.ERROR)
+        })
     })
 
     ManageComboBoxes();
 
 }
 
-function DoFinalAuthenticate(user_type, user_id, mainData, code) {
+function DoFinalAuthenticate( user_id, mainData, code) {
     return new Promise((resolve) => {
-        TryFinalAuthenticate(user_type, user_id,mainData, code).then((res) => {
+        TryFinalAuthenticate(user_id,mainData, code).then((res) => {
             resolve(res);
         });
     })
 }
 
-function ManageEmailVerification( user_type, user_id, mainData) {
+function ManageEmailVerification( user_id, mainData) {
     const popup = new Popup(`auth/confirm_verification`, {email_address: mainData.email}, {
         backgroundDismiss: false,
     });
@@ -68,7 +63,7 @@ function ManageEmailVerification( user_type, user_id, mainData) {
                 }, 3000, res  ? NotificationType.SUCCESS : NotificationType.ERROR)
 
                 if (res) {
-                    DoFinalAuthenticate(user_type, user_id, mainData, data['pin-code']).then((res) => {
+                    DoFinalAuthenticate(user_id, mainData, data['pin-code']).then((res) => {
                         popup.Remove();
 
                         if (res.code === 200) {

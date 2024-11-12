@@ -245,12 +245,36 @@ $FACULTY = array(
     [
         "text" => "News Feed",
         "path" => '/newsfeed',
-        "icon" => '<i data-feather="rss"></i>'
+        "icon" => '<i data-feather="rss"></i>',
+        "sub-content" => [
+            [
+                "text" => "Public",
+                "path" => '/newsfeed/public',
+                "icon" => '<i data-feather="rss"></i>',
+            ],
+            [
+                "text" => "Subjects",
+                "path" => '/newsfeed/subjects',
+                "icon" => '<i data-feather="rss"></i>',
+                "sub-content" => [
+                    [
+                        "text" => "Public",
+                        "path" => '/newsfeed/public',
+                        "icon" => '<i data-feather="rss"></i>',
+                    ],
+                ]
+            ],
+        ]
     ],
     ($isProfessor ? [
         "text" => "My Classes",
         "path" => '/me/classes',
         "icon" => '<i data-feather="layout"></i>'
+    ]: []),
+    ($isProfessor ? [
+        "text" => "My Resources", 
+        "path" => '/me/resources',
+        "icon" => '<i data-feather="folder"></i>'
     ]: []),
     [
         "text" => "Students",
@@ -387,72 +411,55 @@ $NAVLINKS = $ALL[$SESSION->user_type - 1];
 
 ?>
 
-
 <nav class="main-navbar" data-session-id="<?= $SESSION->user_id ?>" data-session-type="<?= $SESSION->user_type ?>">
-<!--    <div class="nav-header">-->
-
-    <!-- Feather Icons CDN for thin icons -->
-   
-
-
-<!--    </div>-->
     <div class="nav-body">
         <div class="nav-link-items">
             <?php foreach ($NAVLINKS as $link): ?>
-                <?php if(!empty($link)): ?>
-            <?php
-            if ($this->view_path === "/") {
-                $match = $this->view_path === $link['path'];
-            } else {
-                $match = '/' . $this->view_path === $link['path'];
-            }
-            ?>
-            <?php if (isset($link['sub-content'])): ?>
-            <a>
-                <?php else: ?>
-                    <a href="<?= $link['path'] ?>">
-                        <?php endif; ?>
-                        <div class="nav-link <?= $match ? 'active' : '' ?>" data-path="<?= $link['path'] ?>">
-                            <div class="main">
-                                <div class="icon">
-                                    <?= $link['icon'] ?? '' ?>
+                <?php if (!empty($link)): ?>
+                    <?php
+                    $match = $this->view_path === $link['path'] || '/' . $this->view_path === $link['path'];
+                    ?>
+                    <?php if (isset($link['sub-content'])): ?>
+                        <a>
+                    <?php else: ?>
+                        <a href="<?= $link['path'] ?>">
+                    <?php endif; ?>
+                            <div class="nav-link <?= $match ? 'active' : '' ?>" data-path="<?= $link['path'] ?>">
+                                <div class="main">
+                                    <div class="icon">
+                                        <?= $link['icon'] ?? '' ?>
+                                    </div>
+                                    <div class="text">
+                                        <span>
+                                            <?= $link['text'] ?>
+                                        </span>
+                                    </div>
                                 </div>
-                                <div class="text">
-                                    <span>
-                                        <?= $link['text'] ?>
-                                    </span>
-                                </div>
+                                <?php if (isset($link['sub-content'])): ?>
+                                    <div class="sub-content" data-path="<?= $link['path'] ?>">
+                                        <?php foreach ($link['sub-content'] as $item): ?>
+                                            <?php
+                                            $subMatch = $this->view_path === $item['path'] || '/' . $this->view_path === $item['path'];
+                                            ?>
+                                            <a href="<?= $item['path'] ?>">
+                                                <div class="sub-link <?= $subMatch ? 'active' : '' ?>">
+                                                    <div class="icon">
+                                                        <?= $item['icon'] ?? '' ?>
+                                                    </div>
+                                                    <div class="text">
+                                                        <span>
+                                                            <?= $item['text'] ?>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        <?php endforeach; ?>
+                                    </div>
+                                <?php endif; ?>
                             </div>
-                            <?php if (isset($link['sub-content'])): ?>
-                                <div class="sub-content" data-path="<?= $link['path'] ?>">
-                                    <?php foreach ($link['sub-content'] as $item): ?>
-                                        <?php
-                                        if ($this->view_path === "/") {
-                                            $match = $this->view_path === $item['path'];
-                                        } else {
-                                            $match = '/' . $this->view_path === $item['path'];
-                                        }
-                                        ?>
-                                        <a href="<?= $item['path'] ?>">
-                                            <div class="sub-link <?= $match ? 'active' : '' ?>">
-                                                <div class="icon">
-                                                    <?= $item['icon'] ?? '' ?>
-                                                </div>
-                                                <div class="text">
-                                                <span>
-                                                    <?= $item['text'] ?>
-                                                </span>
-                                                </div>
-                                            </div>
-                                        </a>
-                                    <?php endforeach ?>
-                                </div>
-                            <?php endif ?>
-                        </div>
-                    </a>
-                <?php endif ?>
-            <?php
-            endforeach; ?>
+                        </a>
+                    <?php endif; ?>
+                <?php endforeach; ?>
+            </div>
         </div>
-    </div>
-</nav>
+    </nav>

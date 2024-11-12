@@ -19,22 +19,20 @@ class PostControl
     {
         $authControl = new Authentication();
 
-        $type = $_POST['type'];
         $data = json_decode($_POST['data'], true);
 
-        return $authControl->TryAuth($type, $data);
+        return $authControl->TryAuth($data);
     }
 
     public function DoAuthenticate()
     {
         $authControl = new Authentication();
 
-        $type = $_POST['type'];
         $code = $_POST['code'];
         $user_id = $_POST['user_id'];
         $data = json_decode($_POST['data'], true);
 
-        return $authControl->DoAuth($type, $data, $user_id, $code);
+        return $authControl->DoAuth($data, $user_id, $code);
     }
 
     public function TryRegisterPatient()
@@ -150,4 +148,5 @@ class PostControl
         $id = $_POST['id'];
         return $APPLICATION->FUNCTIONS->RESOURCES_GROUP_CONTROL->downloadResource($id);
     }
+    
 }

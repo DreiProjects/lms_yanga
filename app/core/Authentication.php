@@ -30,9 +30,8 @@ class Authentication
         $this->SESSION = $SESSION;
     }
 
-    public function TryAuth($type, $data)
+    public function TryAuth($data)
     {
-        $data['user_type'] = $type;
 
         $control = $this->APPLICATION->FUNCTIONS->USER_CONTROL;
 
@@ -44,13 +43,43 @@ class Authentication
             $user = $exists->body['id'];
             $user = $control->get($user, true);
 
-            $send = $this->SendVerification($user->user_id, $user->email);
-
-            if ($send) {
-                return new Response(200, "Successfully Login!", ["user" => $user]);
+            if ($user->status == 5) {
+                return new Response(205, "Your Account is locked due to many login atttempts, Please contact the Super Admin or Admin to regain access to your Account.");
             } else {
-                return new Response(203, "Success but Unable to sent Email!");
+                $send = $this->SendVerification($user->user_id, $user->email);
+
+                if ($send) {
+                    return new Response(200, "Successfully Login!", ["user" => $user]);
+                } else {
+                    return new Response(203, "Success but Unable to sent Email!");
+                }
             }
+        } else {
+
+            $user = $control->getByWhere(["email" => $data['email']], false);
+
+            if ($user) {
+                $timeout = $user['lock_timeout'];
+                $total_attempts = $user['user_type'] == 4 ? 14 : 4;
+
+                if ($timeout == 5) {
+                    $control->editRecord($user['user_id'], [
+                        "status" => 5
+                    ]);
+                    return new Response(205, "Your Account is locked due to many login atttempts, Please contact the Super Admin or Admin to regain access to your Account.");
+                }
+
+                $attempts = $user['lock_timeout'] == 0 ? $total_attempts : $total_attempts - ((int) $user['lock_timeout']);
+
+                $control->editRecord($user['user_id'], [
+                    "lock_timeout" => $user['lock_timeout'] + 1
+                ]);
+
+                return new Response(204, "Failed to Login, Account will lock after $attempts attempts!", ["errors" => ["email"]]); 
+            } else {
+                return new Response(205, "Account does not exist!");
+            }
+
         }
 
         return new Response(204, "Auth Failed!");
@@ -70,11 +99,9 @@ class Authentication
         return $controller->confirmVerificationToUser($user_id, $code);
     }
 
-    public function LoginWithAuth($type, $data)
+    public function LoginWithAuth($data)
     {
         global $APPLICATION;
-
-        $data['user_type'] = $type;
 
         $control = $this->APPLICATION->FUNCTIONS->USER_CONTROL;
 
@@ -83,11 +110,17 @@ class Authentication
         $exists = $control->alreadyExists($data);
 
         if ($exists->code === 200) {
+          
+
             $user = $exists->body['id'];
             $user = $control->get($user, true);
 
             $this->SESSION->apply($user);
             $this->SESSION->start();
+
+            $control->editRecord($user->user_id, [
+                "lock_timeout" => 0 
+            ]);
 
             return  new Response(200, "Successfully Login!", ["user" => $user]);
         }
@@ -124,12 +157,12 @@ class Authentication
         return $control->AddRecord($data);
     }
 
-    public function DoAuth(mixed $type, mixed $data, mixed $user_id, mixed $code)
+    public function DoAuth(mixed $data, mixed $user_id, mixed $code)
     {
         $confirm = $this->ConfirmVerification($user_id, $code);
 
         if ($confirm) {
-            return $this->LoginWithAuth($type, $data);
+            return $this->LoginWithAuth($data);
         }
 
         return  new Response(400, "Failed to Authenticate!");

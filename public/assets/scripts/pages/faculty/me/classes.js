@@ -42,31 +42,55 @@ function NewExam(section_id) {
 
       const form = popup.ELEMENT.querySelector("form");
       const section_subject_id = form.querySelector(".section_subject_id");
+      const form_id = form.querySelector(".form_id");
+      const duration = form.querySelector("input[name='duration']");
+      const count_items = form.querySelector("input[name='count_items']");
 
       ListenToForm(
         form,
         (data) => {
-          UploadFileFromFile(
-            data.file,
-            data.file.name,
-            "public/assets/media/uploads/exams/"
-          ).then((res) => {
+           
+          new Promise((resolve) => {
+            if (data.file && data.file.name) {
+              UploadFileFromFile(
+              data.file,
+              data.file.name,
+                "public/assets/media/uploads/exams/"
+              ).then((res) => {
+                resolve({code: 200, body: res});
+              });
+            } else {
+              resolve({ code: 300, body: { path: null } });
+            }
+          }).then((res) => {
             if (res.code === 200) {
               data.file = res.body.path;
-              data.section_id = section_id;
-              data.section_subject_id = GetComboValue(section_subject_id).value;
-
-              popup.Remove();
-
-              AddRecord("exams", { data: JSON.stringify(data) }).then((res) => {
-                popup.Remove();
-                resolve(res);
-              });
+            } else {
+              delete data.file;
             }
+
+            data.section_id = section_id;
+            data.section_subject_id = GetComboValue(section_subject_id).value;
+            data.form_id = GetComboValue(form_id).value;
+
+            popup.Remove();
+
+            AddRecord("exams", { data: JSON.stringify(data) }).then((res) => {
+              console.log(res);
+              popup.Remove();
+              resolve(res);
+            });
           });
         },
         ["description"]
       );
+
+      ListenToCombo(form_id, (value) => {
+         SelectModel(value, "FORM_CONTROL").then((res) => {
+          duration.value = res.duration;
+          count_items.value = res.questions.length;
+         });
+      });
 
       ManageComboBoxes();
     });
@@ -86,14 +110,81 @@ function ViewExam(id) {
   popup.Create().then(() => {
     popup.Show();
 
-    ManageComboBoxes();
+    const form = popup.ELEMENT.querySelector("form");
+      const section_subject_id = form.querySelector(".section_subject_id");
+      const form_id = form.querySelector(".form_id");
+      const duration = form.querySelector("input[name='duration']");
+      const count_items = form.querySelector("input[name='count_items']");
+
+      ListenToForm(
+        form,
+        (data) => {
+           
+          new Promise((resolve) => {
+            if (data.file && data.file.name) {
+              UploadFileFromFile(
+              data.file,
+              data.file.name,
+                "public/assets/media/uploads/exams/"
+              ).then((res) => {
+                resolve({code: 200, body: res});
+              });
+            } else {
+              resolve({ code: 300, body: { path: null } });
+            }
+          }).then((res) => {
+            if (res.code === 200) {
+              data.file = res.body.path;
+            } else {
+              delete data.file;
+            }
+
+            data.section_id = section_id;
+            data.section_subject_id = GetComboValue(section_subject_id).value;
+            data.form_id = GetComboValue(form_id).value;
+
+            popup.Remove();
+
+            EditRecord("exams", { id, data: JSON.stringify(data) }).then((res) => {
+              popup.Remove();
+              resolve(res);
+            });
+          });
+        },
+        ["description"]
+      );
+
+      ListenToCombo(form_id, (value) => {
+         SelectModel(value, "FORM_CONTROL").then((res) => {
+          duration.value = res.duration;
+          count_items.value = res.questions.length;
+         });
+      });
+
+      ManageComboBoxes();
   });
+}
+
+function NewExamForm(section_id) {
+  const popup = new Popup(`${"exams"}/add_new_exams`, { section_id }, {
+    backgroundDismiss: false,
+  });
+}
+
+function TakeExam(exam_id) {
+  // Generate a random UUID for the exam session
+  const uuid = crypto.randomUUID();
+
+  // Open exam in new tab
+  window.location.replace(`form/exam/${exam_id}/${uuid}`);
 }
 
 // Handle exam functionality
 function Exams() {
   const addExamBtn = document.querySelector(".add-exam-btn");
   const examItems = document.querySelectorAll(".exam-item");
+  const createExamBtn = document.querySelector(".create-exam-btn");
+  
   if (addExamBtn) {
     addExamBtn.addEventListener("click", () => {
       NewExam(addExamBtn.dataset.section_id);
@@ -106,6 +197,17 @@ function Exams() {
       viewBtn.addEventListener("click", () => {
         ViewExam(item.dataset.id);
       });
+
+      const takeExamBtn = item.querySelector(".take-exam-btn");
+      takeExamBtn.addEventListener("click", () => {
+        TakeExam(item.dataset.id);
+      });
+    });
+  }
+
+  if (createExamBtn) {
+    createExamBtn.addEventListener("click", () => {
+      NewExamForm(createExamBtn.dataset.section_id);
     });
   }
 }

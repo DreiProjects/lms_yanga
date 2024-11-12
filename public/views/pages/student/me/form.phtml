@@ -1,0 +1,501 @@
+<?php
+
+global $APPLICATION, $SESSION;
+
+$student = $SESSION->getAsStudent();;
+
+$type = $this->param1;
+$id = $this->param2;
+$uuid = $this->param3;
+
+
+$main_form = null;
+$record = null;
+
+if ($type == "exam") {
+    $record = $APPLICATION->FUNCTIONS->EXAM_CONTROL->get($id, true);
+    $main_form = $APPLICATION->FUNCTIONS->FORM_CONTROL->get($record->form_id, true);
+}
+
+
+?>
+
+
+<?php include "public/views/pages/structures/html_headings.phtml" ?>
+
+<title>Take Form</title>
+
+<?php include "public/views/pages/structures/html_heading_closing.phtml" ?>
+
+<?php include "public/views/pages/structures/html_body_open.phtml" ?>
+
+<?php include "public/views/pages/structures/html_opening_parent.phtml" ?>
+
+<div class="left-content">
+
+    <?php include "public/views/pages/structures/html_navbar.phtml" ?>
+
+    <?php include "public/views/pages/structures/html_right_heading.phtml" ?>
+
+</div>
+
+<div class="right-content">
+
+    <div class="right-body">
+    <div class="main-body-content-parent">
+            <div class="main-body-header">
+                <div class="header-nav">
+                    <div class="left">
+                        <div class="title">
+                            <h2>Create Form</h2>
+                        </div>
+                    </div>
+                    <div class="right"></div>
+                </div>
+            </div>
+            <div class="main-content">
+                <div class="main-body-body">
+                    <div class="create-form-container">
+                        <div class="create-form-header">
+                            <h3>Create New Form</h3>
+                            <p>Create a new assessment form for your students. Fill in the details below to get started.</p>
+                        </div>
+                        <div class="create-form-body" data-form_id="<?= $main_form->form_id ?>">
+                            <div class="form-content">
+                                <h1 class="form-title" id="formTitle" contenteditable="false"><?= $main_form->title ?></h1>
+                                <p class="form-description" id="formDescription" contenteditable="false"><?= $main_form->description ?></p>
+                                
+                                <div id="questionsContainer" >
+                                    <!-- Questions will be dynamically added here -->
+                                </div>
+                            </div>
+
+                            <div class="form-actions-container">
+                                <div class="form-actions">
+                                    <button id="submitFormBtn" class="action-btn primary">
+                                        <i data-feather="save"></i>
+                                        Submit Form
+                                    </button>
+                                    <button id="resetAnswersBtn" class="action-btn danger">
+                                        <i data-feather="refresh-cw"></i>
+                                        Reset Answers
+                                    </button>
+                                </div>
+                            </div>
+
+                            <style>
+                                .form-actions-container {
+                                    position: fixed;
+                                    bottom: 2rem;
+                                    right: 2rem;
+                                    z-index: 100;
+                                }
+
+                                .form-actions {
+                                    display: flex;
+                                    flex-wrap: wrap;
+                                    gap: 1rem;
+                                    background: white;
+                                    padding: 1rem;
+                                    border-radius: 12px;
+                                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+                                    max-width: 400px;
+                                }
+
+                                .action-btn {
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    gap: 0.5rem;
+                                    padding: 0.75rem 1.5rem;
+                                    border: none;
+                                    border-radius: 8px;
+                                    font-weight: 500;
+                                    cursor: pointer;
+                                    transition: all 0.2s ease;
+                                    background: #f1f5f9;
+                                    color: #475569;
+                                    flex: 1;
+                                    min-width: 150px;
+                                    white-space: nowrap;
+                                }
+
+                                .action-btn:hover {
+                                    background: #e2e8f0;
+                                }
+
+                                .action-btn.primary {
+                                    background: #3b82f6;
+                                    color: white;
+                                }
+
+                                .action-btn.primary:hover {
+                                    background: #2563eb;
+                                }
+
+                                .action-btn.danger {
+                                    background: #ef4444;
+                                    color: white;
+                                }
+
+                                .action-btn.danger:hover {
+                                    background: #dc2626;
+                                }
+                     
+                                .image-upload-container {
+                                    display: none;
+                                }
+
+                                .add-image-btn {
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    width: 40px;
+                                    height: 40px;
+                                    padding: 0;
+                                    background: #f1f5f9;
+                                    border: none;
+                                    border-radius: 50%;
+                                    cursor: pointer;
+                                    color: #475569;
+                                    transition: all 0.2s;
+                                }
+
+                                .add-image-btn:hover {
+                                    background: #e2e8f0;
+                                }
+
+                                .remove-image-btn {
+                                    position: absolute;
+                                    top: 10px;
+                                    right: 10px;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    width: 32px;
+                                    height: 32px;
+                                    background: #fee2e2;
+                                    border: none;
+                                    border-radius: 50%;
+                                    cursor: pointer;
+                                    color: #ef4444;
+                                    transition: all 0.2s;
+                                }
+
+                                .remove-image-btn:hover {
+                                    background: #fecaca;
+                                }
+                            </style>
+                        </div>
+                    </div>
+                    <style>
+                        .form-content {
+                            max-width: 600px;
+                            margin: 0 auto;
+                            text-align: left;
+                        }
+
+                        .form-title {
+                            font-size: 1.5rem;
+                            color: #1e293b;
+                            margin-bottom: 1rem;
+                            padding: 0.5rem;
+                            border-radius: 4px;
+                            min-height: 2rem;
+                        }
+
+                        .form-description {
+                            color: #64748b;
+                            font-size: 0.95rem;
+                            padding: 0.5rem;
+                            border-radius: 4px;
+                            min-height: 1.5rem;
+                            margin-bottom: 2rem;
+                        }
+
+                        .question-container {
+                            background: #ffffff;
+                            padding: 2rem;
+                            border-radius: 12px;
+                            margin-top: 1.5rem;
+                            position: relative;
+                            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+                            transition: all 0.3s ease;
+                            min-height: 200px;
+                            cursor: move;
+                        }
+
+                        .question-container:hover {
+                            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+                        }
+
+                        .question-container.dragging {
+                            opacity: 0.5;
+                            background: #f8fafc;
+                        }
+
+                        .question-number {
+                            position: absolute;
+                            left: 1rem;
+                            top: 1rem;
+                            font-size: 1.1rem;
+                            font-weight: 500;
+                            color: #64748b;
+                        }
+
+                        .drag-handle {
+                            position: absolute;
+                            left: 1rem;
+                            top: 50%;
+                            transform: translateY(-50%);
+                            color: #94a3b8;
+                            cursor: move;
+                        }
+
+                        .drag-icon {
+                            width: 24px;
+                            height: 24px;
+                        }
+
+                        .question-header {
+                            display: flex;
+                            gap: 1rem;
+                            margin-bottom: 1.5rem;
+                            margin-left: 2rem;
+                        }
+
+                        .question-input {
+                            flex: 1;
+                        }
+
+                        .question-type {
+                            padding: 0.75rem;
+                            border: 1px solid #e2e8f0;
+                            border-radius: 8px;
+                            background: white;
+                            min-width: 150px;
+                            font-size: 0.95rem;
+                            color: #1e293b;
+                            cursor: pointer;
+                            transition: border-color 0.2s;
+                        }
+
+                        .question-type:hover {
+                            border-color: #94a3b8;
+                        }
+
+                        .question-title {
+                            width: 100%;
+                            padding: 0.75rem;
+                            font-size: 1.1rem;
+                            border: 1px solid #e2e8f0;
+                            border-radius: 8px;
+                            transition: all 0.2s;
+                            resize: none;
+                            overflow: hidden;
+                            min-height: 45px;
+                        }
+
+                        .question-title:focus {
+                            border-color: #3b82f6;
+                            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+                        }
+
+                        .choices-container {
+                            display: flex;
+                            flex-direction: column;
+                            gap: 0.5rem;
+                            margin-bottom: 4rem;
+                            margin-left: 2rem;
+                        }
+
+                        .choice-item {
+                            display: flex;
+                            align-items: center;
+                            gap: 1rem;
+                            padding: 0.5rem;
+                            border-radius: 8px;
+                            transition: background 0.2s;
+                        }
+
+                        .choice-item:hover {
+                            background: #f8fafc;
+                        }
+
+                        .choice-type-indicator {
+                            width: 20px;
+                            height: 20px;
+                            border: 2px solid #cbd5e1;
+                            border-radius: 50%;
+                            transition: all 0.2s;
+                        }
+
+                        .choice-input {
+                            flex: 1;
+                            padding: 0.75rem;
+                            border: 1px solid #e2e8f0;
+                            border-radius: 8px;
+                            font-size: 0.95rem;
+                            transition: all 0.2s;
+                        }
+
+                        .choice-input:focus {
+                            border-color: #3b82f6;
+                            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+                        }
+
+                        .remove-choice {
+                            background: none;
+                            border: none;
+                            color: #94a3b8;
+                            cursor: pointer;
+                            padding: 0.5rem;
+                            border-radius: 6px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            transition: all 0.2s;
+                        }
+
+                        .remove-choice:hover {
+                            color: #ef4444;
+                            background: #fee2e2;
+                        }
+
+                        .add-choice-btn {
+                            display: flex;
+                            align-items: center;
+                            gap: 0.5rem;
+                            background: none;
+                            color: #3b82f6;
+                            border: none;
+                            padding: 0.75rem 1.5rem;
+                            cursor: pointer;
+                            transition: all 0.2s;
+                            font-weight: 500;
+                            position: absolute;
+                            bottom: 1rem;
+                            left: 4rem;
+                        }
+
+                        .add-choice-btn:hover {
+                            opacity: 0.8;
+                        }
+
+                        .text-answer-message {
+                            display: flex;
+                            align-items: center;
+                            gap: 0.75rem;
+                            margin-top: 1rem;
+                            padding: 1rem;
+                            background: #f8fafc;
+                            border-radius: 8px;
+                            color: #475569;
+                            border: 1px solid #e2e8f0;
+                            margin-bottom: 4rem;
+                            margin-left: 2rem;
+                        }
+
+                        .info-icon {
+                            color: #3b82f6;
+                            width: 20px;
+                            height: 20px;
+                        }
+
+                        [contenteditable="true"]:hover {
+                            background: #f8fafc;
+                        }
+
+                        [contenteditable="true"]:focus {
+                            background: #f1f5f9;
+                            outline: none;
+                        }
+
+                        .choice-item.fade-in {
+                            animation: fadeIn 0.3s ease-in;
+                        }
+
+                        .question-actions {
+                            position: absolute;
+                            bottom: 1rem;
+                            right: 2rem;
+                            display: flex;
+                            gap: 0.5rem;
+                        }
+
+                        .action-btn {
+                            width: 36px;
+                            height: 36px;
+                            border-radius: 8px;
+                            border: none;
+                            background: #f1f5f9;
+                            color: #64748b;
+                            cursor: pointer;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            transition: all 0.2s;
+                        }
+
+                        .action-btn:hover {
+                            transform: translateY(-1px);
+                        }
+
+                        .delete-btn:hover {
+                            background: #fee2e2;
+                            color: #ef4444;
+                        }
+
+                        .duplicate-btn:hover {
+                            background: #e0f2fe;
+                            color: #3b82f6;
+                        }
+
+                        @keyframes fadeIn {
+                            from {
+                                opacity: 0;
+                                transform: translateY(-10px);
+                            }
+                            to {
+                                opacity: 1;
+                                transform: translateY(0);
+                            }
+                        }
+
+                        .create-form-container {
+                            max-width: 800px;
+                            margin: 0 auto;
+                            padding: 2rem;
+                            background: #fff;
+                            border-radius: 8px;
+                            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                        }
+
+                        .create-form-header {
+                            text-align: center;
+                            margin-bottom: 2.1rem;
+                        }
+
+                        .create-form-header h3 {
+                            font-size: 1.5rem;
+                            color: #1e293b;
+                            margin-bottom: 0.5rem;
+                        }
+
+                        .create-form-header p {
+                            color: #64748b;
+                            font-size: 0.95rem;
+                        }
+                    </style>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <?php include "public/views/pages/structures/html_pipes.phtml" ?>
+
+    <script type="module" src="/public/assets/scripts/pages/student/me/form.js"></script>
+
+    <?php include "public/views/pages/structures/html_closing_parent.phtml" ?>
+
+    <?php include "public/views/pages/structures/html_body_closing.phtml" ?>

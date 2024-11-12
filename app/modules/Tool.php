@@ -99,7 +99,7 @@ function GetClassMemberByID($data, $id) {
 
 function GetEnumValueOf($enum, $value)
 {
-    return str_replace("_", " ", $enum[$value - 1]);
+    return str_replace("_", " ", $enum[$value]);
 }
 
 function CreateEmployeeAttendanceTable($attendance_group, $employee, $employment) {

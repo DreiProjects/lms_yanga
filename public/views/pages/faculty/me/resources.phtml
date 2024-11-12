@@ -1,0 +1,617 @@
+<?php
+
+global $APPLICATION, $COURSE_HEADER_BODY, $SESSION;
+
+$professor = $SESSION->getAsProfessor();
+
+$classes = $professor->getClasses();
+
+$all = array_reduce($classes, function($store, $sectionSubject) {
+    if (!isset($store[$sectionSubject->section_id])) {
+        $store[$sectionSubject->section_id] = $sectionSubject;
+    }
+    return $store;
+}, []);
+
+$menuItems = array_map(function($sectionSubject) use ($professor) {
+    $section = $sectionSubject->getSection();
+    $subjects = $section->getSubjectForProfessor($professor->professor_id);
+
+    return [
+        'id' => $section->section_id,
+        'label' => $section->section_name,
+        'icon' => 'folder-thin',
+        'tag' => 'section',
+        'submenu' => array_map(function($subject) use ($section) {
+            return [
+                'id' => $subject->subject->subject_id,
+                'label' => $subject->subject->subject_name,
+                'primary' => $subject->section_subject_id,
+                'section' => $section->section_id,
+                'resources' => $subject->getAllResources()
+            ];
+        }, $subjects)
+    ];
+}, $all);
+
+
+array_push($menuItems, [
+    'id' => 'all',
+    'icon' => 'folder-thin',
+    'label' => 'All Forms',
+    'tag' => 'form',
+    ]);
+
+$forms = $APPLICATION->FUNCTIONS->FORM_CONTROL->getAllRecords(true);
+?>
+
+<?php include "public/views/pages/structures/html_headings.phtml" ?>
+
+<title>My Resources</title>
+
+<?php include "public/views/pages/structures/html_heading_closing.phtml" ?>
+
+<?php include "public/views/pages/structures/html_body_open.phtml" ?>
+
+<?php include "public/views/pages/structures/html_opening_parent.phtml" ?>
+
+<div class="left-content">
+
+    <?php include "public/views/pages/structures/html_navbar.phtml" ?>
+
+    <?php include "public/views/pages/structures/html_right_heading.phtml" ?>
+
+</div>
+
+<div class="right-content">
+
+    <div class="right-body">
+        <div class="main-body-content-parent">
+            <div class="main-body-header">
+                <div class="header-nav">
+                    <div class="left">
+                        <div class="title">
+                            <h2>Resources</h2>
+                        </div>
+                    </div>
+                    <div class="right"></div>
+                </div>
+            </div>
+            <div class="main-content">
+                <div class="main-body-body">
+                    <div class="my-resources-container">
+                        <div class="resources-menu">
+                            <div class="menu-items">
+                                <?php foreach($menuItems as $index => $item): ?>
+                                    <div class="menu-item <?= $index === 0 ? 'active' : '' ?>" data-content="<?= $item['id'] ?>">
+                                        <div class="menu-item-content">
+                                            <div class="icon">
+                                                <?= UseIcon($item['icon']) ?>
+                                            </div>
+                                            <span><?= $item['label'] ?></span>
+                                        </div>
+                                        <?php if(isset($item['submenu'])): ?>
+                                            <div class="submenu">
+                                                <?php foreach($item['submenu'] as $submenuItem): ?>
+                                                    <div class="submenu-item" data-subcontent="<?= $submenuItem['id'] ?>"><?= $submenuItem['label'] ?></div>
+                                                <?php endforeach; ?>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                        <div class="resources-content">
+                            <?php foreach($menuItems as $index => $item): ?>
+                                <div class="content-container <?= $index === 0 ? 'active' : '' ?>" data-content="<?= $item['id'] ?>">
+                                    <?php if(isset($item['submenu'])): ?>
+                                        <?php foreach($item['submenu'] as $subIndex => $submenuItem): ?>
+                                            <div class="subcontent <?= $subIndex === 0 ? 'active' : '' ?>" data-subcontent="<?= $submenuItem['id'] ?>">
+                                                <h3><?= $submenuItem['label'] ?> <?= $item['label'] ?></h3>
+                                                <!-- Content for <?= $submenuItem['label'] ?> <?= $item['label'] ?> -->
+
+                                                <?php if($item['tag'] === 'section'): ?>
+                                                    <div class="accordion">
+                                                        <?php foreach ($submenuItem['resources'] as $index => $resource): ?>
+                                                            <div class="accordion-item <?= $index === 0 ? 'active' : '' ?>" data-id="<?= $resource->resources_group_id ?>" data-title="<?= $resource->title ?>">
+                                                                <div class="accordion-header">
+                                                                    <h4><?= $resource->title ?></h4>
+                                                                    <span class="accordion-icon">+</span>
+                                                                </div>
+                                                                <div class="accordion-content">
+                                                                    <p><?= $resource->description ?></p>
+                                                                    <small>Date: <?= date('l, F j, Y \a\t h:i:s A', strtotime($resource->date_created)) ?></small>
+                                                                    <div class="resource-actions">
+                                                                        <div class="icon-button download-resource-group-btn" title="Download">
+                                                                            <div class="icon">
+                                                                                <?= UseIcon("download-thin") ?>
+                                                                            </div>
+                                                                            <div class="text">
+                                                                                <span>Download Resource Group</span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>  
+                                                                    <?php foreach ($resource->resources as $content): ?>
+                                                                        <div class="resource-item" data-id="<?= $content->resources_id ?>" data-title="<?= $content->title ?>">
+                                                                            <h5><?= $content->title ?></h5>
+                                                                            <p><?= $content->description ?></p>
+                                                                            <small>
+                                                                                <?= $content->file_name ?> | 
+                                                                                <?= $content->file_size ?> | 
+                                                                                Type: <?= $content->file_type ?> |
+                                                                                Date: <?= date('l, F j, Y \a\t h:i:s A', strtotime($content->date_created)) ?>
+                                                                            </small>
+                                                                            <div class="resource-actions">
+                                                                                <div class="icon-button download-resource-btn" title="Download">
+                                                                                    <div class="icon">
+                                                                                        <?= UseIcon("download-thin") ?>
+                                                                                    </div>
+                                                                                    <div class="text">
+                                                                                        <span>Download</span>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    <?php endforeach; ?>
+                                                                </div>
+                                                            </div>
+                                                        <?php endforeach; ?>
+                                                    </div>
+
+                                                    
+                                                <?php endif; ?>
+
+                                            </div>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <h3><?= $item['label'] ?></h3>
+                                        <!-- Content for <?= $item['label'] ?> -->
+
+                                        <?php if ($item['tag'] === 'form'): ?>
+                                            <div class="form-container">
+                                                <div class="form-header">
+                                                    <h3>My Forms</h3>
+                                                    <button class="create-form-btn">
+                                                        <?= UseIcon("plus-thin") ?>
+                                                        Create New Form
+                                                    </button>
+                                                </div>
+
+                                                <div class="forms-list">
+                                                    <?php foreach ($forms as $form): ?>
+                                                        <div class="form-card">
+                                                            <div class="form-card-header">
+                                                                <div class="form-info">
+                                                                    <span class="badge <?= strtolower($form->form_type) ?>"><?= ucfirst($form->form_type) ?></span>
+                                                                    <h4><?= $form->title ?></h4>
+                                                                    <p><?= $form->description ?></p>
+                                                                </div>
+                                                                <div class="form-menu">
+                                                                    <?= UseIcon("dots-vertical-thin") ?>
+                                                                    <div class="dropdown-menu">
+                                                                        <button class="edit-form-btn" data-id="<?= $form->form_id ?>">Edit Form</button>
+                                                                        <button class="duplicate-form-btn" data-id="<?= $form->form_id ?>">Duplicate</button>
+                                                                        <button class="delete-form-btn" data-id="<?= $form->form_id ?>">Delete</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-stats">
+                                                                <div class="stat">
+                                                                    <span class="value"><?= count($form->questions) ?></span>
+                                                                    <span class="label">Questions</span>
+                                                                </div>
+                                                                <div class="stat">
+                                                                    <span class="value"><?= $form->duration ?? 0 ?></span>
+                                                                    <span class="label">Minutes</span>
+                                                                </div>
+                                                                <div class="stat">
+                                                                    <span class="value"><?= $form->points ?? 0 ?></span>
+                                                                    <span class="label">Points</span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-meta">
+                                                                <span>Created on <?= date('F j, Y', strtotime($form->date_created)) ?></span>
+                                                            </div>
+                                                        </div>
+                                                    <?php endforeach; ?>
+                                                </div>
+
+                                                <style>
+                                                    .form-container {
+                                                        padding: 2rem;
+                                                        background: #f8fafc;
+                                                        width: 100%;
+                                                    }
+
+                                                    .form-header {
+                                                        display: flex;
+                                                        justify-content: space-between;
+                                                        align-items: center;
+                                                        margin-bottom: 2rem;
+                                                    }
+
+                                                    .create-form-btn {
+                                                        display: flex;
+                                                        align-items: center;
+                                                        gap: 0.5rem;
+                                                        padding: 0.75rem 1.5rem;
+                                                        background: #3b82f6;
+                                                        color: white;
+                                                        border: none;
+                                                        border-radius: 8px;
+                                                        cursor: pointer;
+                                                        transition: background 0.2s;
+                                                    }
+
+                                                    .create-form-btn:hover {
+                                                        background: #2563eb;
+                                                    }
+
+                                                    .forms-list {
+                                                        display: grid;
+                                                        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+                                                        gap: 1.5rem;
+                                                    }
+
+                                                    .form-card {
+                                                        background: white;
+                                                        border-radius: 12px;
+                                                        padding: 1.5rem;
+                                                        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                                                        transition: all 0.2s;
+                                                    }
+
+                                                    .form-card:hover {
+                                                        transform: translateY(-2px);
+                                                        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                                                    }
+
+                                                    .form-card-header {
+                                                        display: flex;
+                                                        justify-content: space-between;
+                                                        margin-bottom: 1.5rem;
+                                                    }
+
+                                                    .form-info h4 {
+                                                        margin: 0.5rem 0;
+                                                        color: #1e293b;
+                                                    }
+
+                                                    .form-info p {
+                                                        color: #64748b;
+                                                        font-size: 0.9rem;
+                                                    }
+
+                                                    .badge {
+                                                        padding: 0.25rem 0.75rem;
+                                                        border-radius: 999px;
+                                                        font-size: 0.75rem;
+                                                        font-weight: 500;
+                                                    }
+
+                                                    .badge.exam {
+                                                        background: #fef3c7;
+                                                        color: #92400e;
+                                                    }
+
+                                                    .badge.quiz {
+                                                        background: #dbeafe;
+                                                        color: #1e40af;
+                                                    }
+
+                                                    .form-menu {
+                                                        position: relative;
+                                                        cursor: pointer;
+                                                    }
+
+                                                    .form-container svg {
+                                                        width: 20px !important;
+                                                        height: 20px;
+                                                        fill: #fff;
+                                                    }
+
+                                                    .dropdown-menu {
+                                                        position: absolute;
+                                                        right: 0;
+                                                        top: 100%;
+                                                        background: white;
+                                                        border-radius: 8px;
+                                                        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                                                        padding: 0.5rem;
+                                                        display: none;
+                                                    }
+
+                                                    .form-menu:hover .dropdown-menu {
+                                                        display: flex;
+                                                        flex-direction: column;
+                                                    }
+
+                                                    .dropdown-menu button {
+                                                        padding: 0.5rem 1rem;
+                                                        border: none;
+                                                        background: none;
+                                                        text-align: left;
+                                                        cursor: pointer;
+                                                        border-radius: 4px;
+                                                    }
+
+                                                    .dropdown-menu button:hover {
+                                                        background: #f1f5f9;
+                                                    }
+
+                                                    .form-stats {
+                                                        display: grid;
+                                                        grid-template-columns: repeat(3, 1fr);
+                                                        gap: 1rem;
+                                                        margin-bottom: 1rem;
+                                                        padding: 1rem 0;
+                                                        border-top: 1px solid #e2e8f0;
+                                                        border-bottom: 1px solid #e2e8f0;
+                                                    }
+
+                                                    .stat {
+                                                        text-align: center;
+                                                    }
+
+                                                    .stat .value {
+                                                        display: block;
+                                                        font-size: 1.5rem;
+                                                        font-weight: 600;
+                                                        color: #1e293b;
+                                                    }
+
+                                                    .stat .label {
+                                                        font-size: 0.875rem;
+                                                        color: #64748b;
+                                                    }
+
+                                                    .form-meta {
+                                                        display: flex;
+                                                        justify-content: space-between;
+                                                        font-size: 0.875rem;
+                                                        color: #64748b;
+                                                    }
+                                                </style>
+
+                                                <script>
+                                                    document.addEventListener('DOMContentLoaded', function() {
+                                                        const createFormBtn = document.querySelector('.create-form-btn');
+                                                        const editFormBtns = document.querySelectorAll('.edit-form-btn');
+                                                        const deleteFormBtns = document.querySelectorAll('.delete-form-btn');
+                                                        const duplicateFormBtns = document.querySelectorAll('.duplicate-form-btn');
+
+                                                        createFormBtn.addEventListener('click', function() {
+                                                            window.open('/me/createForm', '_blank');
+                                                        });
+
+                                                        editFormBtns.forEach(btn => {
+                                                            btn.addEventListener('click', function(e) {
+                                                                e.stopPropagation();
+                                                                const formId = this.dataset.id;
+                                                                console.log('Edit form:', formId);
+                                                            });
+                                                        });
+
+                                                        deleteFormBtns.forEach(btn => {
+                                                            btn.addEventListener('click', function(e) {
+                                                                e.stopPropagation();
+                                                                const formId = this.dataset.id;
+                                                                if(confirm('Are you sure you want to delete this form?')) {
+                                                                    console.log('Delete form:', formId);
+                                                                }
+                                                            });
+                                                        });
+
+                                                        duplicateFormBtns.forEach(btn => {
+                                                            btn.addEventListener('click', function(e) {
+                                                                e.stopPropagation();
+                                                                const formId = this.dataset.id;
+                                                                console.log('Duplicate form:', formId);
+                                                            });
+                                                        });
+                                                    });
+                                                </script>
+                                            </div>
+                                  
+                                            <?php endif ?>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+
+                    <style>
+                        .my-resources-container {
+                            display: flex !important;
+                            gap: 2rem;
+                            height: 100%;
+                            padding: 1rem;
+                        }
+
+                        .resources-menu {
+                            width: 250px;
+                            background: #fff;
+                            border-radius: 8px;
+                            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                            padding: 1rem;
+                            height: fit-content;
+                            position: sticky;
+                            top: 1rem;
+                        }
+
+                        .menu-items {
+                            display: flex;
+                            flex-direction: column;
+                            gap: 0.5rem;
+                        }
+
+                        .menu-item {
+                            display: flex;
+                            flex-direction: column;
+                            gap: 0.5rem;
+                            padding: 0.75rem 1rem;
+                            border-radius: 6px;
+                            cursor: pointer;
+                            transition: all 0.2s ease;
+                        }
+
+                        .menu-item-content {
+                            display: flex;
+                            align-items: center;
+                            gap: 0.75rem;
+                        }
+
+                        .menu-item:hover {
+                            background: #f5f5f5;
+                        }
+
+                        .menu-item.active {
+                            background: #e3f2fd;
+                            color: #1976d2;
+                        }
+
+                        .menu-item .icon {
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            width: 24px;
+                            height: 24px;
+                        }
+
+                        .menu-item .icon svg {
+                            width: 100%;
+                            height: 100%;
+                        }
+
+                        .submenu {
+                            display: none;
+                            padding-left: 2rem;
+                            margin-top: 0.5rem;
+                        }
+
+                        .menu-item.active .submenu {
+                            display: flex;
+                            flex-direction: column;
+                            gap: 0.5rem;
+                        }
+
+                        .submenu-item {
+                            padding: 0.5rem;
+                            border-radius: 4px;
+                            font-size: 0.9rem;
+                        }
+
+                        .submenu-item:hover {
+                            background: rgba(25, 118, 210, 0.1);
+                        }
+
+                        .submenu-item.active {
+                            background: rgba(25, 118, 210, 0.2);
+                            font-weight: 500;
+                        }
+
+                        .resources-content {
+                            flex: 1;
+                            width: 100%;
+                            background: #fff;
+                            border-radius: 8px;
+                            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                            padding: 1.5rem;
+                        }
+
+                        .content-container {
+                            display: none;
+                            width: 100%;
+                        }
+
+                        .content-container.active {
+                            display: block;
+                            width: 100%;
+                        }
+
+                        .subcontent {
+                            display: none;
+                            width: 100%;
+                        }
+
+                        .subcontent.active {
+                            display: block;
+                            width: 100%;
+                        }
+
+                        .content-container h3 {
+                            margin-bottom: 1rem;
+                            color: #333;
+                            font-size: 1.25rem;
+                        }
+                    </style>
+
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const menuItems = document.querySelectorAll('.menu-item');
+                            const submenuItems = document.querySelectorAll('.submenu-item');
+                            const contentContainers = document.querySelectorAll('.content-container');
+                            const subcontents = document.querySelectorAll('.subcontent');
+
+                            menuItems.forEach(item => {
+                                item.addEventListener('click', () => {
+                                    // Remove active class from all menu items
+                                    menuItems.forEach(i => i.classList.remove('active'));
+                                    // Add active class to clicked menu item
+                                    item.classList.add('active');
+
+                                    // Show corresponding content container
+                                    const contentId = item.dataset.content;
+                                    contentContainers.forEach(container => {
+                                        container.classList.remove('active');
+                                        if(container.dataset.content === contentId) {
+                                            container.classList.add('active');
+                                        }
+                                    });
+
+                                    // Activate first subcontent of the active content
+                                    const activeContent = document.querySelector(`.content-container[data-content="${contentId}"]`);
+                                    if(activeContent) {
+                                        const firstSubcontent = activeContent.querySelector('.subcontent');
+                                        if(firstSubcontent) {
+                                            subcontents.forEach(s => s.classList.remove('active'));
+                                            firstSubcontent.classList.add('active');
+                                        }
+                                    }
+                                });
+                            });
+
+                            submenuItems.forEach(item => {
+                                item.addEventListener('click', (e) => {
+                                    e.stopPropagation();
+                                    
+                                    // Remove active class from all submenu items in the same menu
+                                    const parentMenu = item.closest('.menu-item');
+                                    parentMenu.querySelectorAll('.submenu-item').forEach(i => i.classList.remove('active'));
+                                    // Add active class to clicked submenu item
+                                    item.classList.add('active');
+
+                                    // Show corresponding subcontent
+                                    const subcontentId = item.dataset.subcontent;
+                                    subcontents.forEach(subcontent => {
+                                        subcontent.classList.remove('active');
+                                        if(subcontent.dataset.subcontent === subcontentId) {
+                                            subcontent.classList.add('active');
+                                        }
+                                    });
+                                });
+                            });
+                        });
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <?php include "public/views/pages/structures/html_pipes.phtml" ?>
+
+    <script type="module" src="/public/assets/scripts/pages/faculty/me/classes.js"></script>
+
+    <?php include "public/views/pages/structures/html_closing_parent.phtml" ?>
+
+    <?php include "public/views/pages/structures/html_body_closing.phtml" ?>

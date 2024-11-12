@@ -21,7 +21,7 @@ class SectionSubject extends SectionSubjectAbstract
         $this->applyData($data, SectionSubjectAbstract::class);
         $this->init();
     }
-
+    
     private function init(): void
     {
         global $APPLICATION;
@@ -45,5 +45,11 @@ class SectionSubject extends SectionSubjectAbstract
         global $APPLICATION;
 
         return $APPLICATION->FUNCTIONS->SECTION_CONTROL->get($this->section_id, true);
+    }
+
+    public function getAllResources() {
+        global $APPLICATION;
+
+        return $APPLICATION->FUNCTIONS->RESOURCES_GROUP_CONTROL->filterRecords(['section_subject_id' => $this->section_subject_id], true);
     }
 }

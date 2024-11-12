@@ -33,6 +33,9 @@ use Application\controllers\system\GradingPlatformControl;
 use Application\controllers\system\ActivityComplyControl;
 use Application\controllers\system\EventControl;
 use Application\controllers\system\GradeScoreControl;
+use Application\controllers\system\FormControl;
+use Application\controllers\system\FormQuestionControl;
+use Application\controllers\system\FormQuestionChoicesControl;
 use Application\models\Professor;
 use Application\models\Section;
 
@@ -107,6 +110,12 @@ class GlobalFunctions
 
     public $GRADE_SCORE_CONTROL;
 
+    public $FORM_CONTROL;
+
+    public $FORM_QUESTION_CONTROL;
+
+    public $FORM_QUESTION_CHOICES_CONTROL;
+
     public function __construct($SESSION)
     {
         global $CONNECTION;
@@ -180,5 +189,11 @@ class GlobalFunctions
         $this->EVENT_CONTROL = new EventControl();
 
         $this->GRADE_SCORE_CONTROL = new GradeScoreControl();
+
+        $this->FORM_CONTROL = new FormControl();
+
+        $this->FORM_QUESTION_CONTROL = new FormQuestionControl();
+
+        $this->FORM_QUESTION_CHOICES_CONTROL = new FormQuestionChoicesControl();
     }
 }

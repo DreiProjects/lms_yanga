@@ -61,6 +61,8 @@ export default class GradingPlatformEditor {
         this.createDefaultColumnAndTables();
         this.updateCategoryHeaders();
         this.addEventListeners();
+        this.initializeOriginalGrades(); // Initialize original grades after loading
+        this.setUnsavedChanges(false); // Set initial state of save changesZ
       }
     });
   }

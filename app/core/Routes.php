@@ -132,6 +132,42 @@ class Routes
                     return $service->render(file_exists($view) ? $view : $defaultView, ["view_path" => $req->param("view") . "/" .$req->param("subview")]);
                 }
             );
+
+            $KLEIN->respond(
+                "GET",
+                "/[:view]/[:subview]/[**:params]",
+                static function ($req, $res, $service) use ($defaultView, $mustview) {
+                    // First check if direct path exists
+                    $fullPath = $req->param("params") ? 
+                        $mustview . $req->param("view") . "/" . $req->param("subview") . "/" . $req->param("params") . ".phtml" :
+                        $mustview . $req->param("view") . "/" . $req->param("subview") . ".phtml";
+                    
+                    // If direct path exists, render it
+                    if (file_exists($fullPath)) {
+                        return $service->render($fullPath, [
+                            "view_path" => $req->param("view") . "/" . $req->param("subview") . "/" . $req->param("params")
+                        ]);
+                    }
+                    
+                    // Otherwise treat additional segments as parameters
+                    $basePath = $mustview . $req->param("view") . "/" . $req->param("subview") . ".phtml";
+                    
+                    if (!file_exists($basePath)) {
+                        return $service->render($defaultView, ["view_path" => $req->param("view")]);
+                    }
+                    
+                    // Split the remaining path into parameters
+                    $paramArray = $req->param("params") ? explode("/", $req->param("params")) : [];
+                    
+                    // Add numbered parameters to service data
+                    $data = ["view_path" => $req->param("view") . "/" . $req->param("subview")];
+                    foreach ($paramArray as $index => $param) {
+                        $data["param" . ($index + 1)] = $param;
+                    }
+                    
+                    return $service->render($basePath, $data);
+                }
+            );
         });
     }
 
@@ -186,6 +222,9 @@ class Routes
                     "/activities_complied" => ["ACTIVITY_COMPLY_CONTROL", "add", "editRecord", "removeRecords"],
                     "/events" => ["EVENT_CONTROL", "add", "editRecord", "removeRecords"],
                     "/grade_scores" => ["GRADE_SCORE_CONTROL", "addRecord", "editRecord", "removeRecords"],
+                    "/forms" => ["FORM_CONTROL", "add", "editRecord", "removeRecords"],
+                    "/form_questions" => ["FORM_QUESTION_CONTROL", "addRecord", "editRecord", "removeRecords"],
+                    "/form_question_choices" => ["FORM_QUESTION_CHOICES_CONTROL", "addRecord", "editRecord", "removeRecords"],
                 ];
 
                 foreach ($routes as $path => [$control, $addMethod, $editMethod, $removeMethod]) {

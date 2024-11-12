@@ -19,11 +19,12 @@ $ALL_USER_TYPES = array_column(UserTypes::cases(), "value");
 
 $ALL_USER_TYPES_MINI = array_column(UserTypesMini::cases(), "value");
 
+$USER_STATUS = [1 => "Active", 5 => "Locked"];
 
 
 $USER_HEADER_BODY = [
     "header" => ["No","Name","First Name","Last Name","Email","Status", "Date Created"],
-    "body" => ["no","displayName","firstname", "lastname","email","status", "date_created"]
+    "body" => ["no","displayName","firstname", "lastname","email",["enum" => $USER_STATUS, "value" => "status"], "date_created"]
 ];
 
 $STUDENT_IN_SECTION_HEADER_BODY = [

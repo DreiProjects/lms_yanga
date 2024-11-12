@@ -1,10 +1,21 @@
 <?php
-global $APPLICATION, $ALL_USER_TYPES;
+global $APPLICATION, $ALL_USER_TYPES, $USER_STATUS;
 
 $data = json_decode($_POST['data'], true);
 $id = $data['id'];
 
 $user = $APPLICATION->FUNCTIONS->USER_CONTROL->get($id, true);
+
+$callback = function ($key, $value) {
+    return [
+        "value" => $key,
+        "text" => $value
+    ];
+  };
+
+$items = array_map( $callback, array_keys($USER_STATUS), $USER_STATUS);
+
+var_dump(array_column($USER_STATUS, "value"));
 
 ?>
 <div class="main-popup-container">
@@ -68,6 +79,20 @@ $user = $APPLICATION->FUNCTIONS->USER_CONTROL->get($id, true);
                         <label for=""><span>Birthdate</span></label>
                         <div class="error-container">
                             <input type="date" name="birthdate" placeholder="Birthdate" value="<?= $user->birthdate ?>" >
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group-container flex">
+                    <div class="form-group tooltip">
+                        <div class="tooltiptext">
+                            <span>Status</span>
+                        </div>
+                        <label for=""><span>Status</span></label>
+                        <div class="error-container">
+                            <?= CreateComboBox("status", "Status", $items, false, [
+                                "text" => $USER_STATUS[$user->status],
+                                "value" => $user->status
+                            ]) ?>
                         </div>
                     </div>
                 </div>

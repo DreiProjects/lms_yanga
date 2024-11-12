@@ -2,8 +2,11 @@
 
 global $APPLICATION, $USER_HEADER_BODY;
 
+
+$forUser = $_POST['forUser'];
+
 $control = $APPLICATION->FUNCTIONS->USER_CONTROL;
-$RECORDS = $control->filterRecords(['user_type' => 3],true);
+$RECORDS = $control->filterRecords(['user_type' => $forUser],true);
 ?>
 
 <?= CreateTable([

@@ -13,12 +13,13 @@ import {
 } from "../../../modules/app/SystemFunctions.js";
 import {NewNotification, NotificationType} from "../../../classes/components/NotificationPopup.js";
 import AlertPopup, {AlertTypes} from "../../../classes/components/AlertPopup.js";
-import {SelectModel} from "../../../modules/app/Administrator.js";
 
 
 const TARGET = "users";
 const MINI_TARGET = "user";
 const MAIN_TITLE = "Users";
+
+let USER_TYPE = 1;
 
 function UpdateTable(TABLE_HTML) {
     const TABLE_BODY = document.querySelector(".main-table-body");
@@ -28,7 +29,8 @@ function UpdateTable(TABLE_HTML) {
 }
 
 function UpdateData() {
-    return UpdateRecords(TARGET).then((HTML) => UpdateTable(HTML));
+    console.log(USER_TYPE)
+    return UpdateRecords(TARGET, USER_TYPE).then((HTML) => UpdateTable(HTML));
 }
 
 function DeleteRequests(ids) {
@@ -65,9 +67,10 @@ function ViewRequest(id) {
         popup.Show();
 
         const form = pop.ELEMENT.querySelector("form.form-control");
-        const branch_id = form.querySelector('.branch_id');
+        const status = form.querySelector('.status');
 
         ListenToForm(form, function (data) {
+            data.status = GetComboValue(status).value;
 
             EditRecord(TARGET, {id, data: JSON.stringify(data)}).then((res) => {
                 popup.Remove();
@@ -124,6 +127,8 @@ function ManageTable() {
     if (!TABLE) return;
 
     const TABLE_LISTENER = new TableListener(TABLE);
+
+    USER_TYPE = TABLE.querySelector(".main-table-body").getAttribute("data-user-type");
 
     TABLE_LISTENER.addListeners({
         none: {
