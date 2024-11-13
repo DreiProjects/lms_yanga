@@ -103,7 +103,7 @@ $DEPARTMENTS_HEADER_BODY = [
 ];
 
 $SECTION_SUBJECT_HEADER_BODY = [
-    "header" => ["No","Subject","Professor", "Schedule"],
+    "header" => ["No","Subject","Professor", "Classroom", "Schedule"],
     "body" => ["no",[
         "primary" => "subject_id",
         "controller" => SubjectControl::class,
@@ -112,7 +112,7 @@ $SECTION_SUBJECT_HEADER_BODY = [
         "primary" => "professor_id",
         "controller" => ProfessorControl::class,
         "value" =>  "displayName"
-    ], "schedule_label"]
+    ],"classroom_id", "schedule_label"]
 ];
 
 $STUDENTS_IN_CLASSES_HEADER_BODY = [

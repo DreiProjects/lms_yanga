@@ -729,6 +729,8 @@ function Resources() {
     // Handle downloading resource group
     downloadResourceGroupBtn.addEventListener("click", () => {
       DownloadResourceGroup(item.dataset.id).then((res) => {
+        console.log(res)
+
         res = JSON.parse(res);
         const binaryStr = atob(res.body);
         const bytes = new Uint8Array(binaryStr.length);
@@ -747,6 +749,7 @@ function Resources() {
       const downloadBtn = resourceItem.querySelector(".download-resource-btn");
       downloadBtn.addEventListener("click", () => {
         DownloadResource(resourceItem.dataset.id).then((res) => {
+          console.log(res)
           res = JSON.parse(res);
           const binaryStr = atob(res.body);
           const bytes = new Uint8Array(binaryStr.length);

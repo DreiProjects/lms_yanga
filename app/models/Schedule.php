@@ -27,4 +27,17 @@ class Schedule extends ScheduleAbstract
             return $record->day;
         }, $this->items));
     }
+
+    public function get($day) {
+        $all = [];
+        $records =  array_filter($this->items, function($record) use ($day) {
+            return $record->day == $day;
+        });
+
+        foreach ($records as $record) {
+            $all[] = $record;
+        }
+
+        return $all;
+    }
 }

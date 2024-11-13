@@ -13,7 +13,10 @@ abstract class SectionSubjectAbstract extends ModelDefaultFunctions
     public $subject_id;
 
     public $professor_id;
+
     public $schedule_id;
+
+    public $classroom_id;
 
     public $status;
 

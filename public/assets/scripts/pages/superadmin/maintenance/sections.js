@@ -351,24 +351,27 @@ function ManageSubjectsTable(element, subjects, update) {
 
       const form = p.ELEMENT.querySelector("form.form-control");
       const subj = p.ELEMENT.querySelector(".subject_id");
-
+      const classroom_id = p.ELEMENT.querySelector(".classroom_id");
       let student = p.ELEMENT.querySelector(".select-professor");
       let studentInput = p.ELEMENT.querySelector("input[name=professor_id]");
       let selectedProfessor;
 
       const check = ListenToForm(form, function (data) {
         const sub_id = GetComboValue(subj).value;
+        const class_id = GetComboValue(classroom_id).value;
         popup.Remove();
 
         TABLE_LISTENER.insertItem(ALLSUBJECTS.length + 1, [
           ALLSUBJECTS.length + 1,
           data.subject_id,
           selectedProfessor.user.displayName,
+          data.classroom_id,
         ]);
 
         ALLSUBJECTS.push({
           professor_id: selectedProfessor.professor_id,
           subject_id: sub_id,
+          classroom_id: class_id,
           status: "created",
         });
 

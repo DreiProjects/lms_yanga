@@ -92,12 +92,36 @@ if ($sectionStudent != null) {
                                     <div class="card-flex-container" data-id="<?= $section->section_id ?>" data-professor_id="<?= $subProf['professor']->professor_id ?>">
                                         <div class="title">
                                             <h3><?= implode(", ", array_map(fn($subject) => $subject->subject->subject_name, $subProf['subjects'])) ?></h3>
+                                            <br>
                                             <p><?= $subProf['professor']->displayName ?></p>
                                             <?php
                                             $uniqueDays = array_unique(array_merge(...array_map(fn($subject) => explode(', ', $subject->schedule ? $subject->schedule->schedule_label : "" ), $subProf['subjects'])));
-                                            sort($uniqueDays);
+                                            sort($uniqueDays);  
+
+                                            $todayClass = array_filter($subProf['subjects'], function($record) {
+                                                $days = explode(',', $record->schedule ? $record->schedule->schedule_label : "");
+
+                                                return in_array(date("l"), $days);
+                                            });
+
+                                            $todayClasses = array_map(function($record) {
+                                                return [
+                                                    'subject' => $record->subject->subject_name,
+                                                    'schedule' => $record->schedule->get(date("l"))
+                                                ];
+                                            }, $todayClass);
+
                                             ?>
+                                            
+                                        <?php if ($uniqueDays && !empty($uniqueDays) && !empty($uniqueDays[0])): ?>
                                             <small><?= implode(', ', $uniqueDays) ?></small>
+                                        <?php endif ?>
+
+                                        <?php if (!empty($todayClasses)): ?>
+                                            <?php foreach ($todayClasses as $todayClass): ?>
+                                                <small><?= $todayClass['subject'] ?> - <?= date("g:i A", strtotime($todayClass['schedule'][0]->start_time)) . " - " . date("g:i A", strtotime($todayClass['schedule'][0]->end_time)) ?></small>
+                                            <?php endforeach ?>
+                                        <?php endif ?>
                                         </div>
                                     </div>
                                 <?php endforeach; ?>
