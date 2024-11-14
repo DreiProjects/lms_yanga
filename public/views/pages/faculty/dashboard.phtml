@@ -3,6 +3,7 @@
 
 global $APPLICATION, $SESSION;
 
+$isProfessor = $SESSION->user_type == 2;
 
 $dashboardCards = [
     [
@@ -45,6 +46,13 @@ $maintenanceCards = [
         "value" => $APPLICATION->FUNCTIONS->SUBJECT_CONTROL->countRecords(),
     ],
 ];
+
+// Get announcements
+$announcements = $APPLICATION->FUNCTIONS->ANNOUNCEMENT_CONTROL->filterRecords([
+    'for_view' => '0'
+], true);
+
+$events = $APPLICATION->FUNCTIONS->EVENT_CONTROL->filterRecords([], true);
 ?>
 
 <?php include "public/views/pages/structures/html_headings.phtml" ?>
@@ -114,62 +122,44 @@ $maintenanceCards = [
                                 <?php endforeach ?>
                             </div>
                         </div>
-                        <div class="first">
-                            <div class="dash-title">
-                                <h2>Items</h2>
-                            </div>
-                            <div class="dashboard-cards">
-                                <div class="flex-dashboard-cards">
-                                    <div class="flex-card">
-                                        <h1>0</h1>
-                                        <p>Item 1</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
+                    
                     <div class="right-grid">
+                        <!-- Announcements Header -->
                         <section>
                             <div class="dash-title">
-                                <h2>Average Report</h2>
+                                <h2>Announcements</h2>
                             </div>
-
-                            <div class="image-container">
-                                <?= UseImage('/img/no_data.svg', true) ?>
-                            </div>
-
+                            <?php if(empty($announcements)): ?>
+                                <div class="image-container">
+                                    <?= UseImage('/img/no_data.svg', true) ?>
+                                    <p>No announcements yet</p>
+                                </div>
+                            <?php endif ?>
                         </section>
+                        
+                        <!-- Announcements List -->
                         <section>
-                            <div class="dash-title">
-                                <h2>Label Title</h2>
+                            <div class="announcements-list">
+                                <?php foreach($announcements as $announcement): ?>
+                                    <div class="announcement-card">
+                                        <div class="announcement-header">
+                                            <h3><?= $announcement->title ?></h3>
+                                            <small><?= date('M d, Y', strtotime($announcement->date_created)) ?></small>
+                                        </div>
+                                        <div class="announcement-body">
+                                            <p><?= $announcement->content ?></p>
+                                        </div>
+                                    </div>
+                                <?php endforeach ?>
                             </div>
                         </section>
                     </div>
                 </div>
-                <div class="full-grid">
-                    <div class="min-full-right-grid">
-                        <div class="dash-title">
-                            <h2>Container 1</h2>
-                        </div>
-
-                        <div class="item-lists">
-
-                        </div>
-                    </div>
-                    <div class="half-full-right-grid">
-                        <div class="dash-title">
-                            <h2>Container 2</h2>
-                        </div>
-                        <div class="item-lists">
-
-                        </div>
-                    </div>
-                </div>
+                
             </div>
         </div>
     </div>
-
-
 
     <?php include "public/views/pages/structures/html_pipes.phtml" ?>
 
