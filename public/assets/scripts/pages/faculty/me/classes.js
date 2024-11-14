@@ -786,7 +786,7 @@ function DownloadResourceGroup(id) {
 }
 
 // Handle resources functionality
-function Resources() {
+export function Resources() {
   const resourcesMenu = document.querySelector(".resources-menu");
   const accordionItems = document.querySelectorAll(".accordion-item");
   const uploadResourceBtn = document.querySelector(".upload-resource-btn");

@@ -516,7 +516,8 @@ $forms = $APPLICATION->FUNCTIONS->FORM_CONTROL->getAllRecords(true);
                         }
                     </style>
 
-                    <script>
+                    <script type="module">
+                        import { Resources } from "/public/assets/scripts/pages/faculty/me/classes.js";
                         document.addEventListener('DOMContentLoaded', function() {
                             const menuItems = document.querySelectorAll('.menu-item');
                             const submenuItems = document.querySelectorAll('.submenu-item');
@@ -577,6 +578,8 @@ $forms = $APPLICATION->FUNCTIONS->FORM_CONTROL->getAllRecords(true);
                             createFormBtn.addEventListener('click', () => {
                                 window.location.href = "/me/createForm";
                             });
+
+                            Resources();
                         });
                     </script>
                 </div>
