@@ -1,5 +1,6 @@
 import { SelectModelByFilter } from "./../../modules/app/Administrator.js";
-import { PostRequest } from "./../../modules/app/SystemFunctions.js";
+import { PostRequest, AddRecord } from "./../../modules/app/SystemFunctions.js";
+import { SESSION } from "./../../modules/app/Application.js";
 import {
   addHtml,
   append,
@@ -11,13 +12,17 @@ import {
   ListenToForm,
 } from "../../modules/component/Tool.js";
 import Popup from "./Popup.js";
+import { NewNotification } from "./NotificationPopup.js";
 
 export default class GradingPlatformEditor {
   constructor({
     container,
     students = [],
-    buttons = { save: null, discard: null, export: null },
+    buttons = { save: null, discard: null, export: null, show: null },
   }) {
+    this.sessionType = parseInt(SESSION.sessionType);
+    this.sessionId = parseInt(SESSION.sessionId);
+    this.grading_platform = null;
     this.grading_platform_id = null;
     this.container = container;
     this.students = students;
@@ -25,6 +30,7 @@ export default class GradingPlatformEditor {
     this.saveGradesBtn = buttons.save;
     this.discardGradesBtn = buttons.discard;
     this.exportBtn = buttons.export;
+    this.showBtn = buttons.show;
 
     this.passingScores = { scores: {}, status: {} };
     this.categories = [];
@@ -35,12 +41,22 @@ export default class GradingPlatformEditor {
     this.sectionSubjectId = null;
     this.removedColumns = {};
     this.removedCategories = [];
+    this.selectedStudents = [];
+    this.highlightedStudents = [];
+    this.updateShowButtonState(); // Initial button state
 
-    // Add event listener if export button exists
-    if (this.exportBtn) {
-      this.exportBtn.addEventListener("click", () => {
-        this.exportToExcel();
-      });
+    // Hide buttons for student users
+    if (this.sessionType === 1) {
+      if (this.saveGradesBtn) this.saveGradesBtn.style.display = 'none';
+      if (this.discardGradesBtn) this.discardGradesBtn.style.display = 'none';
+      if (this.exportBtn) this.exportBtn.style.display = 'none';
+    } else {
+      // Add event listener if export button exists
+      if (this.exportBtn) {
+        this.exportBtn.addEventListener("click", () => {
+          this.exportToExcel();
+        });
+      }
     }
   }
 
@@ -89,6 +105,11 @@ export default class GradingPlatformEditor {
   }
 
   reconstructTable(container, students) {
+    // Filter students if user is a student
+    if (this.sessionType === 1) {
+      students = students.filter(student => student.user_id === this.sessionId);
+    }
+
     const table = CreateElement({
       el: "TABLE",
       className: "grading-table",
@@ -104,6 +125,8 @@ export default class GradingPlatformEditor {
                   text: "Student Name",
                   attr: {
                     rowspan: 2,
+                    style: "text-align: left; cursor: pointer;",
+                    class: "student-name-header"
                   },
                 }),
                 CreateElement({
@@ -124,6 +147,7 @@ export default class GradingPlatformEditor {
                   el: "TH",
                   attr: {
                     rowspan: 2,
+                    style: this.sessionType === 1 ? "display: none;" : ""
                   },
                   child: CreateElement({
                     el: "BUTTON",
@@ -148,11 +172,16 @@ export default class GradingPlatformEditor {
               el: "TR",
               attr: {
                 "data-student": student.user_id,
+                class: "student-row",
+                style: "cursor: pointer;"
               },
               childs: [
                 CreateElement({
                   el: "TD",
                   text: student.displayName,
+                  attr: {
+                    style: "text-align: left;"
+                  },
                 }),
                 CreateElement({
                   el: "TD",
@@ -172,9 +201,7 @@ export default class GradingPlatformEditor {
     });
 
     addHtml(container, "");
-
     append(container, table);
-
     return table;
   }
 
@@ -202,6 +229,7 @@ export default class GradingPlatformEditor {
     if (!grading_platform) return;
 
     this.grading_platform_id = grading_platform.grading_platform_id;
+    this.grading_platform = grading_platform;
 
     this.resetStructure();
 
@@ -223,12 +251,33 @@ export default class GradingPlatformEditor {
     });
 
     this.updateCategoryHeaders();
+    this.updateSelectedStudents();
     this.addEventListeners();
 
     // Recalculate all grades after loading
     this.table.querySelectorAll("tbody tr").forEach((row) => {
       this.recalculateGrades(row);
     });
+  }
+
+  updateSelectedStudents() {
+    const data = this.grading_platform.selected_students;
+
+    if (data) {
+      this.highlightedStudents = JSON.parse(data.data);
+      
+      // Update row highlighting based on selected students
+      this.table.querySelectorAll("tbody tr").forEach(row => {
+        const studentId = row.getAttribute("data-student");
+        if (this.highlightedStudents.includes(studentId)) {
+          row.classList.add("highlighted-student");
+        } else {
+          row.classList.remove("highlighted-student"); 
+        }
+      });
+
+      this.updateShowButtonState();
+    }
   }
 
   initializeOriginalGrades() {
@@ -342,11 +391,17 @@ export default class GradingPlatformEditor {
           res = JSON.parse(res);
 
           if (res.code === 200) {
-            alert("Grades saved successfully!");
+            NewNotification({
+              type: "success",
+              message: "Grades have been saved successfully!"
+            });
             this.updateCreatedObjects(res.body.created_objects);
             resolve(true);
           } else {
-            alert("Failed to save grades. Please try again .");
+            NewNotification({
+              type: "error",
+              message: "Failed to save grades. Please try again."
+            });
             resolve(false);
           }
         }
@@ -427,8 +482,22 @@ export default class GradingPlatformEditor {
     });
   }
 
+  showGrades() {
+    const data = {
+      grading_platform_id: this.grading_platform_id,
+      data: JSON.stringify(this.selectedStudents),
+    }
+
+    AddRecord("grade_show_requests", { data: JSON.stringify(data) }).then((res) => {
+      NewNotification({
+        type: "success",
+        message: res.message
+      });
+    });
+  }
+
   discardGrades() {
-    console.log("Starting discard with original grades:", this.originalGrades); // Debug log
+    console.log("Starting discard with original grades:", this.originalGrades);
 
     this.table.querySelectorAll("tbody tr").forEach((row) => {
       const userId = row.dataset.student;
@@ -478,12 +547,20 @@ export default class GradingPlatformEditor {
     });
 
     this.setUnsavedChanges(false);
+    NewNotification({
+      type: "info",
+      message: "All changes have been discarded."
+    });
   }
 
   setUnsavedChanges(value) {
     this.hasUnsavedChanges = value;
-    this.saveGradesBtn.disabled = !this.hasUnsavedChanges;
-    this.discardGradesBtn.disabled = !this.hasUnsavedChanges;
+    if (this.saveGradesBtn) {
+      this.saveGradesBtn.disabled = !this.hasUnsavedChanges;
+    }
+    if (this.discardGradesBtn) {
+      this.discardGradesBtn.disabled = !this.hasUnsavedChanges;
+    }
   }
 
   recalculateGrades(row) {
@@ -583,6 +660,9 @@ export default class GradingPlatformEditor {
   }
 
   showPassingScoreEditor(header, category, column) {
+    // Only show for non-student users
+    if (this.sessionType === 1) return;
+
     const existingContainer = document.querySelector(".floating-container");
     if (existingContainer) existingContainer.remove();
 
@@ -688,6 +768,9 @@ export default class GradingPlatformEditor {
   }
 
   showImportDataModal(categoryIndex, columnId, grading_platform_id) {
+    // Only show for non-student users
+    if (this.sessionType === 1) return;
+
     const popup = new Popup(
       `${"classes"}/import_grade_score_data`,
       {
@@ -796,6 +879,7 @@ export default class GradingPlatformEditor {
       }
     });
 
+    
     // Recalculate grades after importing
     const inputs = this.table.querySelectorAll(
       `span.grade-input[data-category="${data.category}"][data-column-id="${data.columnId}"]`
@@ -810,6 +894,9 @@ export default class GradingPlatformEditor {
   }
 
   showNewCategoryEditor(button) {
+    // Only show for non-student users
+    if (this.sessionType === 1) return;
+
     const existingContainer = document.querySelector(".floating-container");
     if (existingContainer) existingContainer.remove();
 
@@ -1183,7 +1270,13 @@ export default class GradingPlatformEditor {
       (cat) => cat.category_id.toString() === categoryId.toString()
     );
 
-    if (!category) return;
+    if (!category) {
+      NewNotification({
+        type: "error",
+        message: "Category not found."
+      });
+      return;
+    }
 
     // If it was an original category, track it for deletion
     if (category.status === "original") {
@@ -1240,11 +1333,21 @@ export default class GradingPlatformEditor {
     });
 
     this.setUnsavedChanges(true);
+    NewNotification({
+      type: "success",
+      message: `Category "${category.name}" has been removed.`
+    });
   }
 
   addEventListeners() {
     this.table.addEventListener("input", (e) => {
       if (e.target.classList.contains("grade-input")) {
+        // Only allow input if user is not a student
+        if (this.sessionType === 1) {
+          e.preventDefault();
+          return;
+        }
+
         const category = e.target.dataset.category;
         const columnId = e.target.dataset.columnId;
         const userId = e.target.dataset.student;
@@ -1270,38 +1373,49 @@ export default class GradingPlatformEditor {
       }
     });
 
-    this.table.addEventListener("click", (e) => {
-      if (e.target.classList.contains("score-header")) {
-        const category = e.target.dataset.category;
-        const column = e.target.dataset.column;
-        this.showPassingScoreEditor(e.target, category, column);
-      }
-    });
+    // Only add these event listeners for non-student users
+    if (this.sessionType !== 1) {
+      this.table.addEventListener("click", (e) => {
+        if (e.target.classList.contains("score-header")) {
+          const category = e.target.dataset.category;
+          const column = e.target.dataset.column;
+          this.showPassingScoreEditor(e.target, category, column);
+        }
+      });
 
-    this.table.addEventListener("click", (e) => {
-      if (e.target.closest(".edit-header")) {
-        const categoryHeader = e.target.closest(".category-header");
-        // Get category ID as string
-        const categoryId = categoryHeader.dataset.category.toString();
-        this.showCategoryEditor(categoryHeader, categoryId);
-      } else if (e.target.closest(".add-category")) {
-        this.showNewCategoryEditor(e.target.closest(".add-category"));
-      }
-    });
+      this.table.addEventListener("click", (e) => {
+        if (e.target.closest(".edit-header")) {
+          const categoryHeader = e.target.closest(".category-header");
+          const categoryId = categoryHeader.dataset.category.toString();
+          this.showCategoryEditor(categoryHeader, categoryId);
+        } else if (e.target.closest(".add-category")) {
+          this.showNewCategoryEditor(e.target.closest(".add-category"));
+        }
+      });
 
-    this.table.addEventListener("click", (e) => {
-      if (e.target.classList.contains("add-column")) {
-        this.addColumn(e.target.dataset.category);
-      } else if (e.target.classList.contains("remove-column")) {
-        this.removeColumn(e.target.dataset.category, e.target.dataset.column);
-      }
-    });
+      this.table.addEventListener("click", (e) => {
+        if (e.target.classList.contains("add-column")) {
+          this.addColumn(e.target.dataset.category);
+        } else if (e.target.classList.contains("remove-column")) {
+          this.removeColumn(e.target.dataset.category, e.target.dataset.column);
+        }
+      });
+    }
 
-    this.discardGradesBtn.addEventListener("click", () => {
-      if (confirm("Are you sure you want to discard all changes?")) {
-        this.discardGrades();
+    if (this.showBtn) {
+      this.showBtn.addEventListener("click", () => {
+        this.showGrades();
+      });
+    }
+
+
+    if (this.discardGradesBtn) {
+      this.discardGradesBtn.addEventListener("click", () => {
+        if (confirm("Are you sure you want to discard all changes?")) {
+          this.discardGrades();
       }
-    });
+      });
+    }
 
     if (this.saveGradesBtn) {
       this.saveGradesBtn.addEventListener("click", () => {
@@ -1321,6 +1435,55 @@ export default class GradingPlatformEditor {
           "You have unsaved changes. Are you sure you want to leave?";
       }
     });
+
+    // Add row selection functionality
+    this.table.addEventListener("click", (e) => {
+      if (e.target.classList.contains("student-name-header")) {
+        const allRows = this.table.querySelectorAll("tbody tr");
+        const allSelected = Array.from(allRows).every(row => row.classList.contains("selected"));
+        
+        if (allSelected) {
+          allRows.forEach(row => row.classList.remove("selected"));
+          this.selectedStudents = [];
+        } else {
+          this.selectedStudents = [];
+          allRows.forEach(row => {
+            row.classList.add("selected");
+            const studentId = row.getAttribute("data-student");
+            this.selectedStudents.push(studentId);
+          });
+        }
+        this.updateShowButtonState(); // Update button state
+        return;
+      }
+
+      const row = e.target.closest(".student-row");
+      if (row) {
+        const studentId = row.getAttribute("data-student");
+        
+        if (row.classList.contains("selected")) {
+          row.classList.remove("selected");
+          this.selectedStudents = this.selectedStudents.filter(id => id !== studentId);
+        } else {
+          row.classList.add("selected");
+          this.selectedStudents.push(studentId);
+        }
+        
+        this.updateShowButtonState(); // Update button state
+      }
+    });
+  }
+
+  updateShowButtonState() {
+    if (this.showBtn) {
+      this.showBtn.disabled = this.selectedStudents.length === 0;
+      // Optional: Add visual feedback with CSS classes
+      if (this.selectedStudents.length === 0) {
+        this.showBtn.classList.add('disabled');
+      } else {
+        this.showBtn.classList.remove('disabled');
+      }
+    }
   }
 
   async exportToExcel() {

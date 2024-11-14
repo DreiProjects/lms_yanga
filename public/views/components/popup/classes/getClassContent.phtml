@@ -1,6 +1,8 @@
 <?php
 global $APPLICATION, $SESSION, $STUDENTS_IN_CLASSES_HEADER_BODY, $SUBJECTS_IN_CLASSES_HEADER_BODY;
 
+$gradingControl = $APPLICATION->FUNCTIONS->GRADING_PLATFORM_CONTROL;
+
 if (!isset($section)) {
     $id = $_POST['id'];
     $professor_id = $_POST['professor_id'];
@@ -53,14 +55,7 @@ foreach ($SUBJECTS as $subject) {
                         </div>
                     </div>
                     <div class="center">
-                        <div class="search-engine-parent full-width">
-                            <div class="search-engine">
-                                <div class="icon">
-                                    <?= UseIcon("magnifying-glass-thin") ?>
-                                </div>
-                                <input type="text" name="search-records" placeholder="Search Records...">
-                            </div>
-                        </div>
+                       
                     </div>
                     <div class="right"></div>
                 </div>
@@ -348,37 +343,51 @@ foreach ($SUBJECTS as $subject) {
                             </div>
                         </div>
                         <div class="tab-pane" id="grades">
-
-                        <?php if($SESSION->user_type == 1): ?>
-
-                        <?php else: ?>
-                        <div class="grades-container">
-                            <div class="grades-content">
-                                <div class="grades-menu">
-                                    <ul>
+                            <div class="grades-container">
+                                <div class="grades-content">
+                                    <div class="grades-menu">
+                                        <ul>
+                                            <?php foreach($SUBJECTS as $index => $subject): ?>
+                                                <li class="<?= $index === 0 ? 'active' : '' ?>" data-subject="<?= $subject->subject_name ?>">
+                                                    <?= $subject->subject_name ?>
+                                                </li>
+                                            <?php endforeach; ?>
+                                        </ul>
+                                    </div>
+                                    <div class="grades-list">
                                         <?php foreach($SUBJECTS as $index => $subject): ?>
-                                            <li class="<?= $index === 0 ? 'active' : '' ?>" data-subject="<?= $subject->subject_name ?>">
-                                                <?= $subject->subject_name ?>
-                                            </li>
+                                            <?php 
+                                                $grading_platform = $gradingControl->getBy("section_subject_id", $subject->section_subject_id, true);
+                                                $is_student_selected = $grading_platform ? $grading_platform->isStudentSelected($SESSION->user_id) : false;
+                                             ?>
+                                            <div class="subject-grades <?= $index === 0 ? 'active' : '' ?>" data-subject="<?= $subject->subject_name ?>">
+                                               <?php if($is_student_selected && $SESSION->user_type == 1 || $SESSION->user_type == 2): ?>
+                                                    <?php if($SESSION->user_type == 2): ?>
+                                                        <div class="grade-actions">
+                                                            <button class="btn btn-success save-grades" disabled>Save Grades</button>
+                                                            <button class="btn btn-danger discard-grades" disabled>Discard Changes</button>
+                                                            <button class="btn btn-primary export-grades">Export to Excel</button>
+                                                            <button class="btn btn-success show-grades">Show Grades to Students</button>
+                                                        </div>
+                                                    <?php endif; ?>
+                                                    <div class="grading-platform-container" data-section-subject-id="<?= $subject->section_subject_id ?>">
+                                                    </div>
+                                                    <?php else: ?>
+                                                    <div class="empty-message">
+                                                        <div class="icon">
+                                                            <i class="fas fa-lock"></i>
+                                                        </div>
+                                                        <div class="message">
+                                                            <h3>Grades Not Available</h3>
+                                                            <p>Your grades have not been released yet. Please check back later.</p>
+                                                        </div>
+                                                    </div>
+                                               <?php endif; ?>
+                                            </div>
                                         <?php endforeach; ?>
-                                    </ul>
-                                </div>
-                                <div class="grades-list">
-                                    <?php foreach($SUBJECTS as $index => $subject): ?>
-                                        <div class="subject-grades <?= $index === 0 ? 'active' : '' ?>" data-subject="<?= $subject->subject_name ?>">
-                                            <div class="grade-actions">
-                                                <button class="btn btn-success save-grades" disabled>Save Grades</button>
-                                                <button class="btn btn-danger discard-grades" disabled>Discard Changes</button>
-                                                <button class="btn btn-primary export-grades">Export to Excel</button>
-                                            </div>
-                                            <div class="grading-platform-container" data-section-subject-id="<?= $subject->section_subject_id ?>">
-                                            </div>
-                                        </div>
-                                    <?php endforeach; ?>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <?php endif ?>
                         </div>
 
                     <div class="tab-pane" id="attendance">
@@ -501,6 +510,29 @@ foreach ($SUBJECTS as $subject) {
                                     background: #f8fafc;
                                     z-index: 10;
                                     min-width: 200px;
+                                }
+
+                                .student-row.selected {
+                                    background-color: #2563eb !important; /* Darker blue background */
+                                    color: white; /* White text for better contrast */
+                                }
+
+                                .student-row.selected:hover {
+                                    background-color: #1d4ed8 !important; /* Even darker blue on hover */
+                                    color: white;
+                                }
+
+                                .student-row.highlighted-student {
+                                    background-color: #e0f2fe !important;
+                                    /* box-shadow: inset 0 0 0 2px #0ea5e9; */
+                                }
+
+                                .student-row {
+                                    transition: background-color 0.2s ease;
+                                }
+
+                                .student-name-header:hover {
+                                    background-color: #f5f5f5;
                                 }
 
                                 .student-name {
@@ -924,6 +956,13 @@ foreach ($SUBJECTS as $subject) {
         outline: none;
         box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
     }
+
+    .grade-input.view-only {
+        background-color: #f5f5f5;
+        pointer-events: none;
+        cursor: not-allowed;
+    }
+    
     .ws, .final-grade, .college-grade {
         font-weight: bold;
         background-color: #e9ecef;

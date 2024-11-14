@@ -39,6 +39,7 @@ use Application\controllers\system\FormQuestionChoicesControl;
 use Application\controllers\system\FormCompletionControl;
 use Application\controllers\system\FormCompletionAnswerControl;
 use Application\controllers\system\SubjectAttendanceControl;
+use Application\controllers\system\GradingShowRequestControl;
 use Application\models\Professor;
 use Application\models\Section;
 
@@ -125,6 +126,8 @@ class GlobalFunctions
 
     public $SUBJECT_ATTENDANCE_CONTROL;
 
+    public $GRADING_SHOW_REQUEST_CONTROL;
+
     public function __construct($SESSION)
     {
         global $CONNECTION;
@@ -210,5 +213,7 @@ class GlobalFunctions
         $this->FORM_COMPLETION_ANSWER_CONTROL = new FormCompletionAnswerControl();
 
         $this->SUBJECT_ATTENDANCE_CONTROL = new SubjectAttendanceControl();
+
+        $this->GRADING_SHOW_REQUEST_CONTROL = new GradingShowRequestControl();
     }
 }

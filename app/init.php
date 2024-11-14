@@ -36,6 +36,7 @@ include_once "abstract/grading/GradingScoreAbstract.php";
 include_once "abstract/grading/GradingScoreColumnAbstract.php";
 include_once "abstract/grading/GradingPlatformAbstract.php";
 include_once "abstract/grading/GradingCategoriesAbstract.php";
+include_once "abstract/grading/GradeShowRequestAbstract.php";
 include_once "abstract/PostCommentAbstract.php";
 include_once "abstract/ActivityComplyAbstract.php";
 include_once "abstract/EventAbstract.php";
@@ -84,6 +85,7 @@ include_once "models/FormQuestionChoice.php";
 include_once "models/FormCompletion.php";
 include_once "models/FormCompletionAnswer.php";
 include_once "models/SubjectAttendance.php";
+include_once "models/GradeShowRequest.php";
 // APP CONTROLLERS
 include_once "controllers/app/Response.php";
 include_once "controllers/app/GlobalFunctions.php";
@@ -126,6 +128,7 @@ include_once "controllers/system/FormQuestionChoicesControl.php";
 include_once "controllers/system/FormCompletionControl.php";
 include_once "controllers/system/FormCompletionAnswerControl.php";
 include_once "controllers/system/SubjectAttendanceControl.php";
+include_once "controllers/system/GradingShowRequestControl.php";
 // SYSTEM CONTROLLERS
 
 // APPLICATION CORE

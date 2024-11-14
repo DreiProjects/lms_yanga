@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 12, 2024 at 09:01 PM
+-- Generation Time: Nov 14, 2024 at 03:58 PM
 -- Server version: 10.4.27-MariaDB
 -- PHP Version: 8.1.12
 
@@ -213,9 +213,9 @@ INSERT INTO `email_verifications` (`verification_id`, `user_id`, `verification`,
 (40, '3', '795574', '2024-11-09 05:10:35'),
 (43, '11', '965434', '2024-11-09 05:21:32'),
 (44, '53', '290250', '2024-11-09 05:48:06'),
-(54, '32', '264019', '2024-11-10 21:01:15'),
 (55, '1', '220876', '2024-11-10 21:01:59'),
-(56, '10', '458606', '2024-11-12 01:26:07');
+(57, '32', '905801', '2024-11-14 12:27:28'),
+(58, '10', '189770', '2024-11-14 12:28:42');
 
 -- --------------------------------------------------------
 
@@ -419,6 +419,27 @@ INSERT INTO `grade_scores` (`grade_score_id`, `id`, `parent_id`, `category`, `gr
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `grade_show_requests`
+--
+
+CREATE TABLE `grade_show_requests` (
+  `grade_show_request_id` int(11) NOT NULL,
+  `grading_platform_id` int(11) NOT NULL,
+  `data` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`data`)),
+  `status` int(11) NOT NULL,
+  `date_created` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `grade_show_requests`
+--
+
+INSERT INTO `grade_show_requests` (`grade_show_request_id`, `grading_platform_id`, `data`, `status`, `date_created`) VALUES
+(3, 5, '[\"10\",\"11\",\"12\"]', 0, '2024-11-14 14:55:51');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `grading_categories`
 --
 
@@ -438,7 +459,10 @@ CREATE TABLE `grading_categories` (
 INSERT INTO `grading_categories` (`grading_category_id`, `grading_platform_id`, `name`, `percentage`, `status`, `date_created`) VALUES
 (1, 1, 'Written Works', 30, 0, '2024-10-29 01:16:42'),
 (2, 1, 'Performance Tasks', 50, 0, '2024-10-29 01:16:42'),
-(3, 1, 'Exams', 20, 0, '2024-10-29 01:16:42');
+(3, 1, 'Exams', 20, 0, '2024-10-29 01:16:42'),
+(20, 5, 'Written Works', 30, 0, '2024-11-14 14:30:55'),
+(21, 5, 'Performance Tasks', 50, 0, '2024-11-14 14:30:55'),
+(22, 5, 'Exams', 20, 0, '2024-11-14 14:30:55');
 
 -- --------------------------------------------------------
 
@@ -458,7 +482,8 @@ CREATE TABLE `grading_platforms` (
 --
 
 INSERT INTO `grading_platforms` (`grading_platform_id`, `section_subject_id`, `status`, `date_created`) VALUES
-(1, 1, 0, '2024-10-29 01:16:42');
+(1, 1, 0, '2024-10-29 01:16:42'),
+(5, 4, 0, '2024-11-14 14:30:55');
 
 -- --------------------------------------------------------
 
@@ -482,7 +507,8 @@ CREATE TABLE `grading_scores` (
 INSERT INTO `grading_scores` (`grading_score_id`, `grading_score_column_id`, `student_id`, `score`, `status`, `date_created`) VALUES
 (3, 2, 5, 100, 0, '2024-10-29 13:10:13'),
 (4, 3, 5, 100, 0, '2024-10-31 01:38:27'),
-(9, 14, 5, 50, 0, '2024-10-31 02:20:39');
+(9, 14, 5, 50, 0, '2024-10-31 02:20:39'),
+(11, 17, 10, 100, 0, '2024-11-14 14:30:55');
 
 -- --------------------------------------------------------
 
@@ -507,7 +533,8 @@ INSERT INTO `grading_score_columns` (`grading_score_column_id`, `grading_categor
 (1, 1, '1', 100, 0, '2024-10-29 09:49:21'),
 (2, 2, '1', 100, 0, '2024-10-29 09:49:21'),
 (3, 1, '2', 100, 0, '2024-10-31 01:38:27'),
-(14, 1, '3', 100, 0, '2024-10-31 02:20:39');
+(14, 1, '3', 100, 0, '2024-10-31 02:20:39'),
+(17, 20, '1', 100, 0, '2024-11-14 14:30:55');
 
 -- --------------------------------------------------------
 
@@ -1108,6 +1135,12 @@ ALTER TABLE `grade_scores`
   ADD KEY `fk_parent_grade_scores` (`parent_id`);
 
 --
+-- Indexes for table `grade_show_requests`
+--
+ALTER TABLE `grade_show_requests`
+  ADD PRIMARY KEY (`grade_show_request_id`);
+
+--
 -- Indexes for table `grading_categories`
 --
 ALTER TABLE `grading_categories`
@@ -1305,7 +1338,7 @@ ALTER TABLE `departments`
 -- AUTO_INCREMENT for table `email_verifications`
 --
 ALTER TABLE `email_verifications`
-  MODIFY `verification_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
+  MODIFY `verification_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
 
 --
 -- AUTO_INCREMENT for table `events`
@@ -1356,28 +1389,34 @@ ALTER TABLE `grade_scores`
   MODIFY `grade_score_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
+-- AUTO_INCREMENT for table `grade_show_requests`
+--
+ALTER TABLE `grade_show_requests`
+  MODIFY `grade_show_request_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
 -- AUTO_INCREMENT for table `grading_categories`
 --
 ALTER TABLE `grading_categories`
-  MODIFY `grading_category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `grading_category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT for table `grading_platforms`
 --
 ALTER TABLE `grading_platforms`
-  MODIFY `grading_platform_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `grading_platform_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `grading_scores`
 --
 ALTER TABLE `grading_scores`
-  MODIFY `grading_score_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `grading_score_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `grading_score_columns`
 --
 ALTER TABLE `grading_score_columns`
-  MODIFY `grading_score_column_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `grading_score_column_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `posts`

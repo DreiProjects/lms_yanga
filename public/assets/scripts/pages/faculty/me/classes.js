@@ -25,6 +25,8 @@ import {
 } from "../../../modules/app/Administrator.js";
 import GradingPlatformEditor from "../../../classes/components/GradingPlatformEditor.js";
 import StickyNoteEditor from "../../../classes/components/StickyNoteEditor.js";
+import { SESSION } from "../../../modules/app/Application.js";
+import { NewNotification } from "../../../classes/components/NotificationPopup.js";
 
 // Handle creating new exam
 function NewExam(section_id) {
@@ -244,6 +246,7 @@ function Grades() {
     const saveBtn = container.querySelector(".save-grades");
     const discardBtn = container.querySelector(".discard-grades");
     const exportBtn = container.querySelector(".export-grades");
+    const showBtn = container.querySelector(".show-grades");
     const sectionSubjectId = platformContainer.dataset.sectionSubjectId;
 
     SelectModel(sectionSubjectId, "SECTION_SUBJECT_CONTROL").then((res) => {
@@ -257,7 +260,7 @@ function Grades() {
             user_id: student.user_id,
             displayName: student.displayName,
           })),
-          buttons: { save: saveBtn, discard: discardBtn, export: exportBtn },
+          buttons: { save: saveBtn, discard: discardBtn, export: exportBtn, show: showBtn },
         });
 
         gradingEditor.Load(sectionSubjectId);
@@ -652,7 +655,18 @@ function NewResource(section_id, professor_id) {
           AddRecord("resources", {
             data: JSON.stringify(data),
             file: data.file,
-          }).then(() => {
+          }).then((res) => {
+            if (res === 200) {
+              NewNotification({
+                type: "success",
+                message: "Resource added successfully!"
+              });
+            } else {
+              NewNotification({
+                type: "error",
+                message: "Failed to add resource. Please try again."
+              });
+            }
             popup.Remove();
           });
         },
@@ -839,18 +853,32 @@ function GetSubjectAttendance(sectionSubjectId) {
 
 // Handle attendance functionality
 async function Attendance() {
+    // Hide action buttons if user is a student (type 1)
+    if (parseInt(SESSION.sessionType) === 1) {
+        const saveBtn = document.querySelector('.save-attendance');
+        const discardBtn = document.querySelector('.discard-attendance');
+        if (saveBtn) saveBtn.style.display = 'none';
+        if (discardBtn) discardBtn.style.display = 'none';
+    }
+    const sessionID = parseInt(SESSION.sessionId);
+    const sessionType = parseInt(SESSION.sessionType);
     const container = document.getElementById('attendanceTableContainer');
     const students = await GetSectionStudents(container.dataset.sectionSubjectId);
     const monthSelect = document.getElementById('monthSelect');
     const yearSelect = document.getElementById('yearSelect');
     const attendance = await GetSubjectAttendance(container.dataset.sectionSubjectId);
-    
+    console.log(SESSION, sessionType);
     let selectedCells = new Set();
     let lastSelectedCell = null;
     let isMouseDown = false;
     let attendanceData = attendance ? JSON.parse(attendance.attendance_data) : {};
     let originalAttendanceData = JSON.parse(JSON.stringify(attendanceData));
     let hasChanges = false;
+
+    // Filter students if user is a student
+    const displayStudents = parseInt(sessionType) === 1 ? 
+        students.filter(student => student.user_id === sessionID) : 
+        students;
 
     function getDaysInMonth(month, year) {
         return new Date(year, month, 0).getDate();
@@ -861,7 +889,6 @@ async function Attendance() {
             attendanceData[date] = {};
         }
         
-        // Check if state is actually different before marking as changed
         const originalState = originalAttendanceData[date]?.[studentId];
         if (state !== originalState) {
             hasChanges = true;
@@ -893,7 +920,7 @@ async function Attendance() {
         const startDate = new Date(year, month - 1, 1);
         const endDate = new Date(year, month - 1, daysInMonth);
 
-        students.forEach(student => {
+        displayStudents.forEach(student => {
             let presentCount = 0;
             let absentCount = 0;
             let lateCount = 0;
@@ -909,11 +936,13 @@ async function Attendance() {
             }
 
             const summaryCell = document.querySelector(`.summary-cell[data-student="${student.user_id}"]`);
-            summaryCell.innerHTML = `
-                <span class="present-count">${presentCount}</span> /
-                <span class="absent-count">${absentCount}</span> /
-                <span class="late-count">${lateCount}</span>
-            `;
+            if (summaryCell) {
+                summaryCell.innerHTML = `
+                    <span class="present-count">${presentCount}</span> /
+                    <span class="absent-count">${absentCount}</span> /
+                    <span class="late-count">${lateCount}</span>
+                `;
+            }
         });
     }
 
@@ -921,9 +950,19 @@ async function Attendance() {
         const month = parseInt(monthSelect.value);
         const year = parseInt(yearSelect.value);
         const daysInMonth = getDaysInMonth(month, year);
+        const isProfessor = parseInt(sessionType) === 2;
 
-        // Add save and discard buttons at the top
         let tableHTML = ``;
+
+        // Only show save/discard buttons for professors
+        if (isProfessor) {
+            tableHTML += `
+                <div class="attendance-controls">
+                    <button class="save-attendance" disabled>Save Changes</button>
+                    <button class="discard-attendance" disabled>Discard Changes</button>
+                </div>
+            `;
+        }
 
         tableHTML += `
             <table class="attendance-table">
@@ -938,7 +977,7 @@ async function Attendance() {
 
         tableHTML += `<th class="summary-header">Summary (P/A/L)</th></tr></thead><tbody>`;
 
-        students.forEach(student => {
+        displayStudents.forEach(student => {
             tableHTML += `
                 <tr>
                     <td class="student-name">${student.displayName}</td>
@@ -950,11 +989,15 @@ async function Attendance() {
                 const stateClass = state ? ` ${state}` : '';
                 const stateIcon = state ? `<i data-feather="${getIconForState(state)}" style="color: ${getColorForState(state)}"></i>` : '';
                 
+                // Make cells interactive only for professors
+                const interactiveAttrs = isProfessor ? 
+                    `tabindex="0" class="attendance-cell${stateClass}"` : 
+                    `class="attendance-cell-readonly${stateClass}"`;
+                
                 tableHTML += `
-                    <td class="attendance-cell${stateClass}" 
+                    <td ${interactiveAttrs}
                         data-student="${student.user_id}" 
-                        data-date="${date}"
-                        tabindex="0">
+                        data-date="${date}">
                         ${stateIcon}
                     </td>
                 `;
@@ -968,79 +1011,75 @@ async function Attendance() {
         container.innerHTML = tableHTML;
         feather.replace();
 
-        // Store original state
         originalAttendanceData = JSON.parse(JSON.stringify(attendanceData));
         hasChanges = false;
 
-        // Add save and discard handlers
-        document.querySelector('.save-attendance').addEventListener('click', saveChanges);
-        document.querySelector('.discard-attendance').addEventListener('click', discardChanges);
+        // Only add interactive features for professors
+        if (parseInt(sessionType) === 2) {
+            document.querySelector('.save-attendance')?.addEventListener('click', saveChanges);
+            document.querySelector('.discard-attendance')?.addEventListener('click', discardChanges);
 
-        // Add mouse and keyboard handlers for attendance cells
-        const cells = document.querySelectorAll('.attendance-cell');
-        
-        cells.forEach(cell => {
-            // Mouse selection handlers
-            cell.addEventListener('mousedown', function(e) {
-                isMouseDown = true;
-                toggleCellSelection(this, e);
-            });
-
-            cell.addEventListener('mouseover', function(e) {
-                if (isMouseDown) {
+            const cells = document.querySelectorAll('.attendance-cell');
+            
+            cells.forEach(cell => {
+                cell.addEventListener('mousedown', function(e) {
+                    isMouseDown = true;
                     toggleCellSelection(this, e);
-                }
-            });
+                });
 
-            // Keyboard navigation handlers
-            cell.addEventListener('keydown', function(e) {
-                const currentIndex = Array.from(cells).indexOf(this);
-                let nextIndex;
-
-                switch(e.key) {
-                    case 'ArrowLeft':
-                        nextIndex = currentIndex - 1;
-                        break;
-                    case 'ArrowRight':
-                        nextIndex = currentIndex + 1;
-                        break;
-                    case 'ArrowUp':
-                        nextIndex = currentIndex - daysInMonth;
-                        break;
-                    case 'ArrowDown':
-                        nextIndex = currentIndex + daysInMonth;
-                        break;
-                    case ' ':
+                cell.addEventListener('mouseover', function(e) {
+                    if (isMouseDown) {
                         toggleCellSelection(this, e);
-                        break;
-                    case 'Alt':
-                        if (selectedCells.has(this)) {
-                            selectedCells.delete(this);
-                            this.classList.remove('selected');
-                            if (selectedCells.size === 0) {
-                                document.querySelectorAll('.attendance-floating-container').forEach(container => {
-                                    container.remove();
-                                });
-                            }
-                        }
-                        break;
-                }
-
-                if (nextIndex >= 0 && nextIndex < cells.length) {
-                    cells[nextIndex].focus();
-                    if (e.shiftKey) {
-                        toggleCellSelection(cells[nextIndex], e);
                     }
-                }
+                });
+
+                cell.addEventListener('keydown', function(e) {
+                    const currentIndex = Array.from(cells).indexOf(this);
+                    let nextIndex;
+
+                    switch(e.key) {
+                        case 'ArrowLeft':
+                            nextIndex = currentIndex - 1;
+                            break;
+                        case 'ArrowRight':
+                            nextIndex = currentIndex + 1;
+                            break;
+                        case 'ArrowUp':
+                            nextIndex = currentIndex - daysInMonth;
+                            break;
+                        case 'ArrowDown':
+                            nextIndex = currentIndex + daysInMonth;
+                            break;
+                        case ' ':
+                            toggleCellSelection(this, e);
+                            break;
+                        case 'Alt':
+                            if (selectedCells.has(this)) {
+                                selectedCells.delete(this);
+                                this.classList.remove('selected');
+                                if (selectedCells.size === 0) {
+                                    document.querySelectorAll('.attendance-floating-container').forEach(container => {
+                                        container.remove();
+                                    });
+                                }
+                            }
+                            break;
+                    }
+
+                    if (nextIndex >= 0 && nextIndex < cells.length) {
+                        cells[nextIndex].focus();
+                        if (e.shiftKey) {
+                            toggleCellSelection(cells[nextIndex], e);
+                        }
+                    }
+                });
             });
-        });
 
-        // Handle mouseup event on document level
-        document.addEventListener('mouseup', () => {
-            isMouseDown = false;
-        });
+            document.addEventListener('mouseup', () => {
+                isMouseDown = false;
+            });
+        }
 
-        // Update summary after generating table
         updateSummary();
     }
 
@@ -1052,29 +1091,35 @@ async function Attendance() {
               section_subject_id: container.dataset.sectionSubjectId,
               attendance_data: JSON.stringify(attendanceData)
              })}).then((res) => {
-                console.log(res);
+                if (res === 200) {
+                    NewNotification({
+                        type: "success",
+                        message: "Attendance saved successfully!"
+                    });
+                    originalAttendanceData = JSON.parse(JSON.stringify(attendanceData));
+                    hasChanges = false;
+                    updateButtonStates();
+                } else {
+                    NewNotification({
+                        type: "error",
+                        message: "Failed to save attendance. Please try again."
+                    });
+                }
             });
-
-            // Update original data after successful save
-            originalAttendanceData = JSON.parse(JSON.stringify(attendanceData));
-            hasChanges = false;
-            updateButtonStates();
-            
-            // Show success message
-            alert('Attendance saved successfully!');
         } catch (error) {
             console.error('Error saving attendance:', error);
-            alert('Failed to save attendance. Please try again.');
+            NewNotification({
+                type: "error",
+                message: "Failed to save attendance. Please try again."
+            });
         }
     }
 
     function discardChanges() {
         if (!hasChanges) return;
         
-        // Restore original data
         attendanceData = JSON.parse(JSON.stringify(originalAttendanceData));
         hasChanges = false;
-        // Regenerate table with original data
         generateTable();
     }
 
@@ -1097,8 +1142,9 @@ async function Attendance() {
     }
 
     function toggleCellSelection(cell, event) {
+        if (!cell || parseInt(sessionType) !== 2) return; // Only allow professors to select cells
+        
         if (event.altKey) {
-            // Remove cell from selection
             if (selectedCells.has(cell)) {
                 selectedCells.delete(cell);
                 cell.classList.remove('selected');
@@ -1112,7 +1158,6 @@ async function Attendance() {
         }
 
         if (event.ctrlKey || event.metaKey) {
-            // Toggle individual cell
             if (selectedCells.has(cell)) {
                 selectedCells.delete(cell);
                 cell.classList.remove('selected');
@@ -1121,7 +1166,6 @@ async function Attendance() {
                 cell.classList.add('selected');
             }
         } else if (event.shiftKey && lastSelectedCell) {
-            // Select range of cells
             const cells = Array.from(document.querySelectorAll('.attendance-cell'));
             const start = cells.indexOf(lastSelectedCell);
             const end = cells.indexOf(cell);
@@ -1138,7 +1182,6 @@ async function Attendance() {
                 c.classList.add('selected');
             });
         } else {
-            // Clear previous selection if no modifier key
             if (!event.shiftKey && !event.ctrlKey && !event.metaKey) {
                 selectedCells.clear();
                 document.querySelectorAll('.attendance-cell').forEach(c => c.classList.remove('selected'));
@@ -1155,16 +1198,16 @@ async function Attendance() {
     }
 
     function showAttendanceOptions(event) {
-        // Remove any existing floating containers
+        // Don't show options for students
+        if (parseInt(sessionType) === 1) return;
+
         document.querySelectorAll('.attendance-floating-container').forEach(container => {
             container.remove();
         });
 
-        // Create floating container
         const floatingContainer = document.createElement('div');
         floatingContainer.className = 'attendance-floating-container';
         
-        // Create buttons
         const states = [
             { name: 'present', icon: 'check-circle', color: '#22c55e' },
             { name: 'absent', icon: 'x-circle', color: '#ef4444' },
@@ -1180,11 +1223,9 @@ async function Attendance() {
 
             button.addEventListener('click', () => {
                 selectedCells.forEach(cell => {
-                    // Remove all states and icons
                     states.forEach(s => cell.classList.remove(s.name));
                     cell.innerHTML = '';
                     
-                    // Only add state and icon if not clearing
                     if (state.name !== 'clear') {
                         cell.classList.add(state.name);
                         const icon = document.createElement('i');
@@ -1192,14 +1233,12 @@ async function Attendance() {
                         icon.style.color = state.color;
                         cell.appendChild(icon);
                         
-                        // Save the attendance state
                         saveAttendanceState(
                             cell.dataset.student,
                             cell.dataset.date,
                             state.name
                         );
                     } else {
-                        // Clear the attendance state
                         saveAttendanceState(
                             cell.dataset.student,
                             cell.dataset.date,
@@ -1217,7 +1256,6 @@ async function Attendance() {
             floatingContainer.appendChild(button);
         });
 
-        // Position the floating container near the last selected cell
         const rect = lastSelectedCell.getBoundingClientRect();
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
         const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
@@ -1225,13 +1263,10 @@ async function Attendance() {
         floatingContainer.style.top = `${rect.top + scrollTop - 50}px`;
         floatingContainer.style.left = `${rect.left + scrollLeft - 50}px`;
 
-        // Add to document
         document.body.appendChild(floatingContainer);
         
-        // Initialize Feather icons
         feather.replace();
 
-        // Close when clicking outside
         document.addEventListener('click', function closeFloating(event) {
             const isClickInsideCell = Array.from(selectedCells).some(cell => cell.contains(event.target));
             if (!floatingContainer.contains(event.target) && !isClickInsideCell) {
@@ -1242,49 +1277,51 @@ async function Attendance() {
         });
     }
 
-    // Event listeners for controls
-    monthSelect.addEventListener('change', generateTable);
-    yearSelect.addEventListener('change', generateTable);
+    // Only add control event listeners if user is a professor
+    if (parseInt(sessionType) === 2) {
+        monthSelect.addEventListener('change', generateTable);
+        yearSelect.addEventListener('change', generateTable);
 
-    document.querySelector('.prev-month').addEventListener('click', () => {
-        let month = parseInt(monthSelect.value);
-        let year = parseInt(yearSelect.value);
-        
-        month--;
-        if (month < 1) {
-            month = 12;
-            year--;
-            yearSelect.value = year;
-        }
-        monthSelect.value = month;
-        generateTable();
-    });
+        document.querySelector('.prev-month').addEventListener('click', () => {
+            let month = parseInt(monthSelect.value);
+            let year = parseInt(yearSelect.value);
+            
+            month--;
+            if (month < 1) {
+                month = 12;
+                year--;
+                yearSelect.value = year;
+            }
+            monthSelect.value = month;
+            generateTable();
+        });
 
-    document.querySelector('.next-month').addEventListener('click', () => {
-        let month = parseInt(monthSelect.value);
-        let year = parseInt(yearSelect.value);
-      
-        month++;
-        if (month > 12) {
-            month = 1;
-            year++;
-            yearSelect.value = year;
-        }
-        monthSelect.value = month;
-        generateTable();
-    });
+        document.querySelector('.next-month').addEventListener('click', () => {
+            let month = parseInt(monthSelect.value);
+            let year = parseInt(yearSelect.value);
+          
+            month++;
+            if (month > 12) {
+                month = 1;
+                year++;
+                yearSelect.value = year;
+            }
+            monthSelect.value = month;
+            generateTable();
+        });
 
-    document.querySelector('.prev-year').addEventListener('click', () => {
-        let year = parseInt(yearSelect.value);
-        yearSelect.value = year - 1;
-        generateTable();
-    });
+        document.querySelector('.prev-year').addEventListener('click', () => {
+            let year = parseInt(yearSelect.value);
+            yearSelect.value = year - 1;
+            generateTable();
+        });
 
-    document.querySelector('.next-year').addEventListener('click', () => {
-        let year = parseInt(yearSelect.value);
-        yearSelect.value = year + 1;
-        generateTable();
-    });
+        document.querySelector('.next-year').addEventListener('click', () => {
+            let year = parseInt(yearSelect.value);
+            yearSelect.value = year + 1;
+            generateTable();
+        });
+    }
 
     // Initial table generation
     generateTable();

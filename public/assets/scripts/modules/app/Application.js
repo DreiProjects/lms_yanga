@@ -7,3 +7,5 @@ export const CONTAINERS = {
 };
 
 export const UPLOAD_DIR = "public/assets/media/uploads/";
+
+export const SESSION = document.querySelector("body").dataset;

@@ -228,6 +228,7 @@ class Routes
                     "/form_completions" => ["FORM_COMPLETION_CONTROL", "add", "editRecord", "removeRecords"],
                     "/form_completion_answers" => ["FORM_COMPLETION_ANSWER_CONTROL", "addRecord", "editRecord", "removeRecords"],
                     "/subject_attendances" => ["SUBJECT_ATTENDANCE_CONTROL", "add", "editRecord", "removeRecords"],
+                    "/grade_show_requests" => ["GRADING_SHOW_REQUEST_CONTROL", "add", "editRecord", "removeRecords"],
                 ];
 
                 foreach ($routes as $path => [$control, $addMethod, $editMethod, $removeMethod]) {

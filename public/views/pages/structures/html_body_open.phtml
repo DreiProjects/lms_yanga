@@ -1,1 +1,5 @@
-<body>
+<?php 
+global $SESSION;
+?>
+
+<body data-session-id="<?= $SESSION->user_id ?>" data-session-type="<?= $SESSION->user_type ?>">

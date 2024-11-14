@@ -201,7 +201,7 @@ export class NotificationPopup {
     }
 }
 
-export function NewNotification({title, message}, interval, type) {
+export function NewNotification({title, message}, interval = 5000, type) {
     const popup = new NotificationPopup({
         title: title,
         message: message
