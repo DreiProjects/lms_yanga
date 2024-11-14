@@ -452,7 +452,7 @@ function ViewCompletedForm(exam_id, id) {
 
     const gradeBtn = popup.ELEMENT.querySelector(".grade-btn");
     const editBtn = popup.ELEMENT.querySelector(".edit-btn");
-
+    const viewBtn = popup.ELEMENT.querySelector(".view-btn");
     if (gradeBtn) {
       gradeBtn.addEventListener("click", () => {
         NewGradeScore(
@@ -471,6 +471,11 @@ function ViewCompletedForm(exam_id, id) {
       });
     }
 
+    if (viewBtn) {
+      viewBtn.addEventListener("click", () => {
+        window.open(`/me/view/${viewBtn.dataset.id}`, "_blank");
+      });
+    }
     
   });
 

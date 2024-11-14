@@ -12,6 +12,8 @@ class FormCompletion extends FormCompletionAbstract
 
     public $user;
 
+    public $answers = [];
+
     public function __construct($data = [])
     {
         global $APPLICATION;
@@ -19,6 +21,10 @@ class FormCompletion extends FormCompletionAbstract
         $this->grade_score = $this->getGradeScore();
 
         $this->user = $APPLICATION->FUNCTIONS->USER_CONTROL->get($this->user_id, false);
+
+        $this->answers = $APPLICATION->FUNCTIONS->FORM_COMPLETION_ANSWER_CONTROL->filterRecords([
+            'form_completion_id' => $this->form_completion_id
+        ], true);
     }
 
     public function getGradeScore()

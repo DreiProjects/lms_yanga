@@ -12,6 +12,8 @@ abstract class FormCompletionAbstract extends ModelDefaultFunctions
 
     public $user_id;
 
+    public $parent_id;
+
     public $date_created;
 
     public $status;

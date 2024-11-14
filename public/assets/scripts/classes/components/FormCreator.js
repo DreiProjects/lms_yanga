@@ -689,17 +689,106 @@ export default class FormCreator {
 }
 
 export class FormRenderer {
-    constructor(containerId, formData, parentID = null) {
+    constructor(containerId, formData, parentID = null, userAnswers = []) {
         this.containerId = containerId;
         this.container = document.getElementById(containerId);
         this.saveBtn = document.getElementById('saveFormBtn');
         this.resetBtn = document.getElementById('resetFormBtn');
         this.formData = formData;
         this.answers = new Map();
-        this.initialize();
-        this.initializeEventListeners();
         this.formId = formData.id;
         this.parentID = parentID;
+        this.userAnswers = userAnswers;
+        this.isPreviewMode = userAnswers.length > 0;
+
+        this.initialize();
+        this.initializeEventListeners();
+        this.applyAnswers();
+    }
+
+    applyAnswers() {
+        if (!this.userAnswers || this.userAnswers.length === 0) return;
+
+        // Process each answer
+        this.userAnswers.forEach(answer => {
+            const questionElement = this.container.querySelector(`[data-question-id="${answer.question_id}"]`);
+            if (!questionElement) return;
+
+            switch (answer.type) {
+                case 'multiple-choice':
+                    const radioInput = questionElement.querySelector(`input[data-choice-id="${answer.choice_id}"]`);
+                    if (radioInput) {
+                        radioInput.checked = true;
+                        const allRadios = questionElement.querySelectorAll('input[type="radio"]');
+                        allRadios.forEach(radio => {
+                            radio.disabled = true;
+                            radio.style.pointerEvents = 'none';
+                            const choiceItem = radio.closest('.choice-item');
+                            if (choiceItem) {
+                                choiceItem.style.pointerEvents = 'none';
+                            }
+                        });
+                        const choiceItem = radioInput.closest('.choice-item');
+                        if (choiceItem) {
+                            choiceItem.classList.add('selected');
+                            const indicator = choiceItem.querySelector('.choice-type-indicator');
+                            if (indicator) {
+                                indicator.style.background = '#3b82f6';
+                            }
+                        }
+                    }
+                    break;
+
+                case 'checkbox':
+                    const choiceIds = JSON.parse(answer.choice_id);
+                    const allCheckboxes = questionElement.querySelectorAll('input[type="checkbox"]');
+                    allCheckboxes.forEach(checkbox => {
+                        checkbox.disabled = true;
+                        checkbox.style.pointerEvents = 'none';
+                        const choiceItem = checkbox.closest('.choice-item');
+                        if (choiceItem) {
+                            choiceItem.style.pointerEvents = 'none';
+                        }
+                    });
+                    choiceIds.forEach(choiceId => {
+                        const checkboxInput = questionElement.querySelector(`input[data-choice-id="${choiceId}"]`);
+                        if (checkboxInput) {
+                            checkboxInput.checked = true;
+                            const choiceItem = checkboxInput.closest('.choice-item');
+                            if (choiceItem) {
+                                choiceItem.classList.add('selected');
+                                const indicator = choiceItem.querySelector('.choice-type-indicator');
+                                if (indicator) {
+                                    indicator.style.background = '#3b82f6';
+                                }
+                            }
+                        }
+                    });
+                    break;
+
+                case 'dropdown':
+                    const select = questionElement.querySelector('select');
+                    if (select) {
+                        const option = Array.from(select.options).find(opt => 
+                            opt.dataset.choiceId === answer.choice_id
+                        );
+                        if (option) {
+                            option.selected = true;
+                            select.disabled = true;
+                        }
+                    }
+                    break;
+
+                case 'short-answer':
+                case 'paragraph':
+                    const textInput = questionElement.querySelector('input, textarea');
+                    if (textInput) {
+                        textInput.value = answer.answer;
+                        textInput.readOnly = true;
+                    }
+                    break;
+            }
+        });
     }
 
     initialize() {
@@ -719,11 +808,21 @@ export class FormRenderer {
             renderedQuestion.dataset.questionData = JSON.stringify(questionData);
             this.container.appendChild(renderedQuestion);
             
-            // Add event listeners for answer capture
+            // Handle all inputs
             const inputs = renderedQuestion.querySelectorAll('input, select, textarea');
             inputs.forEach(input => {
+                if (this.isPreviewMode) {
+                    input.disabled = true;
+                    input.style.pointerEvents = 'none';
+                    const choiceItem = input.closest('.choice-item');
+                    if (choiceItem) {
+                        choiceItem.style.pointerEvents = 'none';
+                    }
+                    return;
+                }
+
+                // Add event listeners only if not in preview mode
                 if (input.type === 'radio') {
-                    // For radio buttons, listen to the click event on the choice item
                     const choiceItem = input.closest('.choice-item');
                     if (choiceItem) {
                         choiceItem.addEventListener('click', () => {
@@ -753,7 +852,6 @@ export class FormRenderer {
                         });
                     });
                 } else {
-                    // For text inputs and textareas
                     input.addEventListener('change', (e) => {
                         this.answers.set(questionData.question_id, {
                             answer_type: 'text',
@@ -768,11 +866,11 @@ export class FormRenderer {
     }
 
     initializeEventListeners() {
-        if (this.saveBtn) {
+        if (this.saveBtn && !this.isPreviewMode) {
             this.saveBtn.addEventListener('click', () => this.saveForm());
         }
 
-        if (this.resetBtn) {
+        if (this.resetBtn && !this.isPreviewMode) {
             this.resetBtn.addEventListener('click', () => this.resetAnswers());
         }
     }
@@ -820,6 +918,8 @@ export class FormRenderer {
     }
 
     resetAnswers() {
+        if (this.isPreviewMode) return;
+        
         this.answers.clear();
         const inputs = this.container.querySelectorAll('input, select, textarea');
         inputs.forEach(input => {

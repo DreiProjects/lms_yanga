@@ -27,6 +27,8 @@ abstract class ExamAbstract extends ModelDefaultFunctions
 
     public $form_id;
 
+    public $parent_id;
+
     public $exam_status;
 
     public $date_created;
