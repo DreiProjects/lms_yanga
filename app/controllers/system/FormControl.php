@@ -45,7 +45,7 @@ class FormControl extends ControlDefaultFunctions
                     $CONNECTION->RollBack();
                     return $question;
                 } else {
-                    if ($question['type'] === "multiple_choice" || $question['type'] === "checkbox" || $question['type'] === "dropdown") {
+                    if ($question['type'] === "multiple-choice" || $question['type'] === "checkbox" || $question['type'] === "dropdown") {
                         $num = 1;
                         foreach ($question['choices'] as $choice) {
                             $choiceData = [

@@ -8,19 +8,14 @@ $type = $this->param1;
 $id = $this->param2;
 $uuid = $this->param3;
 
-
 $main_form = null;
 $record = null;
 $alreadyTaken = false;
 
-if ($type == "exam") {
-    $record = $APPLICATION->FUNCTIONS->EXAM_CONTROL->get($id, true);
-    $main_form = $APPLICATION->FUNCTIONS->FORM_CONTROL->get($record->form_id, true);
+$record = $APPLICATION->FUNCTIONS->EXAM_CONTROL->get($id, true);
+$main_form = $APPLICATION->FUNCTIONS->FORM_CONTROL->get($record->form_id, true);
 
-    $alreadyTaken = $main_form->isStudentTaken($student->user_id);
-}
-
-
+$alreadyTaken = $main_form->isStudentTaken($student->user_id);
 ?>
 
 
@@ -69,7 +64,7 @@ if ($type == "exam") {
                                 <h3>Displaying Form</h3>
                                 <p>Please answer the questions below to complete the form.</p>
                         </div>
-                        <div class="create-form-body" data-form_id="<?= $main_form->form_id ?>">
+                        <div class="create-form-body" data-form_id="<?= $main_form->form_id ?>" data-exam_id="<?= $record->exam_id ?>">
                             <div class="form-content">
                                 <div id="questionsContainer" >
                                     <!-- Questions will be dynamically added here -->

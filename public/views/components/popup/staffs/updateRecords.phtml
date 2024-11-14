@@ -1,0 +1,14 @@
+<?php
+
+global $APPLICATION, $STAFFS_HEADER_BODY;
+
+$control = $APPLICATION->FUNCTIONS->STAFF_CONTROL;
+$RECORDS = $control->getAllRecords(false);
+
+?>
+
+<?= CreateTable([
+"content" => $STAFFS_HEADER_BODY,
+"data" => $RECORDS,
+"id" => "staff_id"
+]) ?>

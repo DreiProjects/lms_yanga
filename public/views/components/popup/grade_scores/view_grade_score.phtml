@@ -4,11 +4,15 @@ global $APPLICATION, $ALL_USER_TYPES,$SESSION;
 $data = json_decode($_POST['data'], true);
 
 $grade_score = $APPLICATION->FUNCTIONS->GRADE_SCORE_CONTROL->get( $data['id'], false);
+$category = $grade_score['category'];
 
-$complied = $APPLICATION->FUNCTIONS->ACTIVITY_COMPLY_CONTROL->get($grade_score['id'], false);
-
-$activity = $APPLICATION->FUNCTIONS->ACTIVITY_CONTROL->get($complied['activity_id'], false);
-
+if ($category == "Activity") {
+    $complied = $APPLICATION->FUNCTIONS->ACTIVITY_COMPLY_CONTROL->get($grade_score['id'], false);
+    $activity = $APPLICATION->FUNCTIONS->ACTIVITY_CONTROL->get($complied['activity_id'], false);
+} else {
+    $complied = $APPLICATION->FUNCTIONS->FORM_COMPLETION_CONTROL->get($grade_score['id'], false);
+    $activity = $APPLICATION->FUNCTIONS->EXAM_CONTROL->get($complied['parent_id'], false);
+}
 ?>  
 <div class="main-popup-container">
     <div class="popup-background"></div>

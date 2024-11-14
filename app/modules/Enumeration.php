@@ -99,6 +99,7 @@ enum GradeScoreCategories : string
 {
     case ACTIVITY = "Activity";
     case EXAM = "Exam";
+    case FORM = "Form";
 }
 
 enum ActivityLogCategories : int

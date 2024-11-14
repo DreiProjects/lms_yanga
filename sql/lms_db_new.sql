@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 14, 2024 at 03:58 PM
+-- Generation Time: Nov 14, 2024 at 08:13 PM
 -- Server version: 10.4.27-MariaDB
 -- PHP Version: 8.1.12
 
@@ -212,10 +212,10 @@ INSERT INTO `email_verifications` (`verification_id`, `user_id`, `verification`,
 (30, '4', '358643', '2024-11-08 05:26:44'),
 (40, '3', '795574', '2024-11-09 05:10:35'),
 (43, '11', '965434', '2024-11-09 05:21:32'),
-(44, '53', '290250', '2024-11-09 05:48:06'),
 (55, '1', '220876', '2024-11-10 21:01:59'),
-(57, '32', '905801', '2024-11-14 12:27:28'),
-(58, '10', '189770', '2024-11-14 12:28:42');
+(59, '53', '251238', '2024-11-14 15:13:25'),
+(60, '32', '900933', '2024-11-14 15:42:22'),
+(61, '10', '623360', '2024-11-14 17:18:30');
 
 -- --------------------------------------------------------
 
@@ -270,7 +270,9 @@ CREATE TABLE `exams` (
 --
 
 INSERT INTO `exams` (`exam_id`, `section_id`, `section_subject_id`, `title`, `description`, `count_items`, `duration`, `date_start`, `due_date`, `file`, `form_id`, `exam_status`, `status`, `date_created`) VALUES
-(2, 4, 4, 'Exam Nanaman', '', 2, '50', '2024-11-14 02:30:00', '2024-11-29', '', 1, 0, 0, '2024-11-11 18:30:32');
+(2, 4, 4, 'Exam Nanaman', '', 2, '50', '2024-11-14 02:30:00', '2024-11-29', '', 1, 0, 0, '2024-11-11 18:30:32'),
+(3, 4, 4, 'AB', '', 5, '100', '2024-11-16 01:28:00', '2024-11-30', '', 3, 0, 0, '2024-11-14 17:28:38'),
+(4, 4, 4, 'Exam nanaman sa Capstone', '', 5, '100', '2024-11-16 01:42:00', '2024-11-23', '', 4, 0, 0, '2024-11-14 17:42:29');
 
 -- --------------------------------------------------------
 
@@ -295,7 +297,10 @@ CREATE TABLE `forms` (
 --
 
 INSERT INTO `forms` (`form_id`, `professor_id`, `title`, `description`, `form_type`, `duration`, `points`, `status`, `date_created`) VALUES
-(1, 4, 'Untitled Form', 'Click to add description', 'Exam', '50', '80', 0, '2024-11-11 16:33:16');
+(1, 4, 'Untitled Form', 'Click to add description', 'Exam', '50', '80', 0, '2024-11-11 16:33:16'),
+(2, 4, 'Form1', 'Form 1 example', 'Survey', '20', '80', 0, '2024-11-14 17:20:53'),
+(3, 4, 'Sample Form', 'Form 1', 'Exam', '100', '50', 0, '2024-11-14 17:28:07'),
+(4, 4, 'Untitled Form', 'Click to add description', 'Exam', '100', '100', 0, '2024-11-14 17:41:12');
 
 -- --------------------------------------------------------
 
@@ -306,6 +311,7 @@ INSERT INTO `forms` (`form_id`, `professor_id`, `title`, `description`, `form_ty
 CREATE TABLE `form_completions` (
   `form_completion_id` int(11) NOT NULL,
   `form_id` int(11) NOT NULL,
+  `parent_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `status` int(11) NOT NULL,
   `date_created` timestamp NOT NULL DEFAULT current_timestamp()
@@ -315,8 +321,8 @@ CREATE TABLE `form_completions` (
 -- Dumping data for table `form_completions`
 --
 
-INSERT INTO `form_completions` (`form_completion_id`, `form_id`, `user_id`, `status`, `date_created`) VALUES
-(5, 1, 10, 0, '2024-11-12 14:10:07');
+INSERT INTO `form_completions` (`form_completion_id`, `form_id`, `parent_id`, `user_id`, `status`, `date_created`) VALUES
+(13, 4, 4, 10, 0, '2024-11-14 18:07:30');
 
 -- --------------------------------------------------------
 
@@ -330,7 +336,7 @@ CREATE TABLE `form_completion_answers` (
   `question_id` int(11) NOT NULL,
   `type` varchar(255) NOT NULL,
   `answer` varchar(255) NOT NULL,
-  `choice_id` int(11) NOT NULL,
+  `choice_id` varchar(255) NOT NULL,
   `status` int(11) NOT NULL,
   `date_created` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -340,8 +346,16 @@ CREATE TABLE `form_completion_answers` (
 --
 
 INSERT INTO `form_completion_answers` (`form_completion_answer_id`, `form_completion_id`, `question_id`, `type`, `answer`, `choice_id`, `status`, `date_created`) VALUES
-(1, 5, 1, 'multiple-choice', '1', 1, 0, '2024-11-12 14:10:07'),
-(2, 5, 2, 'dropdown', '3', 3, 0, '2024-11-12 14:10:07');
+(33, 12, 13, 'multiple-choice', 'A', '21', 0, '2024-11-14 17:51:10'),
+(34, 12, 14, 'checkbox', '[\"A\",\"B\"]', '[\"25\",\"26\"]', 0, '2024-11-14 17:51:10'),
+(35, 12, 15, 'dropdown', 'C', '31', 0, '2024-11-14 17:51:10'),
+(36, 12, 16, 'short-answer', 'AWdwa', '', 0, '2024-11-14 17:51:10'),
+(37, 12, 17, 'paragraph', 'bbb', '', 0, '2024-11-14 17:51:10'),
+(38, 13, 13, 'multiple-choice', 'A', '21', 0, '2024-11-14 18:07:30'),
+(39, 13, 14, 'checkbox', '[\"B\"]', '[\"26\"]', 0, '2024-11-14 18:07:30'),
+(40, 13, 15, 'dropdown', 'B', '30', 0, '2024-11-14 18:07:30'),
+(41, 13, 16, 'short-answer', 'awdwa', '', 0, '2024-11-14 18:07:30'),
+(42, 13, 17, 'paragraph', '123', '', 0, '2024-11-14 18:07:30');
 
 -- --------------------------------------------------------
 
@@ -366,7 +380,22 @@ CREATE TABLE `form_questions` (
 
 INSERT INTO `form_questions` (`form_question_id`, `form_id`, `question_number`, `question`, `question_type`, `image_url`, `status`, `date_created`) VALUES
 (1, 1, '1', 'Multiple Choice', 'multiple-choice', '', 0, '2024-11-11 16:33:16'),
-(2, 1, '3', 'Dropdown', 'dropdown', '', 0, '2024-11-11 16:33:16');
+(2, 1, '3', 'Dropdown', 'dropdown', '', 0, '2024-11-11 16:33:16'),
+(3, 2, '1', 'This is sample', 'multiple-choice', '', 0, '2024-11-14 17:20:53'),
+(4, 2, '2', 'This is sample 2', 'checkbox', '', 0, '2024-11-14 17:20:53'),
+(5, 2, '3', 'This is sample 3', 'dropdown', '', 0, '2024-11-14 17:20:53'),
+(6, 2, '4', 'This is sample 4', 'short-answer', '', 0, '2024-11-14 17:20:53'),
+(7, 2, '5', 'This is sample 5', 'paragraph', '', 0, '2024-11-14 17:20:53'),
+(8, 3, '1', 'Sample 1', 'multiple-choice', '', 0, '2024-11-14 17:28:07'),
+(9, 3, '2', 'Sample 2', 'checkbox', '', 0, '2024-11-14 17:28:07'),
+(10, 3, '3', 'Sample 3', 'dropdown', '', 0, '2024-11-14 17:28:07'),
+(11, 3, '4', 'Sample 4', 'short-answer', '', 0, '2024-11-14 17:28:07'),
+(12, 3, '5', 'Sample 5', 'paragraph', '', 0, '2024-11-14 17:28:07'),
+(13, 4, '1', 'Question #1', 'multiple-choice', '', 0, '2024-11-14 17:41:12'),
+(14, 4, '2', 'Question #2', 'checkbox', '', 0, '2024-11-14 17:41:12'),
+(15, 4, '3', 'Question #3', 'dropdown', '', 0, '2024-11-14 17:41:12'),
+(16, 4, '4', 'Question #4', 'short-answer', '', 0, '2024-11-14 17:41:12'),
+(17, 4, '5', 'Question #5', 'paragraph', '', 0, '2024-11-14 17:41:12');
 
 -- --------------------------------------------------------
 
@@ -391,7 +420,35 @@ INSERT INTO `form_question_choices` (`form_question_choice_id`, `form_question_i
 (1, 1, '1', '1', 0, '2024-11-11 16:33:16'),
 (2, 1, '2', '2', 0, '2024-11-11 16:33:16'),
 (3, 2, '3', '3', 0, '2024-11-11 16:33:16'),
-(4, 2, '4', '4', 0, '2024-11-11 16:33:16');
+(4, 2, '4', '4', 0, '2024-11-11 16:33:16'),
+(5, 4, '1', 'A', 0, '2024-11-14 17:20:53'),
+(6, 4, '2', 'B', 0, '2024-11-14 17:20:53'),
+(7, 4, '3', 'C', 0, '2024-11-14 17:20:53'),
+(8, 4, '4', 'D', 0, '2024-11-14 17:20:53'),
+(9, 5, '1', 'A', 0, '2024-11-14 17:20:53'),
+(10, 5, '2', 'B', 0, '2024-11-14 17:20:53'),
+(11, 5, '3', 'C', 0, '2024-11-14 17:20:53'),
+(12, 5, '4', 'D', 0, '2024-11-14 17:20:53'),
+(13, 9, '1', 'A', 0, '2024-11-14 17:28:07'),
+(14, 9, '2', 'B', 0, '2024-11-14 17:28:07'),
+(15, 9, '3', 'C', 0, '2024-11-14 17:28:07'),
+(16, 9, '4', 'D', 0, '2024-11-14 17:28:07'),
+(17, 10, '1', 'A', 0, '2024-11-14 17:28:07'),
+(18, 10, '2', 'B', 0, '2024-11-14 17:28:07'),
+(19, 10, '3', 'C', 0, '2024-11-14 17:28:07'),
+(20, 10, '4', 'D', 0, '2024-11-14 17:28:07'),
+(21, 13, '1', 'A', 0, '2024-11-14 17:41:12'),
+(22, 13, '2', 'B', 0, '2024-11-14 17:41:12'),
+(23, 13, '3', 'C', 0, '2024-11-14 17:41:12'),
+(24, 13, '4', 'D', 0, '2024-11-14 17:41:12'),
+(25, 14, '1', 'A', 0, '2024-11-14 17:41:12'),
+(26, 14, '2', 'B', 0, '2024-11-14 17:41:12'),
+(27, 14, '3', 'C', 0, '2024-11-14 17:41:12'),
+(28, 14, '4', 'D', 0, '2024-11-14 17:41:12'),
+(29, 15, '1', 'A', 0, '2024-11-14 17:41:12'),
+(30, 15, '2', 'B', 0, '2024-11-14 17:41:12'),
+(31, 15, '3', 'C', 0, '2024-11-14 17:41:12'),
+(32, 15, '4', 'D', 0, '2024-11-14 17:41:12');
 
 -- --------------------------------------------------------
 
@@ -414,7 +471,8 @@ CREATE TABLE `grade_scores` (
 --
 
 INSERT INTO `grade_scores` (`grade_score_id`, `id`, `parent_id`, `category`, `grade`, `status`, `date_created`) VALUES
-(1, 3, 1, 'Activity', 100, 0, '2024-11-08 09:30:25');
+(1, 3, 1, 'Activity', 100, 0, '2024-11-08 09:30:25'),
+(2, 13, 4, 'Form', 50, 0, '2024-11-14 18:49:21');
 
 -- --------------------------------------------------------
 
@@ -832,6 +890,7 @@ CREATE TABLE `section_subjects` (
   `subject_id` int(11) NOT NULL,
   `professor_id` int(11) NOT NULL,
   `schedule_id` int(11) NOT NULL,
+  `classroom_id` int(11) NOT NULL,
   `status` int(11) NOT NULL,
   `date_created` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -840,11 +899,13 @@ CREATE TABLE `section_subjects` (
 -- Dumping data for table `section_subjects`
 --
 
-INSERT INTO `section_subjects` (`section_subject_id`, `section_id`, `subject_id`, `professor_id`, `schedule_id`, `status`, `date_created`) VALUES
-(1, 1, 1, 1, 1, 0, '2024-10-07 00:22:41'),
-(2, 1, 2, 2, 0, 0, '2024-10-23 09:15:42'),
-(3, 1, 3, 3, 0, 0, '2024-10-23 09:19:03'),
-(4, 4, 4, 4, 0, 0, '2024-11-10 21:02:49');
+INSERT INTO `section_subjects` (`section_subject_id`, `section_id`, `subject_id`, `professor_id`, `schedule_id`, `classroom_id`, `status`, `date_created`) VALUES
+(1, 1, 1, 1, 1, 0, 0, '2024-10-07 00:22:41'),
+(2, 1, 2, 2, 0, 0, 0, '2024-10-23 09:15:42'),
+(3, 1, 3, 3, 0, 0, 0, '2024-10-23 09:19:03'),
+(4, 4, 4, 4, 0, 0, 0, '2024-11-10 21:02:49'),
+(6, 4, 7, 11, 0, 6, 0, '2024-11-14 17:12:02'),
+(7, 4, 12, 13, 0, 5, 0, '2024-11-14 17:12:02');
 
 -- --------------------------------------------------------
 
@@ -860,6 +921,13 @@ CREATE TABLE `staffs` (
   `status` int(11) NOT NULL,
   `date_created` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `staffs`
+--
+
+INSERT INTO `staffs` (`staff_id`, `user_id`, `department_id`, `description`, `status`, `date_created`) VALUES
+(2, 33, 3, 'awdaw', 0, '2024-11-14 16:36:23');
 
 -- --------------------------------------------------------
 
@@ -1338,7 +1406,7 @@ ALTER TABLE `departments`
 -- AUTO_INCREMENT for table `email_verifications`
 --
 ALTER TABLE `email_verifications`
-  MODIFY `verification_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
+  MODIFY `verification_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=62;
 
 --
 -- AUTO_INCREMENT for table `events`
@@ -1350,43 +1418,43 @@ ALTER TABLE `events`
 -- AUTO_INCREMENT for table `exams`
 --
 ALTER TABLE `exams`
-  MODIFY `exam_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `exam_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `forms`
 --
 ALTER TABLE `forms`
-  MODIFY `form_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `form_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `form_completions`
 --
 ALTER TABLE `form_completions`
-  MODIFY `form_completion_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `form_completion_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `form_completion_answers`
 --
 ALTER TABLE `form_completion_answers`
-  MODIFY `form_completion_answer_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `form_completion_answer_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
 
 --
 -- AUTO_INCREMENT for table `form_questions`
 --
 ALTER TABLE `form_questions`
-  MODIFY `form_question_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `form_question_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `form_question_choices`
 --
 ALTER TABLE `form_question_choices`
-  MODIFY `form_question_choice_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `form_question_choice_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
 
 --
 -- AUTO_INCREMENT for table `grade_scores`
 --
 ALTER TABLE `grade_scores`
-  MODIFY `grade_score_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `grade_score_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `grade_show_requests`
@@ -1488,13 +1556,13 @@ ALTER TABLE `section_students`
 -- AUTO_INCREMENT for table `section_subjects`
 --
 ALTER TABLE `section_subjects`
-  MODIFY `section_subject_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `section_subject_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `staffs`
 --
 ALTER TABLE `staffs`
-  MODIFY `staff_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `staff_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `sticky_notes`

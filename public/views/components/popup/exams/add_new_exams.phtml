@@ -18,7 +18,7 @@ $subjects = array_map(function($subject) {
 
 $subjects = ObjectToCombo("subject_name", "section_subject_id", $subjects);
 
-$forms = $APPLICATION->FUNCTIONS->FORM_CONTROL->filterRecords(['form_type' => 'Exam', 'professor_id' => $professor->professor_id], true);
+$forms = $APPLICATION->FUNCTIONS->FORM_CONTROL->filterRecords(['professor_id' => $professor->professor_id], true);
 
 $forms = array_map(function($form) {
     return [
@@ -33,7 +33,7 @@ $forms = array_map(function($form) {
         <div class="main-popup-content">
             <div class="popup-top">
                 <div class="headline">
-                    <h1>New Exam</h1>
+                    <h1>New Form</h1>
                 </div>
                 <div class="paragraph">
                     <p>Provide Information</p>

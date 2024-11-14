@@ -814,10 +814,6 @@ export default class GradingPlatformEditor {
           });
 
           SetNewComboItems(data, newData, function (value) {
-            console.log({
-              category: cat,
-              parent_id: value,
-            });
             SelectModelByFilter(
               JSON.stringify({
                 category: cat,
@@ -825,6 +821,7 @@ export default class GradingPlatformEditor {
               }),
               "GRADE_SCORE_CONTROL"
             ).then((res) => {
+              console.log(res);
               importedData = {
                 category: categoryIndex,
                 columnId: columnId,

@@ -24,7 +24,6 @@ import AlertPopup, {
   AlertTypes,
 } from "../../../classes/components/AlertPopup.js";
 import {
-  SelectModel,
   SelectSomething,
 } from "../../../modules/app/Administrator.js";
 import { SidePicker } from "../../../classes/components/SidePicker.js";
@@ -147,6 +146,7 @@ function NewSchedule() {
     });
   });
 }
+
 function ManageStudentsTable(element, students, update) {
   const TABLE = element.querySelector(".main-table-container.table-component");
 
@@ -206,19 +206,23 @@ function ManageStudentsTable(element, students, update) {
     });
   };
 
-  const _Del = (id) => {
-    TABLE_LISTENER.removeItem(id);
+  const _Del = (ids = []) => {
+    if (ids.length) {
+      ids.forEach(id => {
+        TABLE_LISTENER.removeItem(id);
 
-    ALLSTUDENTS = ALLSTUDENTS.map((b) => {
-      if (b.id === id) {
-        if (b.status === "created") {
-          return false;
-        } else {
-          return { ...b, status: "deleted" };
-        }
-      }
-      return b;
-    }).filter((b) => b);
+        ALLSTUDENTS = ALLSTUDENTS.map((b) => {
+          if (b.id === id) {
+            if (b.status === "created") {
+              return false;
+            } else {
+              return { ...b, status: "deleted" };
+            }
+          }
+          return b;
+        }).filter((b) => b);
+      })
+    }
 
     update(ALLSTUDENTS);
   };
@@ -320,7 +324,7 @@ function ManageStudentsTable(element, students, update) {
       {
         name: "delete-request",
         action: _Del,
-        single: true,
+        single: false,
       },
       {
         name: "edit-request",
@@ -396,19 +400,24 @@ function ManageSubjectsTable(element, subjects, update) {
     });
   };
 
-  const _Del = (id) => {
-    TABLE_LISTENER.removeItem(id);
+  const _Del = (ids = []) => {
+    if (ids.length) {
+      ids.forEach(id => {
+        TABLE_LISTENER.removeItem(id);
 
-    ALLSUBJECTS = ALLSUBJECTS.map((b) => {
-      if (b.id === id) {
-        if (b.status === "created") {
-          return false;
-        } else {
-          return { ...b, status: "deleted" };
-        }
-      }
-      return b;
-    }).filter((b) => b);
+        ALLSUBJECTS = ALLSUBJECTS.map((b) => {
+          if (b.id === id) {
+            if (b.status === "created") {
+              return false;
+            } else {
+              return { ...b, status: "deleted" };
+            }
+          }
+          return b;
+        }).filter((b) => b);
+      })
+      
+    }
 
     update(ALLSUBJECTS);
   };
@@ -507,7 +516,7 @@ function ManageSubjectsTable(element, subjects, update) {
       {
         name: "delete-request",
         action: _Del,
-        single: true,
+        single: false,
       },
       {
         name: "edit-request",
@@ -555,6 +564,7 @@ function ViewRequest(id) {
 
       data.adviser_id = selected_user.professor_id;
 
+      console.log(data, students, subjects);
       EditRecord(TARGET, {
         id,
         data: JSON.stringify({ data, students, subjects }),

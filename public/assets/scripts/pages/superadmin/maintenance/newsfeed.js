@@ -154,7 +154,7 @@ function CreateNewPost(section_subject_id) {
     }));
 }
 
-function CreateNewEvent() {
+export function CreateNewEvent() {
     const popup = new Popup(`events/add_new_event`, null, {
         backgroundDismiss: false,
     });
@@ -356,12 +356,17 @@ function ManageAllPosts() {
 
 function Init() {
     const creator = document.querySelector(".post-creator-container");
-    const creatorTextArea = creator.querySelector(".textarea-container");
-    const subject_id = document.querySelector(".newsfeed-main-container").dataset.subjectId;
-    
-    creatorTextArea.addEventListener("click", function () {
-        CreateNewPost(subject_id);
-    })
+   
+    if (creator) {
+        const creatorTextArea = creator.querySelector(".textarea-container");
+        const subject_id = document.querySelector(".newsfeed-main-container").dataset.subjectId;
+        
+        if (creatorTextArea) {
+            creatorTextArea.addEventListener("click", function () {
+                CreateNewPost(subject_id);
+            })
+        }
+    }
 
 
     ManageAllPosts();

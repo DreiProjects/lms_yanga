@@ -196,6 +196,8 @@ function Exams() {
   if (examItems) {
     examItems.forEach((item) => {
       const viewBtn = item.querySelector(".view-exam-btn");
+      const viewStudentFormsBtn = item.querySelector(".view-student-forms-btn");
+
       viewBtn.addEventListener("click", () => {
         ViewExam(item.dataset.id);
       });
@@ -205,6 +207,12 @@ function Exams() {
       if (takeExamBtn) {
         takeExamBtn.addEventListener("click", () => {
           TakeExam(item.dataset.id);
+        });
+      }
+
+      if (viewStudentFormsBtn) {
+        viewStudentFormsBtn.addEventListener("click", () => {
+          ViewStudentForms(item.dataset.id);
         });
       }
     });
@@ -426,6 +434,61 @@ function EditGradeScore(id) {
           popup.Remove();
         }
       );
+    });
+  });
+}
+
+function ViewCompletedForm(exam_id, id) {
+  const popup = new Popup(
+    `${"exams"}/view_completed_form`,
+    { exam_id, id },
+    {
+      backgroundDismiss: false,
+    }
+  );
+
+  popup.Create().then(() => {
+    popup.Show();
+
+    const gradeBtn = popup.ELEMENT.querySelector(".grade-btn");
+    const editBtn = popup.ELEMENT.querySelector(".edit-btn");
+
+    if (gradeBtn) {
+      gradeBtn.addEventListener("click", () => {
+        NewGradeScore(
+          exam_id,
+          "Form",
+          id
+        ).then(() => {
+          popup.Remove();
+        });
+      });
+    }
+
+    if (editBtn) {
+      editBtn.addEventListener("click", () => {
+        EditGradeScore(editBtn.dataset.id);
+      });
+    }
+
+    
+  });
+
+}
+
+function ViewStudentForms(exam_id) {
+  const popup = new Popup(`${"exams"}/view_student_forms`, { exam_id }, {
+    backgroundDismiss: false,
+  });
+
+  popup.Create().then(() => {
+    popup.Show();
+
+    const complyItems = popup.ELEMENT.querySelectorAll(".comply-item");
+    complyItems.forEach((item) => {
+      item.addEventListener("click", () => {
+        ViewCompletedForm(exam_id, item.dataset.id);
+      });
     });
   });
 }

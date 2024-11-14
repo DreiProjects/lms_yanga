@@ -3,7 +3,7 @@ import { ListenToForm, ManageComboBoxes } from "../../modules/component/Tool.js"
 import {
     AddRecord,
 } from "../../modules/app/SystemFunctions.js";
-
+import { NewNotification } from "./NotificationPopup.js";
 export class FormQuestion {
     constructor(containerId, isPreview = false, questionData = null) {
         this.questionData = questionData;
@@ -134,8 +134,8 @@ export class FormQuestion {
             case 'checkbox':
                 const selectedCheckboxes = questionElement.querySelectorAll('input[type="checkbox"]:checked');
                 if (selectedCheckboxes.length > 0) {
-                    answer = Array.from(selectedCheckboxes).map(cb => cb.value);
-                    choice_id = Array.from(selectedCheckboxes).map(cb => cb.dataset.choiceId);
+                    answer = JSON.stringify(Array.from(selectedCheckboxes).map(cb => cb.value));
+                    choice_id = JSON.stringify(Array.from(selectedCheckboxes).map(cb => cb.dataset.choiceId));
                 }
                 break;
             case 'dropdown':
@@ -169,6 +169,7 @@ export class FormQuestion {
         div.dataset.questionId = questionData.question_id;
 
         let answerHTML = '';
+        console.log(questionData.type);
         switch(questionData.type) {
             case 'multiple-choice':
                 answerHTML = questionData.choices.map((choice, idx) => `
@@ -178,6 +179,7 @@ export class FormQuestion {
                         <label class="choice-input" for="q${questionData.questionNumber}_${idx}">${choice}</label>
                     </div>
                 `).join('');
+
                 break;
             case 'checkbox':
                 answerHTML = questionData.choices.map((choice, idx) => `
@@ -621,6 +623,15 @@ export default class FormCreator {
             questions: obj.questions.map((question) => question.getQuestionSummary())
         };
 
+        // Validate required fields
+        if (!mainData.title.trim()) {
+            NewNotification({
+                type: "error",
+                message: "Please enter a form title"
+            });
+            return;
+        }
+
         const popup = new Popup(`forms/add_new_form`, {title: obj.title, description: obj.description}, {
             backgroundDismiss: false,
         });
@@ -629,8 +640,21 @@ export default class FormCreator {
             popup.Show();
 
             ListenToForm(popup.ELEMENT.querySelector("form.form-control"), function (data) {
-                obj.publishForm({...mainData, ...data}).then(() => {
+                console.log(mainData,data);
+                obj.publishForm({...mainData, ...data}).then((res) => {
+                    NewNotification({
+                        type: "success",
+                        message: "Form saved successfully"
+                    });
+
                     popup.Remove();
+
+                    window.location.replace(`/me/resources`);
+                }).catch(error => {
+                    NewNotification({
+                        type: "error",
+                        message: "Failed to save form. Please try again."
+                    });
                 });
             });
 
@@ -656,11 +680,16 @@ export default class FormCreator {
         this.formType = 'quiz';
         
         feather.replace();
+
+        NewNotification({
+            type: "info",
+            message: "Form has been reset"
+        });
     }
 }
 
 export class FormRenderer {
-    constructor(containerId, formData) {
+    constructor(containerId, formData, parentID = null) {
         this.containerId = containerId;
         this.container = document.getElementById(containerId);
         this.saveBtn = document.getElementById('saveFormBtn');
@@ -670,6 +699,7 @@ export class FormRenderer {
         this.initialize();
         this.initializeEventListeners();
         this.formId = formData.id;
+        this.parentID = parentID;
     }
 
     initialize() {
@@ -750,6 +780,7 @@ export class FormRenderer {
     saveForm() {
         const formAnswers = {
             form_id: this.formData.form_id,
+            parent_id: this.parentID,
             answers: Array.from(this.container.querySelectorAll('.question-container'))
                 .map(questionElement => {
                     const questionData = JSON.parse(questionElement.dataset.questionData);
@@ -759,16 +790,33 @@ export class FormRenderer {
                 })
                 .filter(answer => answer.answer !== null)
         };
-        
-        return new Promise((resolve) => {
-            AddRecord("form_completions", {data: JSON.stringify(formAnswers)}).then((res) => {
-                console.log(res);
-                resolve(res);
-            });
-        });
 
-        // console.log('Saving answers:', formAnswers);
-        return formAnswers;
+        // Validate that at least one question is answered
+        if (formAnswers.answers.length === 0) {
+            NewNotification({
+                type: "warning",
+                message: "Please answer at least one question before submitting"
+            });
+            return Promise.reject();
+        }
+        
+        return new Promise((resolve, reject) => {
+            AddRecord("form_completions", {data: JSON.stringify(formAnswers)})
+                .then((res) => {
+                    NewNotification({
+                        type: "success",
+                        message: "Form submitted successfully"
+                    });
+                    resolve(res);
+                })
+                .catch(error => {
+                    NewNotification({
+                        type: "error",
+                        message: "Failed to submit form. Please try again."
+                    });
+                    reject(error);
+                });
+        }).then(() => location.replace(`/me/classes`));
     }
 
     resetAnswers() {
@@ -777,7 +825,6 @@ export class FormRenderer {
         inputs.forEach(input => {
             if (input.type === 'checkbox' || input.type === 'radio') {
                 input.checked = false;
-                // Clear the visual styling of the parent choice item
                 const choiceItem = input.closest('.choice-item');
                 if (choiceItem) {
                     choiceItem.classList.remove('selected');
@@ -791,6 +838,11 @@ export class FormRenderer {
             } else {
                 input.value = '';
             }
+        });
+
+        NewNotification({
+            type: "info",
+            message: "Form has been reset"
         });
     }
 }

@@ -33,12 +33,12 @@ $STUDENT_IN_SECTION_HEADER_BODY = [
 ];
 
 $COURSE_HEADER_BODY = [
-    "header" => ["No","Name","Description","Status", "Date Created"],
-    "body" => ["no","course_name","description","status", "date_created"]
+    "header" => ["No","Name","Description", "Date Created"],
+    "body" => ["no","course_name","description", "date_created"]
 ];
 
 $PROFESSORS_HEADER_BODY = [
-    "header" => ["No","Name","Description","Main Course","Status", "Date Created"],
+    "header" => ["No","Name","Description","Main Course", "Date Created"],
     "body" => ["no",[
         "primary" => "user_id",
         "controller" => UserControl::class,
@@ -47,12 +47,12 @@ $PROFESSORS_HEADER_BODY = [
         "primary" => "main_course_id",
         "controller" => CourseControl::class,
         "value" =>  "course_name"
-    ],"status", "date_created"]
+    ], "date_created"]
 ];
 
 
 $STAFFS_HEADER_BODY = [
-    "header" => ["No","Name","Description","Department","Status", "Date Created"],
+    "header" => ["No","Name","Description","Department", "Date Created"],
     "body" => ["no",[
         "primary" => "user_id",
         "controller" => UserControl::class,
@@ -61,16 +61,16 @@ $STAFFS_HEADER_BODY = [
         "primary" => "department_id",
         "controller" => DepartmentControl::class,
         "value" =>  "department_name"
-    ],"status", "date_created"]
+    ], "date_created"]
 ];
 
 $CLASSROOMS_HEADER_BODY = [
-    "header" => ["No","Name","Building","Floor","Status", "Date Created"],
-    "body" => ["no","classroom_name","building","floor","status", "date_created"]
+    "header" => ["No","Name","Building","Floor", "Date Created"],
+    "body" => ["no","classroom_name","building","floor", "date_created"]
 ];
 
 $SECTIONS_HEADER_BODY = [
-    "header" => ["No","Name","Adviser","Course","Semester","Year Level","Status", "Date Created"],
+    "header" => ["No","Name","Adviser","Course","Semester","Year Level", "Date Created"],
     "body" => ["no","section_name",[
         "primary" => "adviser_id",
         "controller" => ProfessorControl::class,
@@ -85,21 +85,21 @@ $SECTIONS_HEADER_BODY = [
     ],[
         "enum" => array_column(YearLevels::cases(), 'name'),
         "value" => "year_level"
-    ],"status", "date_created"]
+    ], "date_created"]
 ];
 
 $SUBJECTS_HEADER_BODY = [
-    "header" => ["No","Name","Code","Course","Status", "Date Created"],
+    "header" => ["No","Name","Code","Course", "Date Created"],
     "body" => ["no","subject_name","subject_code",[
         "primary" => "course_id",
         "controller" => CourseControl::class,
         "value" =>  "course_name"
-    ],"status", "date_created"]
+    ], "date_created"]
 ];
 
 $DEPARTMENTS_HEADER_BODY = [
-    "header" => ["No","Department Name","Head","Status", "Date Created"],
-    "body" => ["no","department_name","head","status", "date_created"]
+    "header" => ["No","Department Name","Head", "Date Created"],
+    "body" => ["no","department_name","head", "date_created"]
 ];
 
 $SECTION_SUBJECT_HEADER_BODY = [
@@ -123,4 +123,9 @@ $STUDENTS_IN_CLASSES_HEADER_BODY = [
 $SUBJECTS_IN_CLASSES_HEADER_BODY = [
     "header" => ["No","Subject", "Schedule"],
     "body" => ["no","subject_name","schedule_label"]
+];
+
+$EVENTS_HEADER_BODY = [
+    "header" => ["No","Event Name","Date Start","Date End", "Date Created"],
+    "body" => ["no","title", "date_start", "date_end", "date_created"]
 ];

@@ -13,12 +13,12 @@ import {
 } from "../../../modules/app/SystemFunctions.js";
 import {NewNotification, NotificationType} from "../../../classes/components/NotificationPopup.js";
 import AlertPopup, {AlertTypes} from "../../../classes/components/AlertPopup.js";
-import {SelectModel} from "../../../modules/app/Administrator.js";
+import {CreateNewEvent} from "./newsfeed.js";
 
 
-const TARGET = "subjects";
-const MINI_TARGET = "subject";
-const MAIN_TITLE = "Subjects";
+const TARGET = "events";
+const MINI_TARGET = "event";
+const MAIN_TITLE = "Events";
 
 function UpdateTable(TABLE_HTML) {
     const TABLE_BODY = document.querySelector(".main-table-body");
@@ -65,7 +65,13 @@ function ViewRequest(id) {
         popup.Show();
 
         const form = pop.ELEMENT.querySelector("form.form-control");
-        const course_id = form.querySelector(".course_id");
+        const editor = popup.ELEMENT.querySelector("#editor");
+
+        ClassicEditor
+        .create( editor )
+        .catch( error => {
+            console.error( error );
+        } );
 
         ListenToForm(form, function (data) {
             data.course_id = GetComboValue(course_id).value;
@@ -76,39 +82,6 @@ function ViewRequest(id) {
                 NewNotification({
                     title: res.code === 200 ? 'Success' : 'Failed',
                     message: res.code === 200 ? 'Successfully Edited' : 'Task Failed to perform!'
-                }, 3000, res.code === 200 ? NotificationType.SUCCESS : NotificationType.ERROR)
-
-                UpdateData()
-            })
-        })
-
-        ManageComboBoxes()
-    }))
-}
-
-function AddRequest() {
-    const body= document.querySelector(".main-table-body");
-    const user_type = body.getAttribute("data-user-type");
-
-    const popup = new Popup(`${TARGET}/add_new_${MINI_TARGET}`, {user_type}, {
-        backgroundDismiss: false,
-    });
-
-    popup.Create().then(((pop) => {
-        popup.Show();
-
-        const form = pop.ELEMENT.querySelector("form.form-control");
-        const course_id = form.querySelector(".course_id");
-
-        ListenToForm(form, function (data) {
-            data.course_id = GetComboValue(course_id).value;
-
-            AddRecord(TARGET, {data: JSON.stringify(data)}).then((res) => {
-                popup.Remove();
-
-                NewNotification({
-                    title: res.code === 200 ? 'Success' : 'Failed',
-                    message: res.code === 200 ? 'Successfully Added' : 'Task Failed to perform!'
                 }, 3000, res.code === 200 ? NotificationType.SUCCESS : NotificationType.ERROR)
 
                 UpdateData()
@@ -147,7 +120,7 @@ function ManageTable() {
         TABLE_LISTENER.addButtonListener([
             {
                 name: "add-request",
-                action: AddRequest,
+                action: CreateNewEvent,
                 single: true
             },
             {

@@ -8,10 +8,10 @@ function GetFormData(formID) {
 function Init() {
     document.addEventListener('DOMContentLoaded', function() {
         const formID = document.querySelector('[data-form_id]').getAttribute('data-form_id');
+        const examID = document.querySelector('[data-exam_id]').getAttribute('data-exam_id');
 
         GetFormData(formID).then(formData => {
-            console.log(formData);
-            const formRenderer = new FormRenderer('questionsContainer', formData);
+            const formRenderer = new FormRenderer('questionsContainer', formData, examID);
         });
 
     });

@@ -21,7 +21,6 @@ export class TableListener {
         this.enableSelection = true;
         this.selectAsObject = false;
         this.toggleColumn = true;
-        this.storeData = {};
         this.pagination = {
             max: 10,
             current: 1,
@@ -689,7 +688,6 @@ export class TableListener {
                                     obj.sortTable(headerList.indexOf(__text) + 1, GetComboValue(combo).value);
 
                                     item.classList.add("active");
-
                                 })
                             }
                         }
@@ -708,73 +706,57 @@ export class TableListener {
     }
 
     sortTable(index, dir = "asc") {
-        var table, rows, switching, i, x, y, shouldSwitch, switchcount = 0;
+        const table = this.parent.querySelector('table');
+        const tbody = table.querySelector('tbody');
+        const rows = Array.from(tbody.querySelectorAll('tr'));
 
-        table = this.parent.querySelector('table');
-        switching = true;
+        const compareFunction = (a, b) => {
+            const cellA = a.cells[index];
+            const cellB = b.cells[index];
+            
+            if (!cellA || !cellB) return 0;
 
-        while (switching) {
-            switching = false;
-            rows = table.getElementsByTagName("TR");
-            for (i = 1; i < (rows.length - 1); i++) {
-                shouldSwitch = false;
-                x = rows[i].getElementsByTagName("TD")[index];
-                y = rows[i + 1].getElementsByTagName("TD")[index];
+            const valueA = this.getCellValue(cellA);
+            const valueB = this.getCellValue(cellB);
 
-                var cmpX, cmpY;
-                const xContent = x.innerHTML.trim();
-                const yContent = y.innerHTML.trim();
+            if (valueA === valueB) return 0;
 
-                // Try to parse the date
-                const dateX = new Date(xContent);
-                const dateY = new Date(yContent);
-
-                // Determine if the content is a date, number, or string
-                if (!isNaN(dateX.getTime()) && !isNaN(dateY.getTime())) {
-                    // Both are valid dates
-                    cmpX = dateX;
-                    cmpY = dateY;
-                } else if (!isNaN(parseInt(xContent)) && !isNaN(parseInt(yContent))) {
-                    // Both are numbers
-                    cmpX = parseInt(xContent);
-                    cmpY = parseInt(yContent);
-                } else {
-                    // Both are strings
-                    cmpX = xContent.toLowerCase();
-                    cmpY = yContent.toLowerCase();
-                }
-
-                // Handle '-' as 0
-                cmpX = (cmpX === '-') ? 0 : cmpX;
-                cmpY = (cmpY === '-') ? 0 : cmpY;
-
-                if (dir === "asc") {
-                    if (cmpX > cmpY) {
-                        shouldSwitch = true;
-                        break;
-                    }
-                } else if (dir === "desc") {
-                    if (cmpX < cmpY) {
-                        shouldSwitch = true;
-                        break;
-                    }
-                }
-            }
-
-            if (shouldSwitch) {
-                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-                switching = true;
-                switchcount++;
+            if (dir === "asc") {
+                return valueA < valueB ? -1 : 1;
             } else {
-                if (switchcount == 0 && dir === "asc") {
-                    dir = "desc";
-                    switching = true;
-                }
+                return valueA > valueB ? -1 : 1;
             }
-        }
+        };
 
-        this.elements.items = [...this.parent.querySelectorAll(".grid-table-body .body-item")];
+        rows.sort(compareFunction);
+
+        // Use DocumentFragment for better performance
+        const fragment = document.createDocumentFragment();
+        rows.forEach(row => fragment.appendChild(row));
+        
+        tbody.innerHTML = '';
+        tbody.appendChild(fragment);
+
+        this.elements.items = rows;
         this.activatePagination();
+    }
+
+    getCellValue(cell) {
+        const content = cell.textContent.trim();
+        
+        // Try parsing as date
+        const date = new Date(content);
+        if (!isNaN(date.getTime())) return date;
+        
+        // Try parsing as number
+        const num = parseFloat(content);
+        if (!isNaN(num)) return num;
+        
+        // Handle '-' as 0
+        if (content === '-') return 0;
+        
+        // Default to lowercase string
+        return content.toLowerCase();
     }
 
     sortying() {
@@ -805,29 +787,24 @@ export class TableListener {
     toggleColumns() {
         this.toggleColumn = !this.toggleColumn;
 
-        this.elements.header.querySelectorAll('th').forEach((e, i) => {
-            if (this.toggleIndex.includes(i)) {
-                if (this.toggleColumn) {
-                    removeClass(e, 'hide-component');
-                } else {
-                    addClass(e, 'hide-component');
-                }
-            }
-        })
+        const isToggle = this.parent.querySelector('table').getAttribute("data-is-toggle") == "true";
 
-        for (const tr of this.elements.items) {
-            const tds = tr.querySelectorAll('td');
-
-            tds.forEach((e, i) => {
-                if (this.toggleIndex.includes(i)) {
-                    if (this.toggleColumn) {
-                        removeClass(e, 'hide-component');
-                    } else {
-                        addClass(e, 'hide-component');
-                    }
+        if (isToggle) {
+            this.elements.header.querySelectorAll('th').forEach((e, i) => {
+                if (e.getAttribute("data-toggle") == "true") {
+                    e.setAttribute("data-toggle-value", this.toggleColumn ? "true" : "false");
                 }
             })
+    
+            for (const tr of this.elements.items) {
+                const tds = tr.querySelectorAll('td');
+    
+                tds.forEach((e) => {
+                    if (e.getAttribute("data-toggle") == "true") {
+                        e.setAttribute("data-toggle-value", this.toggleColumn ? "true" : "false");
+                    }
+                })
+            }
         }
-
     }
 }

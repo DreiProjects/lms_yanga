@@ -8,6 +8,8 @@ use Application\abstract\UserAbstract;
 use Application\models\Course;
 use Application\models\Section;
 use Application\models\User;
+use Application\controllers\app\Response;
+
 
 class SectionControl extends ControlDefaultFunctions
 {
@@ -23,13 +25,16 @@ class SectionControl extends ControlDefaultFunctions
 
     public function edit($id, $data)
     {
-        global $APPLICATION;
+        global $APPLICATION, $CONNECTION;
 
         $mainData = $data['data'];
         $students = $data['students'];
         $subjects = $data['subjects'];
         $control = $APPLICATION->FUNCTIONS->SECTION_STUDENT_CONTROL;
         $subjectControl = $APPLICATION->FUNCTIONS->SECTION_SUBJECT_CONTROL;
+
+        $rollbackResponse = new Response(400, "Task Failed to perform!");
+        $CONNECTION->NewTransaction();
 
         $edit = $this->editRecord($id, $mainData);
 
@@ -40,17 +45,26 @@ class SectionControl extends ControlDefaultFunctions
                 if ($student['status'] === 'created') {
                     unset($student['status']);
 
-                    $control->addRecord($student);
+                    if ($control->addRecord($student)->code != 200) {
+                        $CONNECTION->Rollback();
+                        return $rollbackResponse;
+                    }
                 } else if ($student['status'] === 'edited') {
                     $id = $student['id'];
 
                     unset($student['status'], $student['id']);
 
-                    $control->editRecord($id, $student);
+                    if ($control->editRecord($id, $student)->code != 200) {
+                        $CONNECTION->Rollback();
+                        return $rollbackResponse;
+                    }
                 } else if ($student['status'] === 'deleted') {
                     $id = $student['id'];
 
-                    $control->removeRecord($id);
+                    if ($control->removeRecord($id)->code != 200) {
+                        $CONNECTION->Rollback();
+                        return $rollbackResponse;
+                    }
                 }
             }
 
@@ -72,19 +86,32 @@ class SectionControl extends ControlDefaultFunctions
 
                     $add = $subjectControl->addRecord($subject);
 
+                    if ($add->code != 200) {
+                        $CONNECTION->Rollback();
+                        return $rollbackResponse;
+                    }
+
                     $_ID = $add->body['id'];
                 } else if ($subject['status'] === 'edited') {
                     $id = $subject['id'];
 
                     unset($subject['status'], $subject['id']);
 
-                    $subjectControl->editRecord($id, $subject);
+                    $edit = $subjectControl->editRecord($id, $subject);
+
+                    if ($edit->code != 200) {
+                        $CONNECTION->Rollback();
+                        return $rollbackResponse;
+                    }
 
                     $_ID = $id;
                 } else if ($subject['status'] === 'deleted') {
                     $id = $subject['id'];
 
-                    $subjectControl->removeRecord($id);
+                    if ($subjectControl->removeRecord($id)->code != 200) {
+                        $CONNECTION->Rollback();
+                        return $rollbackResponse;
+                    }
                 }
 
                 if (isset($schedules) && !empty($schedules)) {
@@ -102,12 +129,21 @@ class SectionControl extends ControlDefaultFunctions
                             $APPLICATION->FUNCTIONS->SCHEDULE_ITEM_CONTROL->addRecord($sched);
                         }
 
-                        $subjectControl->editRecord($_ID, ['schedule_id' => $schedule->body['id']]);
+                        $edit = $subjectControl->editRecord($_ID, ['schedule_id' => $schedule->body['id']]);
 
+                        if ($edit->code != 200) {
+                            $CONNECTION->Rollback();
+                            return $rollbackResponse;
+                        }
+                    } else {
+                        $CONNECTION->Rollback();
+                        return $rollbackResponse;
                     }
                 }
             }
         }
+
+        $CONNECTION->Commit();
 
         return $edit;
     }

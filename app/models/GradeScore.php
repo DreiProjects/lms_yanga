@@ -24,9 +24,8 @@ class GradeScore extends GradeScoreAbstract
             $comply = $APPLICATION->FUNCTIONS->ACTIVITY_COMPLY_CONTROL->get($this->id, false);
             $this->student_id = $comply['student_id'];
         } else {
-            $this->student_id = false;
-            // $exam = $APPLICATION->EXAM_COMPLY_CONTROL->get($this->id, false);
-            // $this->student_id = $exam['student_id'];
+            $comply = $APPLICATION->FUNCTIONS->FORM_COMPLETION_CONTROL->get($this->id, false);
+            $this->student_id = $comply['user_id'];
         }
     }
 }
