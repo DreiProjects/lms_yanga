@@ -122,56 +122,36 @@ $ADMIN = array(
         "icon" => '<i data-feather="users"></i>',
         "sub-content" => [
             [
-                "text" => "Search Students",
-                "path" => '/patients/search_students',
-                "icon" => '<i data-feather="search"></i>'
-            ],
-            [
-                "text" => "Classrooms",
-                "path" => '/patients/classrooms',
-                "icon" => '<i data-feather="layout"></i>'
-            ],
-            [
-                "text" => "Groups",
-                "path" => '/patients/groups',
+                "text" => "Students",
+                "path" => '/students/students',
                 "icon" => '<i data-feather="users"></i>'
+            ],
+            [
+                "text" => "Import Students",
+                "path" => '/students/import_students',
+                "icon" => '<i data-feather="upload"></i>'
+            ],
+            [
+                "text" => "Search Students",
+                "path" => '/students/search_students',
+                "icon" => '<i data-feather="search"></i>'
             ],
         ]
     ],
     [
         "text" => "Faculty Management",
-        "path" => '/pos',
+        "path" => '/faculty',
         "icon" => '<i data-feather="briefcase"></i>',
         "sub-content" => [
             [
-                "text" => "Point of Sales",
-                "path" => '/pos/point_of_sales',
-                "icon" => '<i data-feather="dollar-sign"></i>'
+                "text" => "Professors",
+                "path" => '/faculty/professors',
+                "icon" => '<i data-feather="user-check"></i>'
             ],
             [
-                "text" => "Orders",
-                "path" => '/pos/orders',
-                "icon" => '<i data-feather="shopping-cart"></i>'
-            ],
-            [
-                "text" => "Lab Orders",
-                "path" => '/pos/lab_orders',
-                "icon" => '<i data-feather="flask"></i>'
-            ],
-            [
-                "text" => "Delivery",
-                "path" => '/pos/order_delivery',
-                "icon" => '<i data-feather="truck"></i>'
-            ],
-            [
-                "text" => "Payments",
-                "path" => '/pos/payments',
-                "icon" => '<i data-feather="credit-card"></i>'
-            ],
-            [
-                "text" => "Reports",
-                "path" => '/pos/reports',
-                "icon" => '<i data-feather="bar-chart-2"></i>'
+                "text" => "Staffs",
+                "path" => '/faculty/staffs',
+                "icon" => '<i data-feather="user"></i>'
             ],
         ]
     ],
@@ -181,37 +161,35 @@ $ADMIN = array(
         "icon" => '<i data-feather="tool"></i>',
         "sub-content" => [
             [
+                "text" => "Sections",
+                "path" => '/maintenance/sections',
+                "icon" => '<i data-feather="grid"></i>'
+            ],
+            [
                 "text" => "Courses",
                 "path" => '/maintenance/courses',
                 "icon" => '<i data-feather="book-open"></i>'
             ],
             [
-                "text" => "Semesters",
-                "path" => '/maintenance/semesters',
-                "icon" => '<i data-feather="calendar"></i>'
+                "text" => "Subjects",
+                "path" => '/maintenance/subjects',
+                "icon" => '<i data-feather="book"></i>'
             ],
             [
                 "text" => "Classrooms",
                 "path" => '/maintenance/classrooms',
                 "icon" => '<i data-feather="layout"></i>'
             ],
-        ]
-    ],
-    [
-        "text" => "Accounts",
-        "path" => '/accounts',
-        "icon" => '<i data-feather="users"></i>',
-        "sub-content" => [
             [
-                "text" => "Students",
-                "path" => '/accounts/students',
-                "icon" => '<i data-feather="user"></i>'
+                "text" => "Departments",
+                "path" => '/maintenance/departments',
+                "icon" => '<i data-feather="briefcase"></i>'
             ],
             [
-                "text" => "Faculty Members",
-                "path" => '/accounts/faculty_members',
-                "icon" => '<i data-feather="user-check"></i>'
-            ]
+                "text" => "Events",
+                "path" => '/maintenance/events',
+                "icon" => '<i data-feather="calendar"></i>'
+            ],
         ]
     ],
 );

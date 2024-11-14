@@ -1,0 +1,122 @@
+<?php 
+
+global $APPLICATION;
+
+$filter = [];
+$filterData = ['user_type' => '1'];
+
+if (isset($_POST['filter'])) {
+    $filter = json_decode($_POST['filter'], true);
+} else {
+    $filter = ['search' => ''];
+}
+
+if (isset($filter['gender']) && $filter['gender'] != '') {
+    $filterData['gender'] = $filter['gender'];
+}
+
+$control = $APPLICATION->FUNCTIONS->STUDENT_CONTROL;
+
+$records = $control->searchRecords($filter['search'], true, empty($filterData) ? null : $filterData);
+
+if (isset($filter['course']) && $filter['course'] != '') {
+    $records = array_filter($records, function($record) use ($filter) {
+        $course = $record->getCourse();
+        return $course && $course->course_id == $filter['course'];
+    });
+}
+
+if (isset($filter['year_level']) && $filter['year_level'] != '') {
+    $records = array_filter($records, function($record) use ($filter) {
+        $sectionStudent = $record->getSectionStudent();
+        return $sectionStudent && $sectionStudent->section->year_level == $filter['year_level'];
+    });
+}
+
+$selectedStudent =  count($records) > 0 ? $records[0] : null;
+
+$otherStudents = count($records) > 1 ? array_slice($records, 1) : [];
+
+?>
+
+<div class="content-panel">
+    <!-- Student Profile Section -->
+    <div class="student-profile">
+        <div class="cover-photo"></div>
+        <div class="profile-content">
+
+                <div class="profile">
+                    <?php if ($selectedStudent): ?>
+                        <?php include "public/views/components/containers/students/displayStudent.phtml" ?>
+                    <?php else: ?>
+                    <div class="profile-photo">
+                    </div>
+                    <div class="profile-info">
+                        <h2 class="display-name">No Student Selected</h2>
+                        <p class="gender">Gender: <span>-</span></p>
+                        <p class="section">Section: <span>-</span></p>
+                        <div class="subjects">
+                            <h3>Subjects</h3>
+                            <ul class="subjects-list">
+                                <li>No subjects to display</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+              
+            <?php endif; ?>
+        </div>
+    </div>
+
+    <!-- Other Students Section -->
+    <div class="other-students">
+        <h3>Other Students</h3>
+        <div class="students-grid">
+            <?php if (!empty($otherStudents)): ?>
+                <?php
+                    $studentsPerPage = 10;
+                    $totalStudents = count($otherStudents);
+                    $totalPages = ceil($totalStudents / $studentsPerPage);
+                    $currentPage = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+                    $currentPage = max(1, min($currentPage, $totalPages));
+                    $start = ($currentPage - 1) * $studentsPerPage;
+                    $pagedStudents = array_slice($otherStudents, $start, $studentsPerPage);
+                ?>
+                
+                <?php foreach($pagedStudents as $student): ?>
+                    <?php 
+                        $sectionStudent = $student->getSectionStudent();
+                    ?>
+                    <div class="student-card" data-student-id="<?= $student->user_id ?>">
+                        <img src="<?= $student->photoURL ?>" alt="<?= $student->displayName ?>">
+                        <h4><?= $student->displayName ?></h4>
+                        <p><?= $sectionStudent->section->section_name ?? 'No Section' ?></p>
+                    </div>
+                <?php endforeach; ?>
+
+                
+                <?php if($totalPages > 1): ?>
+                    <div class="pagination">
+                        <?php if($currentPage > 1): ?>
+                            <a href="?page=<?= $currentPage - 1 ?>" class="page-link">&laquo; Previous</a>
+                        <?php endif; ?>
+                        
+                        <?php for($i = 1; $i <= $totalPages; $i++): ?>
+                            <?php if($i == $currentPage): ?>
+                                <span class="page-link active"><?= $i ?></span>
+                            <?php else: ?>
+                                <a href="?page=<?= $i ?>" class="page-link"><?= $i ?></a>
+                            <?php endif; ?>
+                        <?php endfor; ?>
+                        
+                        <?php if($currentPage < $totalPages): ?>
+                            <a href="?page=<?= $currentPage + 1 ?>" class="page-link">Next &raquo;</a>
+                        <?php endif; ?>
+                    </div>
+                <?php endif; ?>
+            <?php else: ?>
+                <p>No other students found</p>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>

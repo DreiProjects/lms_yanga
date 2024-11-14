@@ -31,7 +31,7 @@ class Student extends StudentAbstract
         global $ALL_USER_TYPES;
 
         $EXTENSION = 'jpg';
-        $CHARACTER_AVATAR_PATH = '/public/assets/media/avatar/' . $EXTENSION . '/';
+        $CHARACTER_AVATAR_PATH = '/public/assets/media/avatar/' . '/';
 
         if (!$this->displayName) {
             $this->displayName = $this->firstname . ' ' . $this->lastname;
@@ -62,5 +62,14 @@ class Student extends StudentAbstract
         }
 
         return $records[0];
+    }
+
+    public function getCourse() {
+        global $APPLICATION;
+
+        $sectionStudent = $this->getSectionStudent();
+        $section = $sectionStudent ? $sectionStudent->section : null;
+
+        return $section ? $section->course : null;
     }
 }

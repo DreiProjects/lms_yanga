@@ -1,0 +1,34 @@
+
+<?php 
+    global $APPLICATION;
+
+    if (!isset($selectedStudent)) {
+        if (isset($_POST['student_id'])) {
+            $selectedStudent = $APPLICATION->FUNCTIONS->STUDENT_CONTROL->get($_POST['student_id'], true);
+        }
+    }
+
+    $sectionStudent = $selectedStudent->getSectionStudent();
+    $section = $sectionStudent ? $sectionStudent->section : null;
+    $subjects = $section ? $section->subjects : [];
+?>
+<div class="profile-photo">
+    <img src="<?= $selectedStudent->photoURL ?>" alt="<?= $selectedStudent->displayName ?>">
+</div>
+<div class="profile-info">
+    <h2 class="display-name"><?= $selectedStudent->displayName ?></h2>
+    <p class="gender">Gender: <span><?= $selectedStudent->gender == 0 ? 'Male' : 'Female' ?></span></p>
+    <p class="section">Section: <span><?= $sectionStudent->section->section_name ?? 'Not Assigned' ?></span></p>
+    <div class="subjects">
+        <h3>Subjects</h3>
+        <ul class="subjects-list">
+            <?php if (count($subjects) > 0): ?>
+                <?php foreach($subjects as $subject): ?>
+                    <li><?= $subject->subject->subject_name ?></li>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <li>No subjects assigned</li>
+            <?php endif; ?>
+        </ul>
+    </div>
+</div>

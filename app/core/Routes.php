@@ -98,6 +98,7 @@ class Routes
         $TYPE = $this->SESSION->typeName;
 
         $this->KLEIN->with("", static function () use ($KLEIN, $TYPE) {
+            $TYPE = strtolower($TYPE) == "admin" ? "super" : $TYPE;
             $defaultView = "public/views/pages/$TYPE/dashboard.phtml";
             $mustview = "public/views/pages/$TYPE/";
 
@@ -194,9 +195,6 @@ class Routes
                     return $service->render("public/views/components/popup/" . $req->param("view") . '/filterRecords.phtml');
                 }
                 );
-
-                // DITO KA MAG AADDD NG MGA FUNCTIONS NG BAWAT TABLE SA DATABASE
-
 
                 $routes = [
                     "/users" => ["USER_CONTROL", "add", "editRecord", "removeRecords"],
