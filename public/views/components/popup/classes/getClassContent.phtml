@@ -37,6 +37,7 @@ foreach ($SUBJECTS as $subject) {
     ], $RESOURCES[$subject->subject_name]);
 
     $ACTIVITIES[$subject->subject_name] = $APPLICATION->FUNCTIONS->ACTIVITY_CONTROL->filterRecords(['section_subject_id' => $subject->section_subject_id], true);
+    
     $EXAMS[$subject->subject_name] = $APPLICATION->FUNCTIONS->EXAM_CONTROL->filterRecords(['section_subject_id' => $subject->section_subject_id], true);
 }
 
@@ -366,8 +367,15 @@ foreach ($SUBJECTS as $subject) {
                                     <div class="grades-list">
                                         <?php foreach($SUBJECTS as $index => $subject): ?>
                                             <?php 
-                                                $grading_platform = $gradingControl->getBy("section_subject_id", $subject->section_subject_id, true);
-                                                $is_student_selected = $grading_platform ? $grading_platform->isStudentSelected($SESSION->user_id) : false;
+                                                $grading_platform = $gradingControl->getBy("section_subject_id", $subject->section_subject_id, false);
+
+                                                $is_student_selected = null;
+
+                                                if ($grading_platform) {
+                                                    $grading_platform = $gradingControl->getBy("section_subject_id", $subject->section_subject_id, true);
+                                                    $is_student_selected =  $grading_platform->isStudentSelected($SESSION->user_id);
+                                                }
+
                                              ?>
                                             <div class="subject-grades <?= $index === 0 ? 'active' : '' ?>" data-subject="<?= $subject->subject_name ?>">
                                                <?php if($is_student_selected && $SESSION->user_type == 1 || $SESSION->user_type == 2): ?>

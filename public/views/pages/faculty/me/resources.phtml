@@ -42,7 +42,7 @@ array_push($menuItems, [
     'tag' => 'form',
     ]);
 
-$forms = $APPLICATION->FUNCTIONS->FORM_CONTROL->getAllRecords(true);
+$forms = $APPLICATION->FUNCTIONS->FORM_CONTROL->filterRecords(['professor_id' => $professor->professor_id],true);
 ?>
 
 <?php include "public/views/pages/structures/html_headings.phtml" ?>
