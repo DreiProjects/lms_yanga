@@ -726,11 +726,12 @@ background: #94a3b8;
         overflow-x: auto;
     }
 
-    .grades-menu {
-        width: 200px;
+    .grades-menu, .attendance-menu {
+        width: 200px !important;
         background: #fff;
         border-radius: 8px;
         box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        min-width: 200px;
     }
 
     .grades-menu ul {
@@ -760,7 +761,7 @@ background: #94a3b8;
         font-weight: 500;
     }
 
-    .grades-list {
+    .grades-list, .attendance-table-container {
         flex: 1;
         overflow-x: auto;
         width: 100% !important; 

@@ -5,28 +5,40 @@ global $APPLICATION, $SESSION;
 
 $isProfessor = $SESSION->user_type == 2;
 
-$dashboardCards = [
-    [
-        "title" => "Users",
-        "value" => $APPLICATION->FUNCTIONS->USER_CONTROL->countRecords(),
-    ],
-    [
-        "title" => "Faculty Members", 
-        "value" => $APPLICATION->FUNCTIONS->USER_CONTROL->countRecords(['user_type' => 2]),
-    ],
-    [
-        "title" => "Professors",
-        "value" => $APPLICATION->FUNCTIONS->USER_CONTROL->countRecords(['user_type' => 2]),
-    ],
-    [
-        "title" => "Staffs",
-        "value" => $APPLICATION->FUNCTIONS->USER_CONTROL->countRecords(['user_type' => 2]),
-    ],
-    [
-        "title" => "Students",
-        "value" => $APPLICATION->FUNCTIONS->USER_CONTROL->countRecords(['user_type' => 1]),
-    ],
-];
+if ($isProfessor) {
+    $user = $SESSION->getAsProfessor();
+    $classes = $user->getClasses();
+    $sectionsStudents = $APPLICATION->FUNCTIONS->SECTION_CONTROL->query(
+        "SELECT ss.section_id, ss.subject_id, COUNT(st.student_id) as student_count 
+        FROM section_subjects ss
+        LEFT JOIN section_students st ON st.section_id = ss.section_id
+        WHERE ss.professor_id = " . $user->professor_id . "
+        GROUP BY ss.section_id, ss.subject_id", 
+        false
+    );
+
+    
+    
+    
+} else {
+    $user = $SESSION;
+}
+
+
+if ($isProfessor) {
+    $dashboardCards = [
+        [
+            "title" => "Classes",
+            "value" => count($classes),
+        ],
+        [
+            "title" => "Total Students",
+            "value" => $sectionsStudents['student_count'],
+        ],
+    ];
+} else {
+    $dashboardCards = [];
+}
 
 $maintenanceCards = [
     [
@@ -52,7 +64,8 @@ $announcements = $APPLICATION->FUNCTIONS->ANNOUNCEMENT_CONTROL->filterRecords([
     'for_view' => '0'
 ], true);
 
-$events = $APPLICATION->FUNCTIONS->EVENT_CONTROL->filterRecords([], true);
+$events = array_slice($APPLICATION->FUNCTIONS->EVENT_CONTROL->filterRecords([], true), 0, 3);
+
 ?>
 
 <?php include "public/views/pages/structures/html_headings.phtml" ?>
@@ -81,6 +94,7 @@ $events = $APPLICATION->FUNCTIONS->EVENT_CONTROL->filterRecords([], true);
                 <div class="text-container">
                     <h1>Good Day, <?= $SESSION->displayName ?></h1>
                     <p>What a beautiful day is it.</p>
+  
                 </div>
 
                 <div class="framed-container">
@@ -154,6 +168,98 @@ $events = $APPLICATION->FUNCTIONS->EVENT_CONTROL->filterRecords([], true);
                                 <?php endforeach ?>
                             </div>
                         </section>
+                        <!-- Events Header -->
+                        <section>
+                            <div class="dash-title">
+                                <h2>Events</h2>
+                            </div>
+                            <?php if(empty($events)): ?>
+                                <div class="image-container">
+                                    <?= UseImage('/img/no_data.svg', true) ?>
+                                    <p>No events yet</p>
+                                </div>
+                            <?php endif ?>
+                        </section>
+
+                        <!-- Events List -->
+                        <section>
+                            <style>
+                                .events-list {
+                                    display: flex;
+                                    flex-direction: column;
+                                    gap: 20px;
+                                    padding: 15px;
+                                }
+
+                                .event-card {
+                                    background: #fff;
+                                    border-radius: 8px;
+                                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                                    overflow: hidden;
+                                    transition: transform 0.2s ease;
+                                }
+
+                                .event-card:hover {
+                                    transform: translateY(-2px);
+                                }
+
+                                .event-poster {
+                                    width: 100%;
+                                    height: 200px;
+                                    overflow: hidden;
+                                }
+
+                                .event-poster img {
+                                    width: 100%;
+                                    height: 100%;
+                                    object-fit: cover;
+                                }
+
+                                .event-header {
+                                    padding: 15px 15px 5px;
+                                }
+
+                                .event-header h3 {
+                                    margin: 0;
+                                    color: #1a1a1a;
+                                    font-size: 1.2rem;
+                                }
+
+                                .event-header small {
+                                    color: #666;
+                                    font-size: 0.9rem;
+                                }
+
+                                .event-body {
+                                    padding: 10px 15px 15px;
+                                }
+
+                                .event-body p {
+                                    margin: 0;
+                                    color: #4a4a4a;
+                                    line-height: 1.5;
+                                }
+                            </style>
+                            <div class="events-list">
+                                <?php foreach($events as $event): ?>
+                                    <div class="event-card">
+                                        <?php if(!empty($event->poster)): ?>
+                                            <div class="event-poster">
+                                                <img src="<?= $event->poster ?>" alt="Event poster">
+                                            </div>
+                                        <?php endif ?>
+                                        <div class="event-header">
+                                            <h3><?= $event->title ?></h3>
+                                            <small><?= date('M d, Y', strtotime($event->date_start)) ?> - <?= date('M d, Y', strtotime($event->date_end)) ?></small>
+                                        </div>
+                                        <div class="event-body">
+                                            <p><?= $event->description ?></p>
+                                        </div>
+                                    </div>
+                                <?php endforeach ?>
+                            </div>
+                        </section>
+
                     </div>
                 </div>
                 

@@ -38,6 +38,12 @@ abstract class ControlDefaultFunctions
         return (new ReflectionClass($this->MODEL_CLASS))->newInstance($record);
     }
 
+    public function query($query, $AS_OBJECT) {
+        $records = $this->CONNECTION->Query($query);
+        
+        return $AS_OBJECT ? $this->newInstanceOfModel($records) : $records;
+    }
+
     /**
      * @throws ReflectionException
      */
