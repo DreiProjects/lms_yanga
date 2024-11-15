@@ -78,7 +78,7 @@ $courses = ObjectToCombo("course_name", "course_id", $courses);
                                 <?= CreateComboBox("semester", "Semester", CasesToCombo(Semesters::cases()), false, [
                                         "text" => Semesters::from($section->semester)->name,
                                         "value" => $section->semester
-                                ]) ?>
+                                ]) ?>   
                             </div>
                         </div>
                         <div class="form-group tooltip">

@@ -16,6 +16,8 @@ class SectionSubject extends SectionSubjectAbstract
 
     public $schedule_label;
 
+    public $classroom;
+
     public function __construct($data = [])
     {
         $this->applyData($data, SectionSubjectAbstract::class);
@@ -30,13 +32,14 @@ class SectionSubject extends SectionSubjectAbstract
 
         $this->professor = $APPLICATION->FUNCTIONS->PROFESSOR_CONTROL->get($this->professor_id, true);
 
+        $this->classroom = $APPLICATION->FUNCTIONS->CLASSROOM_CONTROL->get($this->classroom_id, true);
+
         if ($this->schedule_id != 0) {
             $this->schedule = $APPLICATION->FUNCTIONS->SCHEDULE_CONTROL->get($this->schedule_id, true);
 
             if($this->schedule) {
                 $this->schedule_label = $this->schedule->schedule_label;
             }
-
         }
     }
 

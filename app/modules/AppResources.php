@@ -4,7 +4,7 @@
 
 // ALL FINANCIAL
 
-
+use Application\controllers\system\ClassroomControl;
 use Application\controllers\system\CourseControl;
 use Application\controllers\system\DepartmentControl;
 use Application\controllers\system\ProfessorControl;
@@ -80,10 +80,10 @@ $SECTIONS_HEADER_BODY = [
         "controller" => CourseControl::class,
         "value" =>  "course_name"
     ],[
-        "enum" => array_column(Semesters::cases(), 'name'),
+        "enum" => array_merge([[]], array_column(Semesters::cases(), 'name')),
         "value" => "semester"
     ],[
-        "enum" => array_column(YearLevels::cases(), 'name'),
+        "enum" => array_merge([[]], array_column(YearLevels::cases(), 'name')),
         "value" => "year_level"
     ], "date_created"]
 ];
@@ -112,7 +112,11 @@ $SECTION_SUBJECT_HEADER_BODY = [
         "primary" => "professor_id",
         "controller" => ProfessorControl::class,
         "value" =>  "displayName"
-    ],"classroom_id", "schedule_label"]
+    ],[
+        "primary" => "classroom_id",
+        "controller" => ClassroomControl::class,
+        "value" =>  "classroom_name"
+    ], "schedule_label"]
 ];
 
 $STUDENTS_IN_CLASSES_HEADER_BODY = [
@@ -121,8 +125,8 @@ $STUDENTS_IN_CLASSES_HEADER_BODY = [
 ];
 
 $SUBJECTS_IN_CLASSES_HEADER_BODY = [
-    "header" => ["No","Subject", "Schedule"],
-    "body" => ["no","subject_name","schedule_label"]
+    "header" => ["No","Subject","Classroom", "Schedule"],
+    "body" => ["no","subject_name","classroom_id","schedule_label"]
 ];
 
 $EVENTS_HEADER_BODY = [

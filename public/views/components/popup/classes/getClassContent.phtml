@@ -23,6 +23,7 @@ $RECORDS = array_map(fn($record) => [
 $SUBJECTS = array_map(fn($record) => (object) [
     'subject_name' => $record->subject->subject_name,
     'schedule_label' => $record->schedule_label,
+    'classroom_id' => $record->classroom->classroom_name,
     'section_subject_id' => $record->section_subject_id
 ], $section->getSubjectForProfessor($professor_id));
 

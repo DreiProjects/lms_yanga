@@ -23,9 +23,7 @@ import {
 import AlertPopup, {
   AlertTypes,
 } from "../../../classes/components/AlertPopup.js";
-import {
-  SelectSomething,
-} from "../../../modules/app/Administrator.js";
+import { SelectSomething } from "../../../modules/app/Administrator.js";
 import { SidePicker } from "../../../classes/components/SidePicker.js";
 
 const TARGET = "sections";
@@ -208,7 +206,7 @@ function ManageStudentsTable(element, students, update) {
 
   const _Del = (ids = []) => {
     if (ids.length) {
-      ids.forEach(id => {
+      ids.forEach((id) => {
         TABLE_LISTENER.removeItem(id);
 
         ALLSTUDENTS = ALLSTUDENTS.map((b) => {
@@ -221,7 +219,7 @@ function ManageStudentsTable(element, students, update) {
           }
           return b;
         }).filter((b) => b);
-      })
+      });
     }
 
     update(ALLSTUDENTS);
@@ -402,7 +400,7 @@ function ManageSubjectsTable(element, subjects, update) {
 
   const _Del = (ids = []) => {
     if (ids.length) {
-      ids.forEach(id => {
+      ids.forEach((id) => {
         TABLE_LISTENER.removeItem(id);
 
         ALLSUBJECTS = ALLSUBJECTS.map((b) => {
@@ -415,8 +413,7 @@ function ManageSubjectsTable(element, subjects, update) {
           }
           return b;
         }).filter((b) => b);
-      })
-      
+      });
     }
 
     update(ALLSUBJECTS);
@@ -565,6 +562,7 @@ function ViewRequest(id) {
       data.adviser_id = selected_user.professor_id;
 
       console.log(data, students, subjects);
+
       EditRecord(TARGET, {
         id,
         data: JSON.stringify({ data, students, subjects }),
