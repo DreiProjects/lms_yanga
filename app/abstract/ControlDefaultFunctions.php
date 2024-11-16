@@ -26,7 +26,7 @@ abstract class ControlDefaultFunctions
         global $KLEIN;
         global $CONNECTION;
 
-        $this->SESSION = $SESSION;
+        $this->SESSION = $SESSION; 
         $this->KLEIN = $KLEIN;
         $this->CONNECTION = $CONNECTION;
     }
@@ -49,6 +49,10 @@ abstract class ControlDefaultFunctions
      */
     public function get($ID, $AS_OBJECT)
     {
+        if ($ID == 0) {
+            return null;
+        }
+
         $activity = $this->CONNECTION->Select($this->TABLE_NAME, [$this->TABLE_PRIMARY_ID => $ID], false);
         return $AS_OBJECT ? $this->newInstanceOfModel($activity) : $activity;
     }

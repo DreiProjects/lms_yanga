@@ -190,6 +190,25 @@ function Exams() {
   const addExamBtn = document.querySelector(".add-exam-btn");
   const examItems = document.querySelectorAll(".exam-item");
   const createExamBtn = document.querySelector(".create-exam-btn");
+  const examsMenu = document.querySelector(".exams-menu");
+  
+  // Handle exams menu
+  examsMenu.addEventListener("click", (e) => {
+    if (e.target.classList.contains("subject-tab")) {
+      const subject = e.target.dataset.subject;
+        document
+          .querySelectorAll(".subject-tab")
+        .forEach((tab) => tab.classList.remove("active"));
+      document
+        .querySelectorAll(".subject-exams")
+        .forEach((exam) => exam.classList.remove("active"));
+
+      e.target.classList.add("active");
+      document
+        .querySelector(`.subject-exams[data-subject="${subject}"]`)
+        .classList.add("active");
+    }
+  });
 
   if (addExamBtn) {
     addExamBtn.addEventListener("click", () => {
@@ -624,6 +643,26 @@ function ViewCompliedActivities(id) {
 function Activities() {
   const addActivityBtn = document.querySelector(".add-activity-btn");
   const activities = document.querySelectorAll(".activity-item");
+  const activitiesMenu = document.querySelector(".activities-menu");
+
+
+  // Handle activities menu
+  activitiesMenu.addEventListener("click", (e) => {
+    if (e.target.classList.contains("subject-tab")) {
+      const subject = e.target.dataset.subject;
+        document
+          .querySelectorAll(".subject-tab")
+        .forEach((tab) => tab.classList.remove("active"));
+      document
+        .querySelectorAll(".subject-activities")
+        .forEach((activity) => activity.classList.remove("active"));
+
+      e.target.classList.add("active");
+      document
+        .querySelector(`.subject-activities[data-subject="${subject}"]`)
+        .classList.add("active");
+    }
+  });
 
   if (addActivityBtn) {
     addActivityBtn.addEventListener("click", () => {
@@ -1453,6 +1492,31 @@ function Attendance() {
   const attendanceContainers = document.querySelectorAll(
     ".attendance-table-container"
   );
+  const attendanceMenu = document.querySelector(".attendance-menu");
+
+  // Handle attendance menu
+  attendanceMenu.addEventListener("click", (e) => {
+    console.log(e.target);
+    if (e.target.classList.contains("subject-tab")) {
+      const subject = e.target.dataset.subject;
+
+      console.log(subject);
+      document
+        .querySelectorAll(".subject-tab")
+        .forEach((tab) => tab.classList.remove("active"));
+      document
+        .querySelectorAll(".subject-attendance")
+        .forEach((attendance) => attendance.classList.remove("active"));
+
+      e.target.classList.add("active");
+      document
+        .querySelector(`.subject-attendance[data-subject="${subject}"]`)
+        .classList.add("active");
+
+      // console.log(subject);
+    }
+  });
+
   attendanceContainers.forEach((container) => {
     const sectionSubjectId = container.dataset.subjectId;
     GetSectionStudents(sectionSubjectId).then(

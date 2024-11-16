@@ -23,7 +23,7 @@ $RECORDS = array_map(fn($record) => [
 $SUBJECTS = array_map(fn($record) => (object) [
     'subject_name' => $record->subject->subject_name,
     'schedule_label' => $record->schedule_label,
-    'classroom_id' => $record->classroom->classroom_name,
+    'classroom_id' => $record->classroom ? $record->classroom->classroom_name : "",
     'section_subject_id' => $record->section_subject_id
 ], $section->getSubjectForProfessor($professor_id));
 
@@ -414,7 +414,7 @@ foreach ($SUBJECTS as $subject) {
                                 <div class="attendance-menu">
                                     <ul>
                                         <?php foreach($SUBJECTS as $index => $subject): ?>
-                                            <li class="<?= $index === 0 ? 'active' : '' ?>" data-subject="<?= $subject->subject_name ?>">
+                                            <li class="subject-tab <?= $index === 0 ? 'active' : '' ?>" data-subject="<?= $subject->subject_name ?>">
                                                 <?= $subject->subject_name ?>
                                             </li>
                                         <?php endforeach; ?>
@@ -422,7 +422,7 @@ foreach ($SUBJECTS as $subject) {
                                 </div>
                                 <div class="attendance-list">
                                     <?php foreach($SUBJECTS as $index => $subject): ?>
-                                        <div class="attendance-table-container subject-attendance <?= $index === 0 ? 'active' : '' ?>" data-subject-id="<?= $subject->section_subject_id ?>">
+                                        <div class="attendance-table-container subject-attendance <?= $index === 0 ? 'active' : '' ?>" data-subject="<?= $subject->subject_name ?>" data-subject-id="<?= $subject->section_subject_id ?>">
                                             <div class="attendance-controls">
                                                 <div class="attendance-actions">
                                                     <button class="btn btn-primary save-attendance" disabled>Save Changes</button>
@@ -1163,13 +1163,19 @@ background: #94a3b8;
 
 .resources-menu li:hover,
 .activities-menu li:hover,
-.exams-menu li:hover {
+.exams-menu li:hover,
+.attendance-menu li:hover {
     background-color: #f0f0f0;
 }
 
 .resources-menu li.active,
 .activities-menu li.active,
 .exams-menu li.active {
+    background-color: #007bff;
+    color: white;
+}
+
+.attendance-menu li.active {
     background-color: #007bff;
     color: white;
 }
@@ -1182,25 +1188,29 @@ background: #94a3b8;
 
 .subject-resources,
 .subject-activities,
-.subject-exams {
+.subject-exams,
+.subject-attendance {
     display: none;
 }
 
 .subject-resources.active,
 .subject-activities.active,
-.subject-exams.active {
+.subject-exams.active,
+.subject-attendance.active {
     display: block;
 }
 
 .activities-list,
-.exams-list {
+.exams-list,
+.attendance-list {
     display: flex;
     flex-direction: column;
     gap: 15px;
 }
 
 .activity-item,
-.exam-item {
+.exam-item,
+.attendance-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
