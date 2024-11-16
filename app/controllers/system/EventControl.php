@@ -10,7 +10,7 @@ class EventControl extends ControlDefaultFunctions
     protected $MODEL_CLASS = Event::class;
     protected $TABLE_NAME = "events";
     protected $TABLE_PRIMARY_ID = "event_id";
-    protected $SEARCH_LOOKUP = ["title"];
+    protected $SEARCH_LOOKUP = ["title", "description"];
 
     public function add($data)
     {

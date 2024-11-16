@@ -389,49 +389,59 @@ class Connection
     {
         $w = isset($where) ? $this->ConditionToQ($where, " AND ") : "";
 
-        $all = array_filter($into, function ($record) {
-            return is_array($record) && isset($record['table']) && isset($record['primary']);
-        });
+        // Get all foreign table configs
+        $joins = [];
+        $searchFields = [];
 
-        $_all = array_map(function ($record) {
-            return array_map(function ($r) use ($record) {
-                return $record['table'] . '.' . $r;
-            }, $record['into']);
-        }, $all);
+        $this->processIntoConfig($table, $into, $joins, $searchFields);
 
-        $flat = $this->Flatten($_all);
+        // Build search conditions with % before and after search term to match anywhere
+        $likes = implode(" OR ", array_map(function ($field) use ($search, $w) {
+            return "($field LIKE '%{$search}%'" . (!empty($w) ? " AND $w" : "") . ")";
+        }, $searchFields));
 
-        $into = array_map(function ($r) use ($table) {
-            return is_array($r) ? $r :  $table . '.' . $r;
-        }, $into);
+        // Build joins
+        $joinSQL = implode(" ", array_map(function($join) {
+            return " INNER JOIN {$join['table']} ON {$join['on']}";
+        }, $joins));
 
-        $into = array_merge($into, $flat);
-
-        $into = array_filter($into, function ($record) {
-            return !is_array($record) || !isset($record['table']) || !isset($record['primary']);
-        });
-
-        $likes = implode(" OR ", array_map(function ($item) use ($search, $w) {
-            return ($item . " LIKE " . "'{$search}%' ") . (!empty($w) ? " AND " . $w : "");
-        }, $into));
-
-        return "SELECT * FROM " . $table . " " .  ( implode("", array_map(function ($record) use($table) {
-                return "INNER JOIN " . $record['table'] . " ON " . $table . "." . $record['primary'] . " = " . $record['table'] . "." . $record['primary'] . "";
-            }, $all))) . "  WHERE "  . $likes;
+        return "SELECT DISTINCT $table.* FROM $table" . $joinSQL . " WHERE " . $likes;
     }
 
-//    public function MakeSearchQuery($table, $search, $into, $where): string
-//    {
-//        $w = isset($where) ? $this->ConditionToQ($where, " AND ") : "";
-//
-//        $likes = implode(" OR ", array_map(function ($i, $j, $k) use ($table, $search) {
-//            return !(isset($i['table'], $i['primary']) && is_array($i)) ? ($i . " LIKE " . "'{$j}%' " . (!empty($k) ? " AND " . $k : ""))  : ("(SELECT COUNT(*) FROM $table INNER JOIN " . $i['table'] . " ON " . $table . "." . $i['primary'] . " = " . $i['table'] . "." . $i['primary'] . " WHERE " . implode(" OR ", array_map(function($ii, $jj, $kk){
-//                    return  $ii . " LIKE " . "'{$jj}%' " . (!empty($kk) ? " AND " . $kk : "");
-//                }, $i['into'], array_fill(0, count($i['into']), $search), array_fill(0, count($i['into']), isset($i['where']) ? $this->ConditionToQ($i['where'], " AND ") : []))) . ") > 0");
-//        }, $into, array_fill(0, count($into), $search), array_fill(0, count($into), $w)));
-//
-//        return "SELECT * FROM " . $table . "  WHERE " . $likes;
-//    }
+    private function processIntoConfig($baseTable, $config, &$joins, &$searchFields, $parentTable = null) 
+    {
+        foreach ($config as $field) {
+            if (is_array($field) && isset($field['table']) && isset($field['primary'])) {
+                $currentTable = $field['table'];
+                
+                // Handle join condition
+                if (is_array($field['primary'])) {
+                    $joinOn = "$baseTable.{$field['primary'][0]} = $currentTable.{$field['primary'][1]}";
+                } else {
+                    $joinOn = "$baseTable.{$field['primary']} = $currentTable.{$field['primary']}";
+                }
+                
+                $joins[] = [
+                    'table' => $currentTable,
+                    'on' => $joinOn
+                ];
+
+                // Process nested into fields
+                if (isset($field['into'])) {
+                    if (is_array($field['into'][0])) {
+                        $this->processIntoConfig($currentTable, $field['into'], $joins, $searchFields);
+                    } else {
+                        foreach ($field['into'] as $searchField) {
+                            $searchFields[] = "$currentTable.$searchField";
+                        }
+                    }
+                }
+            } else if (!is_array($field)) {
+                $searchFields[] = "$baseTable.$field";
+            }
+        }
+    }
+
 
     public function Unsets($result, $fields = [])
     {

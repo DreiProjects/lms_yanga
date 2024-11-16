@@ -1,0 +1,16 @@
+<?php
+
+global $APPLICATION, $EVENTS_HEADER_BODY;
+
+$control = $APPLICATION->FUNCTIONS->EVENT_CONTROL;
+$search = $_POST['search'];
+
+$RECORDS = $control->searchRecords($search,true);
+
+?>
+
+<?= CreateTable([
+    "content" => $EVENTS_HEADER_BODY,
+    "data" => $RECORDS,
+    "id" => "event_id"
+]) ?>

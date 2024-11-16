@@ -15,7 +15,11 @@ class SubjectControl extends ControlDefaultFunctions
     protected $MODEL_CLASS = Subject::class;
     protected $TABLE_NAME = "subjects";
     protected $TABLE_PRIMARY_ID = "subject_id";
-    protected $SEARCH_LOOKUP = ["subject_name"];
+    protected $SEARCH_LOOKUP = ["subject_name", "subject_code", [
+        "primary" => "course_id",
+        "table" => "courses",
+        "into" => ["course_name"]
+    ]];
 
     public function add($data)
     {

@@ -1,8 +1,8 @@
 <?php
 
-global $APPLICATION, $COURSE_HEADER_BODY;
+global $APPLICATION, $SUBJECTS_HEADER_BODY;
 
-$control = $APPLICATION->FUNCTIONS->COURSE_CONTROL;
+$control = $APPLICATION->FUNCTIONS->SUBJECT_CONTROL;
 $search = $_POST['search'];
 
 $RECORDS = $control->searchRecords($search,true);
@@ -10,7 +10,7 @@ $RECORDS = $control->searchRecords($search,true);
 ?>
 
 <?= CreateTable([
-    "content" => $COURSE_HEADER_BODY,
+    "content" => $SUBJECTS_HEADER_BODY,
     "data" => $RECORDS,
-    "id" => "course_id"
+    "id" => "subject_id"
 ]) ?>

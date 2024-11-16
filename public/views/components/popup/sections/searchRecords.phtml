@@ -1,16 +1,16 @@
 <?php
 
-global $APPLICATION, $COURSE_HEADER_BODY;
 
-$control = $APPLICATION->FUNCTIONS->COURSE_CONTROL;
+global $APPLICATION, $SECTIONS_HEADER_BODY;
+
+$control = $APPLICATION->FUNCTIONS->SECTION_CONTROL;
 $search = $_POST['search'];
-
 $RECORDS = $control->searchRecords($search,true);
 
 ?>
 
 <?= CreateTable([
-    "content" => $COURSE_HEADER_BODY,
+    "content" => $SECTIONS_HEADER_BODY,
     "data" => $RECORDS,
-    "id" => "course_id"
+    "id" => "section_id"
 ]) ?>

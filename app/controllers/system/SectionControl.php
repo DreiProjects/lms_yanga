@@ -16,7 +16,19 @@ class SectionControl extends ControlDefaultFunctions
     protected $MODEL_CLASS = Section::class;
     protected $TABLE_NAME = "sections";
     protected $TABLE_PRIMARY_ID = "section_id";
-    protected $SEARCH_LOOKUP = ["section_name"];
+    protected $SEARCH_LOOKUP = ["section_name", [
+        "primary" => "course_id",
+        "table" => "courses",
+        "into" => ["course_name"]
+    ], [
+        "primary" => ["adviser_id", "professor_id"],
+        "table" => "professors",
+        "into" => [[
+            "primary" => "user_id",
+            "table" => "users",
+            "into" => ["displayName"]
+        ]]
+    ]];
 
     public function add($data)
     {

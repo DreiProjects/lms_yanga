@@ -13,7 +13,7 @@ class CourseControl extends ControlDefaultFunctions
     protected $MODEL_CLASS = Course::class;
     protected $TABLE_NAME = "courses";
     protected $TABLE_PRIMARY_ID = "course_id";
-    protected $SEARCH_LOOKUP = ["course_name", "description", "lastname", "email"];
+    protected $SEARCH_LOOKUP = ["course_name", "description"];
 
     public function add($data)
     {
