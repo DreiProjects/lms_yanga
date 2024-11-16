@@ -12,6 +12,8 @@ class Professor extends ProfessorAbstract
 
     public $displayName;
 
+    public $course;
+
     public function __construct($data = [])
     {
         $this->applyData($data, ProfessorAbstract::class);
@@ -25,6 +27,8 @@ class Professor extends ProfessorAbstract
         $this->user = $APPLICATION->FUNCTIONS->USER_CONTROL->get($this->user_id, true);
 
         $this->displayName = $this->user->displayName;
+
+        $this->course = $APPLICATION->FUNCTIONS->COURSE_CONTROL->get($this->main_course_id, true);
 
     }
 

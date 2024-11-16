@@ -15,7 +15,15 @@ class StaffControl extends ControlDefaultFunctions
     protected $MODEL_CLASS = Staff::class;
     protected $TABLE_NAME = "staffs";
     protected $TABLE_PRIMARY_ID = "staff_id";
-    protected $SEARCH_LOOKUP = [];
+    protected $SEARCH_LOOKUP = [[
+        "primary" => "user_id",
+        "table" => "users",
+        "into" => ["displayName"]
+    ], [
+        "primary" => "department_id",
+        "table" => "departments",
+        "into" => ["department_name"]
+    ], "description"];
 
     public function add($data)
     {

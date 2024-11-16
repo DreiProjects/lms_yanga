@@ -64,7 +64,7 @@ $courses = ObjectToCombo("course_name", "course_id", $courses);
                             <label for=""><span>Main Course</span></label>
 
                             <div class="error-container">
-                                <?= CreateComboBox("main_course_id", "Main Course", $courses, false, ["text" => $professor->main_course_id, "value" => $professor->main_course_id]) ?>
+                                <?= CreateComboBox("main_course_id", "Main Course", $courses, false, ["text" => $professor->course->course_name, "value" => $professor->main_course_id]) ?>
                             </div>
                         </div>
                     </div>

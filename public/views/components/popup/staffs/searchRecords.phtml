@@ -1,0 +1,16 @@
+<?php
+
+
+global $APPLICATION, $STAFFS_HEADER_BODY;
+
+$control = $APPLICATION->FUNCTIONS->STAFF_CONTROL;
+$search = $_POST['search'];
+$RECORDS = $control->searchRecords($search,true);
+
+?>
+
+<?= CreateTable([
+    "content" => $STAFFS_HEADER_BODY,
+    "data" => $RECORDS,
+    "id" => "staff_id"
+]) ?>

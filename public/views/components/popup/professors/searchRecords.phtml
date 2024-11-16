@@ -1,0 +1,14 @@
+<?php
+
+global $APPLICATION, $PROFESSORS_HEADER_BODY;
+
+$control = $APPLICATION->FUNCTIONS->PROFESSOR_CONTROL;
+$RECORDS = $control->searchRecords($_POST['search'], false);
+
+?>
+
+<?= CreateTable([
+"content" => $PROFESSORS_HEADER_BODY,
+"data" => $RECORDS,
+"id" => "professor_id"
+]) ?>
