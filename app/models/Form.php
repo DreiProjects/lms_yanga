@@ -27,10 +27,17 @@ class Form extends FormAbstract
 
     public function isStudentTaken($user_id)
     {
-        $taken = array_filter($this->form_completions, function ($formCompletion) use ($user_id) {
-            return $formCompletion->user_id == $user_id;
-        });
+        global $APPLICATION;
+        $taken = $APPLICATION->FUNCTIONS->FORM_COMPLETION_CONTROL->filterRecords(['form_id' => $this->form_id, 'user_id' => $user_id], true);
 
+        return count($taken) > 0 ? $taken[0] : false;
+    }
+
+    public function isStudentTakenExam($user_id, $exam_id)
+    {
+        global $APPLICATION;
+        $taken = $APPLICATION->FUNCTIONS->FORM_COMPLETION_CONTROL->filterRecords(['form_id' => $this->form_id, 'user_id' => $user_id, 'parent_id' => $exam_id], true);
+        
         return count($taken) > 0 ? $taken[0] : false;
     }
 

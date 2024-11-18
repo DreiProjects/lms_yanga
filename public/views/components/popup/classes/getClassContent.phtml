@@ -321,7 +321,7 @@ foreach ($SUBJECTS as $subject) {
                                                             </div>
                                                         </div>
                                                         <?php if($SESSION->user_type == 1): ?>
-                                                            <?php if (!$exam->form->isStudentTaken($SESSION->user_id)): ?>
+                                                            <?php if (!$exam->form->isStudentTakenExam($SESSION->user_id, $exam->exam_id)): ?>
                                                                 <div class="icon-button take-exam-btn" title="Take Exam" data-exam-id="<?= $exam->exam_id ?>">
                                                                 <div class="icon">
                                                                     <?= UseIcon("check-thin") ?>
