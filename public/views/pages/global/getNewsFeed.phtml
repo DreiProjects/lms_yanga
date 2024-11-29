@@ -13,7 +13,13 @@ $POSTS = $postControl->getLatestRecordsInfiniteScroll(1, 5, true, $filter, "date
 
 $ANNOUNCEMENTS = $APPLICATION->FUNCTIONS->ANNOUNCEMENT_CONTROL->getAllRecords(true);
 
+$ANNOUNCEMENTS = array_filter($ANNOUNCEMENTS, function($announcement) {
+    return isset($announcement->date_start, $announcement->date_end) &&
+    strtotime($announcement->date_start) >= strtotime(date('Y-m-d'));
+});
+
 $allEvents = $APPLICATION->FUNCTIONS->EVENT_CONTROL->getAllRecords(true);
+
 $EVENTS = array_filter($allEvents, function($event) {
     return strtotime($event->date_start) >= strtotime(date('Y-m-d'));
 });

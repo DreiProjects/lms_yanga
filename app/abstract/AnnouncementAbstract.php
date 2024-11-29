@@ -16,6 +16,10 @@ abstract class AnnouncementAbstract extends ModelDefaultFunctions
 
     public $content;
 
+    public $date_start;
+
+    public $date_end;
+
     public $status;
 
     public $date_created;
