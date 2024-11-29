@@ -467,10 +467,15 @@ function Init() {
    
     if (creator) {
         const creatorTextArea = creator.querySelector(".textarea-container");
-        const subject_id = document.querySelector(".newsfeed-main-container").dataset.subjectId;
+        // const subject_id = document.querySelector(".newsfeed-main-container").dataset.subjectId;
+
+        const subjectMenu = document.querySelector(".subject-menu");
+ 
         
         if (creatorTextArea) {
             creatorTextArea.addEventListener("click", function () {
+                const itemsActive = subjectMenu ? subjectMenu.querySelector(".subject-item.active") : null;
+                const subject_id = itemsActive ? itemsActive.dataset.subjectId : null;
                 CreateNewPost(subject_id);
             })
         }
