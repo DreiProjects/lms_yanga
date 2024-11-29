@@ -6,11 +6,19 @@ $control = $APPLICATION->FUNCTIONS->USER_CONTROL;
 $postControl = $APPLICATION->FUNCTIONS->POSTS_CONTROL;
 $RECORDS = $control->filterRecords(['user_type' => 2],true);
 
-$professor = $SESSION->getAsProfessor();
+if ($SESSION->user_type == 2) {
+    $professor = $SESSION->getAsProfessor();
 
-$classes = $professor->getClasses();
+    $classes = $professor->getClasses();
+    
+    $selectedSubject = count($classes) > 0 ? $classes[0] : null;
+} else {
+    $student = $SESSION->getAsStudent();
 
-$selectedSubject = count($classes) > 0 ? $classes[0] : null;
+    $classes = $student->getSectionStudent()->section->subjects;
+    
+    $selectedSubject = count($classes) > 0 ? $classes[0] : null;
+}
 
 if (isset($_POST['subject'])) {
     $selectedSubject = $APPLICATION->FUNCTIONS->SECTION_SUBJECTS_CONTROL->get($_POST['subject'], true);

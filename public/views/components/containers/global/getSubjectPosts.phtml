@@ -4,13 +4,32 @@ global $APPLICATION, $USER_HEADER_BODY, $SESSION;
 
 $postControl = $APPLICATION->FUNCTIONS->POSTS_CONTROL;
 
-$professor = $SESSION->getAsProfessor();
+if ($SESSION->user_type == 2) {
+    $professor = $SESSION->getAsProfessor();
 
-$classes = $professor->getClasses();
+    $classes = $professor->getClasses();
+    
+    $selectedSubject = count($classes) > 0 ? $classes[0] : null;
+} else {
+    $student = $SESSION->getAsStudent();
 
-$selectedSubject = count($classes) > 0 ? array_filter($classes, function($class) {
-    return $class->section_subject_id == $_POST['subject_id'];
-})[0] : null;
+    $classes = $student->getSectionStudent()->section->subjects;
+    
+    $selectedSubject = count($classes) > 0 ? $classes[0] : null;
+}
+
+// $selectedSubject = count($classes) > 0 ? array_filter($classes, function($class) {
+//     return $class->section_subject_id == $_POST['subject_id'];
+// }) : null;
+
+$selectedSubject = null;
+
+foreach ($classes as $class) {
+    if ($class->section_subject_id == $_POST['subject_id']) {
+        $selectedSubject = $class;
+        break;
+    }
+}
 
 $POSTS = $selectedSubject ? $postControl->filterRecords(['section_subject_id' => $selectedSubject->section_subject_id], true) : [];
 ?>

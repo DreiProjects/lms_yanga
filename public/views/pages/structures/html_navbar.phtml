@@ -203,7 +203,26 @@ $STUDENT = array(
     [
         "text" => "News Feed",
         "path" => '/newsfeed',
-        "icon" => '<i data-feather="rss"></i>'
+        "icon" => '<i data-feather="rss"></i>',
+        "sub-content" => [
+            [
+                "text" => "Public",
+                "path" => '/newsfeed',
+                "icon" => '<i data-feather="rss"></i>',
+            ],
+            [
+                "text" => "Subjects",
+                "path" => '/newsfeed_subjects',
+                "icon" => '<i data-feather="rss"></i>',
+                "sub-content" => [
+                    [
+                        "text" => "Public",
+                        "path" => '/newsfeed/public',
+                        "icon" => '<i data-feather="rss"></i>',
+                    ],
+                ]
+            ],
+        ]
     ],
     [
         "text" => "My Classes",
