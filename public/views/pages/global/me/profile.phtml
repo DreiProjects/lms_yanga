@@ -100,7 +100,7 @@ global $APPLICATION, $COURSE_HEADER_BODY, $SESSION;
                         <?php if($SESSION->user_type == 1): ?>
                         <div class="info-item">
                             <label>Student Number</label>
-                            <input type="text" name="student_no" value="<?= $SESSION->student_no ?>" class="form-input" readonly>
+                            <input type="text" name="student_no" value="<?= $SESSION->no ?>" class="form-input" readonly>
                         </div>
                         <?php endif; ?>
                         <div class="info-item">
@@ -143,8 +143,8 @@ global $APPLICATION, $COURSE_HEADER_BODY, $SESSION;
                         </div>
                         <?php if($SESSION->user_type == 1): ?>
                         <div class="info-item">
-                            <label>Student Number</label>
-                            <p><?= $SESSION->student_no ?></p>
+                            <label>No</label>
+                            <p><?= $SESSION->no ?></p>
                         </div>
                         <?php endif; ?>
                         <div class="info-item">

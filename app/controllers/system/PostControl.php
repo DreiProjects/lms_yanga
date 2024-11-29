@@ -99,6 +99,28 @@ class PostControl
         return $APPLICATION->FUNCTIONS->{$controller}->filterRecords($filter, true);
     }
 
+    public function ResetDatabase() {
+        global $APPLICATION, $CONNECTION;
+
+        $tables = ["activities", "activities_complied", "announcements", "classrooms", "courses", "departments", "email_verifications", "events", "exams", "forms", "form_completions", "form_completion_answers", "form_questions", "form_question_choices", "grading_scores","grade_scores" ,"grading_categories", "grading_platforms", "grading_score_columns", "posts", "post_comments", "post_likes", "post_medias", "professors", "resources", "resources_groups", "schedules", "schedule_items", "sections", "section_students", "section_subjects", "staffs", "sticky_notes", "subjects", "subject_attendances"];
+
+       try {
+            foreach ($tables as $table) {
+                $query = "SET FOREIGN_KEY_CHECKS = 0; TRUNCATE TABLE `$table`; SET FOREIGN_KEY_CHECKS = 1;";
+                $CONNECTION->Query($query);
+            }
+
+
+            $query = "DELETE FROM `users` WHERE `user_type` = '1' OR `user_type` = '2';";
+            $CONNECTION->Query($query);
+       } catch (Throwable $th) {
+        return new Response(500, "Failed to Reset Database", ["message" => $th->getMessage()]);
+       }
+
+
+        return new Response(200, "Database Reset Successfully", ["message" => $CONNECTION->ERRORMESSAGE]);
+    }
+
     public function SelectModels()
     {
         global $APPLICATION;

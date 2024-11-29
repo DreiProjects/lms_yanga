@@ -97,6 +97,9 @@ class Routes
 
         $TYPE = $this->SESSION->typeName;
 
+        if (!$this->APPLICATION->FUNCTIONS->USER_CONTROL->get($this->SESSION->user_id, false)) { 
+            $this->SESSION->logout();
+        }
         $this->KLEIN->with("", static function () use ($KLEIN, $TYPE) {
             $TYPE = strtolower($TYPE) == "admin" ? "super" : $TYPE;
             $defaultView = "public/views/pages/$TYPE/dashboard.phtml";

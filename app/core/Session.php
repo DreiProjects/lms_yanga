@@ -80,6 +80,8 @@ class Session extends UserAbstract
         session_destroy();
 
         $KLEIN->response()->redirect('/login');
+
+        header("Location: /login");
     }
 
     public function getAsStudent() {
