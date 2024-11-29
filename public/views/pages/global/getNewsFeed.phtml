@@ -4,9 +4,12 @@ global $APPLICATION, $USER_HEADER_BODY, $SESSION;
 
 $control = $APPLICATION->FUNCTIONS->USER_CONTROL;
 $postControl = $APPLICATION->FUNCTIONS->POSTS_CONTROL;
+
 $RECORDS = $control->filterRecords(['user_type' => 2],true);
 
-$POSTS = $postControl->getLatestRecords(false, true, null, "date_created ");
+$filter = [["section_subject_id", "=", "0"]];
+
+$POSTS = $postControl->getLatestRecordsInfiniteScroll(1, 5, true, $filter, "date_created");
 
 $ANNOUNCEMENTS = $APPLICATION->FUNCTIONS->ANNOUNCEMENT_CONTROL->getAllRecords(true);
 
@@ -14,9 +17,11 @@ $allEvents = $APPLICATION->FUNCTIONS->EVENT_CONTROL->getAllRecords(true);
 $EVENTS = array_filter($allEvents, function($event) {
     return strtotime($event->date_start) >= strtotime(date('Y-m-d'));
 });
+
 usort($EVENTS, function($a, $b) {
     return strtotime($a->date_start) - strtotime($b->date_start);
 });
+
 $EVENTS = array_slice($EVENTS, 0, 3);
 
 ?>
@@ -143,8 +148,9 @@ $EVENTS = array_slice($EVENTS, 0, 3);
             </div>
         </div>
 
-        <?php echo renderPosts($POSTS, $SESSION); ?>
-
+        <div class="section-all-posts">
+            <?php echo renderPosts($POSTS, $SESSION); ?>
+        </div>
     </div>
     <div class="newsfeed-announcement">
         <div class="announcement-title">

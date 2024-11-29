@@ -284,6 +284,22 @@ abstract class ControlDefaultFunctions
         return $this->NewArrayInstance($records, $AS_OBJECT);
     }
 
+    public function getLatestRecordsInfiniteScroll($page, $itemsPerPage, $AS_OBJECT, $WHERE = null, $col = "date_created") 
+    {
+        $offset = ($page - 1) * $itemsPerPage;
+        $limit = "$offset, $itemsPerPage";
+        
+        $records = $this->CONNECTION->SelectMultiCondition(
+            $this->TABLE_NAME, 
+            $WHERE, 
+            true, 
+            $limit, 
+            ' ORDER BY ' . $col . ' DESC'
+        );
+
+        return $this->NewArrayInstance($records, $AS_OBJECT);
+    }
+
     public function getAllToday($datecol, $AS_OBJECT)
     {
         $records = $this->CONNECTION->SelectToday($this->TABLE_NAME, null, $datecol, true);

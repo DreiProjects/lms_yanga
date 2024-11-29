@@ -526,7 +526,7 @@ export function VerifyFormData(formData, except = [], options = []) {
                     empty.push(pair[0]);
                 }
             } else {
-                if (!options.length ||  options.length && options.filter(a => a.input == pair[0]).length === 0) {
+                if (!options.length || options.length && options.filter(a => a.input == pair[0]).length === 0) {
                     if (pair[1].length === 0) {
                         status = false;
                         empty.push(pair[0]);
@@ -537,6 +537,14 @@ export function VerifyFormData(formData, except = [], options = []) {
                     if (pair[1].length === 0 || pair[1].length < option.min) {
                         status = false;
                         empty.push(pair[0]);
+                    }
+
+                    if (option.compare) {
+                        const compareValue = formData.get(option.compare);
+                        if (compareValue !== pair[1]) {
+                            status = false;
+                            empty.push(pair[0]);
+                        }
                     }
                 }
             }

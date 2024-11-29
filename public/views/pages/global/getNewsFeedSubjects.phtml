@@ -16,7 +16,9 @@ if (isset($_POST['subject'])) {
     $selectedSubject = $APPLICATION->FUNCTIONS->SECTION_SUBJECTS_CONTROL->get($_POST['subject'], true);
 }
 
-$POSTS = $selectedSubject ? $postControl->filterRecords(['section_subject_id' => $selectedSubject->section_subject_id], true) : [];
+$filter = [['section_subject_id', '=', $selectedSubject->section_subject_id]];
+
+$POSTS = $selectedSubject ? $postControl->getLatestRecordsInfiniteScroll(1, 5, true, $filter, "date_created") : [];
 ?>
 
 <style>

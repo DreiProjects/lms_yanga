@@ -85,6 +85,38 @@ class Authentication
         return new Response(204, "Auth Failed!");
     }
 
+    public function TryChangePassword($data)
+    {
+        $control = $this->APPLICATION->FUNCTIONS->USER_CONTROL;
+
+        $password = md5($data['password']);
+
+        return $control->editRecord($data['user_id'], [
+            "password" => $password
+        ]);
+    }
+
+    public function TryResetPassword($data)
+    {
+        $control = $this->APPLICATION->FUNCTIONS->USER_CONTROL;
+
+        $exists = $control->alreadyExists($data);
+
+        if ($exists->code === 200) {
+            $user = $exists->body['id'];
+
+            $send = $this->SendVerification($user, $data['email']);
+
+            if ($send) {
+                return new Response(200, "Successfully Sent Verification Code!", ["user_id" => $user]);
+            } else {
+                return new Response(203, "Success but Unable to sent Email!");
+            }
+        }
+
+        return new Response(204, "Failed to Send Verification Code!");
+    }
+
     public function SendVerification($user_id, $email_address)
     {
         $controller = new EmailControl();

@@ -11,7 +11,12 @@ abstract class UserAbstract extends ModelDefaultFunctions
     public $no;
 
     public $firstname;
+    public $middlename;
     public $lastname;
+
+    public $contact_number;
+
+    public $photo;
 
     public $email;
     public $phone;

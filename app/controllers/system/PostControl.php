@@ -15,6 +15,24 @@ class PostControl
         return $this->$request();
     }
 
+    public function TryChangePassword()
+    {
+        $authControl = new Authentication();
+
+        $data = json_decode($_POST['data'], true);
+
+        return $authControl->TryChangePassword($data);
+    }
+
+    public function TryResetPassword()
+    {
+        $authControl = new Authentication();
+
+        $data = json_decode($_POST['data'], true);
+
+        return $authControl->TryResetPassword($data);
+    }
+
     public function TryAuthenticate()
     {
         $authControl = new Authentication();
@@ -51,6 +69,14 @@ class PostControl
         $data = json_decode($_POST['data'], true);
 
         return $authControl->RegisterPatient($data);
+    }
+
+    public function UpdateProfile() {
+        global $APPLICATION;
+
+        $data = json_decode($_POST['data'], true);
+
+        return $APPLICATION->FUNCTIONS->USER_CONTROL->UpdateProfile($data);
     }
 
     public function SelectModel()

@@ -27,4 +27,16 @@ class UserControl extends ControlDefaultFunctions
     public function getExistingEmails() {
         return array_column($this->getAllRecords(false), 'email');
     }
+
+    public function UpdateProfile($data) {
+        global $APPLICATION, $SESSION;
+
+        $edit = $this->editRecord($SESSION->user_id, $data);
+
+        if ($edit->code == 200) {
+            $SESSION->updateProfile();
+        }
+
+        return $edit;
+    }
 }

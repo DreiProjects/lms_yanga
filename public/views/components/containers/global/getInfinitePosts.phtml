@@ -1,0 +1,13 @@
+<?php
+
+global $APPLICATION, $USER_HEADER_BODY, $SESSION;
+
+$postControl = $APPLICATION->FUNCTIONS->POSTS_CONTROL;
+
+$page = $_POST['page'];
+
+$filter = [["section_subject_id", "=", "0"]];
+
+$POSTS = $postControl->getLatestRecordsInfiniteScroll($page, 5, true, $filter, "date_created");
+
+echo renderPosts($POSTS, $SESSION);

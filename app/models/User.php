@@ -33,7 +33,7 @@ class User extends UserAbstract
             $this->CONNECTION->Update("users", ["displayName" => $this->displayName], ["user_id" => $this->user_id]);
         }
 
-        $this->photoURL = strlen($this->image) > 0 ? $this->image : $CHARACTER_AVATAR_PATH . strtoupper($this->displayName[0]) . '.' . $EXTENSION;
+        $this->photoURL = strlen($this->photo) > 0 ? '/' . $this->photo : $CHARACTER_AVATAR_PATH . strtoupper($this->displayName[0]) . '.' . $EXTENSION;
         $this->typeName = $ALL_USER_TYPES[$this->user_type - 1];
     }
 

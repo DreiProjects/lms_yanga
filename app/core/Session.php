@@ -28,6 +28,14 @@ class Session extends UserAbstract
         $this->typeName = $ALL_USER_TYPES_MINI[$this->user_type - 1];
     }
 
+    public function updateProfile() {
+        global $APPLICATION;
+
+        $user = $APPLICATION->FUNCTIONS->USER_CONTROL->get($this->user_id, true);
+
+        $this->apply($user);
+    }
+
     public function apply($user): void
     {
         global $USER_TYPES_TEXT;
@@ -39,6 +47,8 @@ class Session extends UserAbstract
                 $this->{$var} = $user->{$var};
             }
         }
+
+        $_SESSION["session"] = $this;
     }
 
     public function getPhotoURL()
@@ -46,7 +56,7 @@ class Session extends UserAbstract
         $EXTENSION = 'jpg';
         $CHARACTER_AVATAR_PATH = '/public/assets/media/avatar/';
 
-        return strlen($this->image) > 0 ? $this->image : $CHARACTER_AVATAR_PATH . strtoupper($this->displayName[0]) . '.' . $EXTENSION;
+        return strlen($this->photo) > 0 ? '/' . $this->photo : $CHARACTER_AVATAR_PATH . strtoupper($this->displayName[0]) . '.' . $EXTENSION;
     }
 
     public function start(): void

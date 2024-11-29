@@ -9,7 +9,7 @@ import {
     Ajax
     ,ToData
 } from "../../../modules/component/Tool.js";
-import {AddRecord, UploadFileFromFile} from "../../../modules/app/SystemFunctions.js";
+import {AddRecord, PostContainerRequest, UploadFileFromFile} from "../../../modules/app/SystemFunctions.js";
 import {NewNotification, NotificationType} from "../../../classes/components/NotificationPopup.js";
 
 const TARGET = "posts";
@@ -250,28 +250,39 @@ function RenderPostSubjects(subject_id) {
                 for (const post of posts) {
                     ListenToPost(post);
                 }
+
+                resolve(html);
             },
         });
     })
 }
 
+
+function GetCurrentSubjectID() {
+    return document.querySelector(".subject-item.active").dataset.subjectId;
+}
+
 function ManagePostSubjects() {
     const subjectItems = document.querySelectorAll(".subject-item");
 
-    for (const subjectItem of subjectItems) {
-        const subjectID = subjectItem.dataset.subjectId;
-
-        subjectItem.addEventListener("click", function() {
-            subjectItems.forEach(item => {
-                item.classList.remove('active');
-            });
-
-            subjectItem.classList.add('active');
-
-            RenderPostSubjects(subjectID).then(html => {
-                console.log(html);
-            });
-        })
+    if (subjectItems.length) {
+        for (const subjectItem of subjectItems) {
+            const subjectID = subjectItem.dataset.subjectId;
+    
+            subjectItem.addEventListener("click", function() {
+                subjectItems.forEach(item => {
+                    item.classList.remove('active');
+                });
+    
+                subjectItem.classList.add('active');
+    
+                RenderPostSubjects(subjectID).then(html => {
+                    // console.log(html);
+                });
+            })
+        }
+    
+        ManageScrollInfiniteSubjectPosts();
     }
 }
 
@@ -330,6 +341,100 @@ function ListenToPost(post) {
     }
 }
 
+function LoadMorePosts(page, isSubject) {
+    return new Promise((resolve) => {
+        if (!isSubject) {
+            PostContainerRequest("getInfinitePosts", {page}).then((html) => {
+                resolve(html);
+            });
+        } else {
+            PostContainerRequest("getInfiniteSubjectPosts", {page, subjectID: GetCurrentSubjectID()}).then((html) => {
+                resolve(html);
+            });
+        }
+    })
+}
+
+function ManageScrollInfiniteSubjectPosts() {
+    const container = document.querySelector('.newsfeed-main-container');
+    
+    let page = 1;
+    let loading = false;
+    
+    // Create a sentinel element to detect when we're near the bottom
+    const sentinel = document.createElement('div');
+    sentinel.className = 'scroll-sentinel';
+    sentinel.style.height = '1px';
+    container.appendChild(sentinel);
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting && !loading) {
+                loading = true;
+                page++;
+
+                LoadMorePosts(page, true).then((html) => {
+                    container.insertAdjacentHTML('beforeend', html);
+
+                    const newPosts = container.querySelectorAll('.post-container:not([data-initialized])');
+
+                    newPosts.forEach(post => {
+                        ListenToPost(post);
+                        post.setAttribute('data-initialized', 'true');
+                    });
+
+                    loading = false;
+                });
+            }
+        });
+    });
+
+    observer.observe(sentinel);
+}
+
+function ListenToScrollInfinitePosts() {
+    const container = document.querySelector('.newsfeed-main-container');
+    
+    let page = 1;
+    let loading = false;
+    
+    // Create a sentinel element to detect when we're near the bottom
+    const sentinel = document.createElement('div');
+    sentinel.className = 'scroll-sentinel';
+    sentinel.style.height = '1px';
+    container.appendChild(sentinel);
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting && !loading) {
+                loading = true;
+                page++;
+                
+                // TODO: Add API call to load more posts
+                // After loading posts:
+                // loading = false;
+
+                LoadMorePosts(page).then((html) => {
+                    container.insertAdjacentHTML('beforeend', html);
+                    
+                    // Get all new post containers that were just added
+                    const newPosts = container.querySelectorAll('.post-container:not([data-initialized])');
+                    
+                    // Initialize each new post
+                    newPosts.forEach(post => {
+                        ListenToPost(post);
+                        post.setAttribute('data-initialized', 'true');
+                    });
+
+                    loading = false;
+                });
+            }
+        });
+    });
+    
+    observer.observe(sentinel);
+}
+
 function ManageAllPosts() {
     const posts = document.querySelectorAll(".post-container");
     const creator = document.querySelector(".announcement-creator");
@@ -338,6 +443,7 @@ function ManageAllPosts() {
 
     for (const post of posts) {
         ListenToPost(post);
+        post.setAttribute('data-initialized', 'true');
     }
 
     if (creator) {
@@ -351,6 +457,8 @@ function ManageAllPosts() {
             CreateNewEvent();
         })
     }
+
+    ListenToScrollInfinitePosts();
 }
 
 

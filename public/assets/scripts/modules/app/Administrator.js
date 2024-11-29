@@ -45,6 +45,40 @@ export function TryFinalAuthenticate(user_id, data, code) {
     })
 }
 
+export function TryChangePassword(data) {
+    return new Promise((resolve) => {
+        Ajax({
+            url: "/api/post/TryChangePassword",
+            type: "POST",
+            data: {data: JSON.stringify(data)},
+            success: (res) => {
+                try {
+                    resolve(JSON.parse(res));
+                } catch (e) {
+                    resolve(null);
+                }
+            }
+        })
+    })
+}
+
+export function TryResetPassword(data) {
+    return new Promise((resolve) => {
+        Ajax({
+            url: "/api/post/TryResetPassword",
+            type: "POST",
+            data: {data: JSON.stringify(data)},
+            success: (res) => {
+                try {
+                    resolve(JSON.parse(res));
+                } catch (e) {
+                    resolve(null);
+                }
+            }
+        })
+    })
+}
+
 export function TryAuthenticate(data) {
     return new Promise((resolve) => {
         Ajax({

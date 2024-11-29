@@ -115,12 +115,13 @@ class Routes
                 "/[:view]",
                 static function ($req, $res, $service) use ($defaultView, $mustview) {
                     $view = $mustview . $req->param("view") . ".phtml";
+                    $globalView = "public/views/pages/global/" . $req->param("view") . ".phtml";
 
                     if ($req->param("view") == "logout") {
                         $view = "public/views/pages/logout.phtml";
                     }
 
-                    return $service->render(file_exists($view) ? $view : $defaultView, ["view_path" => $req->param("view")]);
+                    return $service->render(file_exists($view) ? $view : (file_exists($globalView) ? $globalView : $defaultView), ["view_path" => $req->param("view")]);
                 }
             );
 
@@ -129,8 +130,9 @@ class Routes
                 "/[:view]/[:subview]",
                 static function ($req, $res, $service) use ($defaultView, $mustview) {
                     $view = $mustview . $req->param("view") . "/" .$req->param("subview"). ".phtml";
+                    $globalView = "public/views/pages/global/" . $req->param("view") . "/" . $req->param("subview") . ".phtml";
 
-                    return $service->render(file_exists($view) ? $view : $defaultView, ["view_path" => $req->param("view") . "/" .$req->param("subview")]);
+                    return $service->render(file_exists($view) ? $view : (file_exists($globalView) ? $globalView : $defaultView), ["view_path" => $req->param("view") . "/" .$req->param("subview")]);
                 }
             );
 
