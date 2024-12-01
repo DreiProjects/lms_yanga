@@ -233,7 +233,7 @@ $EVENTS = array_slice($EVENTS, 0, 3);
                             <?= $EVENT->description ?>
                         </div>
                             <?php if($EVENT->poster): ?>
-                                <div class="announcement-poster" style="background-image: url(/<?= $EVENT->poster ?>);">
+                                <div class="announcement-poster" style="background-image: url('/<?= $EVENT->poster ?>');">
                             </div>
                         <?php endif; ?>
                     </div>
