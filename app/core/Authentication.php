@@ -30,14 +30,21 @@ class Authentication
         $this->SESSION = $SESSION;
     }
 
-    public function TryAuth($data)
+    public function TryAuth($data, $user_type)
     {
 
         $control = $this->APPLICATION->FUNCTIONS->USER_CONTROL;
+        $is_admin = $user_type == 3 || $user_type == 4;
 
-        $data["password"] = md5($data['password']);
+        $mainData[] = ["password" => md5($data["password"]),
+                        "email" => $data["email"],
+                       "user_type" => $is_admin ? "3" : "1"];
 
-        $exists = $control->alreadyExists($data);
+        $mainData[] = ["password" => md5($data["password"]),
+                        "email" => $data["email"],
+                        "user_type" => $is_admin ? "4" : "2"];
+
+        $exists = $control->alreadyExistsOr($mainData);
 
         if ($exists->code === 200) {
             $user = $exists->body['id'];
@@ -56,7 +63,7 @@ class Authentication
             }
         } else {
 
-            $user = $control->getByWhere(["email" => $data['email']], false);
+            $user = $control->getByWhere(["email" => $data['email'], "user_type" => $user_type], false);
 
             if ($user) {
                 $timeout = $user['lock_timeout'];
@@ -131,19 +138,25 @@ class Authentication
         return $controller->confirmVerificationToUser($user_id, $code);
     }
 
-    public function LoginWithAuth($data)
+    public function LoginWithAuth($data, $user_type)
     {
         global $APPLICATION;
 
         $control = $this->APPLICATION->FUNCTIONS->USER_CONTROL;
 
-        $data["password"] = md5($data['password']);
-        
-        $exists = $control->alreadyExists($data);
+        $is_admin = $user_type == 3 || $user_type == 4;
+
+        $mainData[] = ["password" => md5($data["password"]),
+                        "email" => $data["email"],
+                       "user_type" => $is_admin ? "3" : "1"];
+
+        $mainData[] = ["password" => md5($data["password"]),
+                        "email" => $data["email"],
+                        "user_type" => $is_admin ? "4" : "2"];
+
+        $exists = $control->alreadyExistsOr($mainData);
 
         if ($exists->code === 200) {
-          
-
             $user = $exists->body['id'];
             $user = $control->get($user, true);
 
@@ -189,12 +202,12 @@ class Authentication
         return $control->AddRecord($data);
     }
 
-    public function DoAuth(mixed $data, mixed $user_id, mixed $code)
+    public function DoAuth(mixed $data, mixed $user_id, mixed $code, mixed $user_type)
     {
         $confirm = $this->ConfirmVerification($user_id, $code);
 
         if ($confirm) {
-            return $this->LoginWithAuth($data);
+            return $this->LoginWithAuth($data, $user_type);
         }
 
         return  new Response(400, "Failed to Authenticate!");

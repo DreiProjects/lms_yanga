@@ -11,19 +11,18 @@ import {NewNotification, NotificationType} from "../classes/components/Notificat
 function Init() {
     const form = document.querySelector("form.form-control");
     const inputs = form.querySelectorAll('input');
-    const loginAs = form.querySelector(".user_type");
+    const loginAs = AUTHENTICATION_TYPE.SUPER_ADMIN;
 
     ListenToForm(form, function (data) {
-        TryAuthenticate(data).then((res) => {
+        TryAuthenticate(data, loginAs).then((res) => {
             if (res.code === 200) {
                 const user = res.body.user;
-                ManageEmailVerification(user.user_id, data);
+                ManageEmailVerification(user.user_id, data, loginAs);
             } else {
                 ApplyError(['email', 'password'], inputs);
 
                 document.querySelector('input[name=password]').value = "";
             }
-
 
             NewNotification({
                 title:  res.code === 200 ? 'Verification Sent!' : 'Authentication Failed!',
@@ -36,15 +35,15 @@ function Init() {
 
 }
 
-function DoFinalAuthenticate( user_id, mainData, code) {
+function DoFinalAuthenticate(user_id, mainData, code, user_type) {
     return new Promise((resolve) => {
-        TryFinalAuthenticate(user_id,mainData, code).then((res) => {
+        TryFinalAuthenticate(user_id,mainData, code, user_type).then((res) => {
             resolve(res);
         });
     })
 }
 
-function ManageEmailVerification( user_id, mainData) {
+function ManageEmailVerification( user_id, mainData, user_type) {
     const popup = new Popup(`auth/confirm_verification`, {email_address: mainData.email}, {
         backgroundDismiss: false,
     });
@@ -56,14 +55,15 @@ function ManageEmailVerification( user_id, mainData) {
         const PINEDITOR = new PINCodeEditor(popup.ELEMENT.querySelector(".pin-code-editor"));
 
         const check = ListenToForm(form, function (data) {
-            ConfirmAuthenticationVerification(user_id, data['pin-code']).then((res => {
+            ConfirmAuthenticationVerification(user_id, data['pin-code'], user_type).then((res => {
                 NewNotification({
                     title: res ? 'Verification Confirmed' : 'Failed',
                     message: res.message
                 }, 3000, res  ? NotificationType.SUCCESS : NotificationType.ERROR)
 
                 if (res) {
-                    DoFinalAuthenticate(user_id, mainData, data['pin-code']).then((res) => {
+                    DoFinalAuthenticate(user_id, mainData, data['pin-code'], user_type).then((res) => {
+                        console.log(res)
                         popup.Remove();
 
                         if (res.code === 200) {

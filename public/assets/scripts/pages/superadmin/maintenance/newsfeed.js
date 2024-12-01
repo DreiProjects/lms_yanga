@@ -461,6 +461,30 @@ function ManageAllPosts() {
     ListenToScrollInfinitePosts();
 }
 
+function ManageScrollNewsfeedContent() {
+    const mainBodyContentParent = document.querySelector(".main-body-content-parent");
+    const newsfeedMainContainer = document.querySelector(".newsfeed-announcement");
+
+    // Set overflow-y to allow vertical scrolling only but hide scrollbar
+    newsfeedMainContainer.style.overflowY = "scroll";
+    newsfeedMainContainer.style.overflowX = "hidden";
+    newsfeedMainContainer.style.scrollbarWidth = "none"; // Firefox
+    newsfeedMainContainer.style.msOverflowStyle = "none"; // IE/Edge
+    
+    // Hide webkit scrollbar
+    newsfeedMainContainer.style.cssText += `
+        &::-webkit-scrollbar {
+            display: none;
+        }
+    `;
+    
+    // Set a max height to enable scrolling
+    newsfeedMainContainer.style.maxHeight = "calc(100vh - 100px)"; // Adjust value as needed
+
+    mainBodyContentParent.addEventListener("scroll", function () {
+        newsfeedMainContainer.scrollTop = mainBodyContentParent.scrollTop;
+    });
+}
 
 function Init() {
     const creator = document.querySelector(".post-creator-container");
@@ -484,6 +508,7 @@ function Init() {
 
     ManageAllPosts();
     ManagePostSubjects();
+    ManageScrollNewsfeedContent();
 }
 
 document.addEventListener("DOMContentLoaded", Init);

@@ -41,16 +41,32 @@ foreach ($studentSubjects as $subject) {
     ], true);
     
     if (!empty($exams)) {
+        $exams = array_filter($exams, function($exam) {
+            return isset($exam->date_start, $exam->due_date) &&
+            strtotime($exam->date_start) >= strtotime(date('Y-m-d'));
+        });
         $studentExams[$subject->subject->subject_name] = $exams;
     }
 }
 
-// Get announcements
-$announcements = $APPLICATION->FUNCTIONS->ANNOUNCEMENT_CONTROL->filterRecords([
-    'for_view' => '0'
-], true);
+$announcements = $APPLICATION->FUNCTIONS->ANNOUNCEMENT_CONTROL->getAllRecords(true);
 
-$events = $APPLICATION->FUNCTIONS->EVENT_CONTROL->filterRecords([], true, 3);
+$announcements = array_filter($announcements, function($announcement) {
+    return isset($announcement->date_start, $announcement->date_end) &&
+    strtotime($announcement->date_start) >= strtotime(date('Y-m-d'));
+});
+
+$allEvents = $APPLICATION->FUNCTIONS->EVENT_CONTROL->getAllRecords(true);
+
+$events = array_filter($allEvents, function($event) {
+    return strtotime($event->date_start) >= strtotime(date('Y-m-d'));
+});
+
+usort($events, function($a, $b) {
+    return strtotime($a->date_start) - strtotime($b->date_start);
+});
+
+$events = array_slice($events, 0, 3);
 ?>
 
 <?php include "public/views/pages/structures/html_headings.phtml" ?>
@@ -186,6 +202,18 @@ $events = $APPLICATION->FUNCTIONS->EVENT_CONTROL->filterRecords([], true, 3);
                                     </div>
                                 <?php endforeach ?>
                             </div>
+                        </section>
+
+                        <section>
+                            <div class="dash-title">
+                                <h2>Events</h2>
+                            </div>
+                            <?php if(empty($events)): ?>
+                                <div class="image-container">
+                                    <?= UseImage('/img/no_data.svg', true) ?>
+                                    <p>No events yet</p>
+                                </div>
+                            <?php endif ?>
                         </section>
 
                         <!-- Events List -->

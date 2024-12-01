@@ -55,12 +55,24 @@ $maintenanceCards = [
     ],
 ];
 
-// Get announcements
-$announcements = $APPLICATION->FUNCTIONS->ANNOUNCEMENT_CONTROL->filterRecords([
-    'for_view' => '0'
-], true);
+$announcements = $APPLICATION->FUNCTIONS->ANNOUNCEMENT_CONTROL->getAllRecords(true);
 
-$events = array_slice($APPLICATION->FUNCTIONS->EVENT_CONTROL->filterRecords([], true), 0, 3);
+$announcements = array_filter($announcements, function($announcement) {
+    return isset($announcement->date_start, $announcement->date_end) &&
+    strtotime($announcement->date_start) >= strtotime(date('Y-m-d'));
+});
+
+$allEvents = $APPLICATION->FUNCTIONS->EVENT_CONTROL->getAllRecords(true);
+
+$events = array_filter($allEvents, function($event) {
+    return strtotime($event->date_start) >= strtotime(date('Y-m-d'));
+});
+
+usort($events, function($a, $b) {
+    return strtotime($a->date_start) - strtotime($b->date_start);
+});
+
+$events = array_slice($events, 0, 3);
 
 ?>
 

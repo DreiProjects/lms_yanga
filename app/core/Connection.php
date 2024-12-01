@@ -219,6 +219,17 @@ class Connection
         return $stmt->rowCount() > 0 ? ($getID ? $row[$getID] : true) : false;
     }
 
+    public function ExistOr($table, $options, $getID = false)
+    {
+        $w = !empty($options) ? " WHERE " . $this->ConditionToQOption($options) : "";
+        $query = "SELECT * FROM " . $table . $w;
+        $stmt = $this->CONNECTION->prepare($query);
+        $stmt->execute();
+        $row = $stmt->fetch();
+
+        return $stmt->rowCount() > 0 ? ($getID ? $row[$getID] : true) : false;
+    }
+
     public function SelectOr($table, $options, $fetchAll)
     {
         $w = !empty($options) ? " WHERE " . $this->ConditionToQOption($options) : "";

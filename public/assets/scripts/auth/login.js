@@ -11,14 +11,15 @@ import {NewNotification, NotificationType} from "../classes/components/Notificat
 function Init() {
     const form = document.querySelector("form.form-control");
     const inputs = form.querySelectorAll('input');
+    const user_type =  AUTHENTICATION_TYPE.STUDENT;
 
     ListenToForm(form, function (data) {
-        TryAuthenticate(data).then((res) => {
+        TryAuthenticate(data, user_type).then((res) => {
             console.log(res);
 
             if (res.code === 200) {
                 const user = res.body.user;
-                ManageEmailVerification(user.user_id, data);
+                ManageEmailVerification(user.user_id, data, user_type);
             } else {
                 ApplyError(['email', 'password'], inputs);
 
@@ -41,7 +42,7 @@ function DoFinalAuthenticate(user_id, mainData, code) {
     })
 }
 
-function ManageEmailVerification( user_id, mainData) {
+function ManageEmailVerification( user_id, mainData, user_type) {
     const popup = new Popup(`auth/confirm_verification`, {email_address: mainData.email}, {
         backgroundDismiss: false,
     });
@@ -53,14 +54,14 @@ function ManageEmailVerification( user_id, mainData) {
         const PINEDITOR = new PINCodeEditor(popup.ELEMENT.querySelector(".pin-code-editor"));
 
         const check = ListenToForm(form, function (data) {
-            ConfirmAuthenticationVerification(user_id, data['pin-code']).then((res => {
+            ConfirmAuthenticationVerification(user_id, data['pin-code'], user_type).then((res => {
                 NewNotification({
                     title: res ? 'Verification Confirmed' : 'Failed',
                     message: res.message
                 }, 3000, res  ? NotificationType.SUCCESS : NotificationType.ERROR)
 
                 if (res) {
-                    DoFinalAuthenticate(user_id, mainData, data['pin-code']).then((res) => {
+                    DoFinalAuthenticate(user_id, mainData, data['pin-code'], user_type).then((res) => {
                         popup.Remove();
 
                         if (res.code === 200) {

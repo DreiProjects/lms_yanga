@@ -38,8 +38,9 @@ class PostControl
         $authControl = new Authentication();
 
         $data = json_decode($_POST['data'], true);
+        $user_type = $_POST['user_type'];
 
-        return $authControl->TryAuth($data);
+        return $authControl->TryAuth($data, $user_type);
     }
 
     public function DoAuthenticate()
@@ -49,8 +50,9 @@ class PostControl
         $code = $_POST['code'];
         $user_id = $_POST['user_id'];
         $data = json_decode($_POST['data'], true);
+        $user_type = $_POST['user_type'];
 
-        return $authControl->DoAuth($data, $user_id, $code);
+        return $authControl->DoAuth($data, $user_id, $code, $user_type);
     }
 
     public function TryRegisterPatient()

@@ -28,12 +28,12 @@ export function SetAuthentication(data) {
     })
 }
 
-export function TryFinalAuthenticate(user_id, data, code) {
+export function TryFinalAuthenticate(user_id, data, code, user_type) {
     return new Promise((resolve) => {
         Ajax({
             url: "/api/post/DoAuthenticate",
             type: "POST",
-            data: {data: JSON.stringify(data), code, user_id},
+            data: {data: JSON.stringify(data), code, user_id, user_type},
             success: (res) => {
                 try {
                     resolve(JSON.parse(res));
@@ -79,12 +79,12 @@ export function TryResetPassword(data) {
     })
 }
 
-export function TryAuthenticate(data) {
+export function TryAuthenticate(data, user_type) {
     return new Promise((resolve) => {
         Ajax({
             url: "/api/post/TryAuthenticate",
             type: "POST",
-            data: {data: JSON.stringify(data)},
+            data: {data: JSON.stringify(data), user_type},
             success: (res) => {
                 try {
                     resolve(JSON.parse(res));
@@ -213,12 +213,12 @@ export function SendVerificationToEmail(user_id, email_address) {
     })
 }
 
-export function ConfirmAuthenticationVerification(user_id, code) {
+export function ConfirmAuthenticationVerification(user_id, code, user_type) {
     return new Promise((resolve) => {
         Ajax({
             url: "/api/post/ConfirmAuthenticationVerification",
             type: "POST",
-            data: {code, user_id},
+            data: {code, user_id, user_type},
             success: (res) => {
                 try {
                     resolve(JSON.parse(res));

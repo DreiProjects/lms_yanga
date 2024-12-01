@@ -972,6 +972,7 @@ function GetSubjectAttendance(sectionSubjectId) {
 class AttendanceManager {
   constructor({ container, sectionSubjectId, students }) {
     this.container = container;
+    this.wrapper = this.container.querySelector(".main-content");
     this.sectionSubjectId = sectionSubjectId;
     this.students = students;
     this.sessionID = parseInt(SESSION.sessionId);
@@ -1013,18 +1014,18 @@ class AttendanceManager {
     this.monthSelect = document.getElementById("monthSelect");
     this.yearSelect = document.getElementById("yearSelect");
 
-    this.setupEventListeners();
     this.generateTable();
+    this.setupEventListeners();
   }
 
   setupEventListeners() {
-    if (this.sessionType === 2) {
       this.monthSelect.addEventListener("change", () => this.generateTable());
       this.yearSelect.addEventListener("change", () => this.generateTable());
 
       document.querySelector(".prev-month").addEventListener("click", () => {
         let month = parseInt(this.monthSelect.value);
         let year = parseInt(this.yearSelect.value);
+        console.log(month, year);
 
         month--;
         if (month < 1) {
@@ -1065,7 +1066,6 @@ class AttendanceManager {
       document.addEventListener("mouseup", () => {
         this.isMouseDown = false;
       });
-    }
   }
 
   getDaysInMonth(month, year) {
@@ -1343,6 +1343,8 @@ class AttendanceManager {
     );
   }
 
+ 
+
   generateTable() {
     const month = parseInt(this.monthSelect.value);
     const year = parseInt(this.yearSelect.value);
@@ -1409,7 +1411,7 @@ class AttendanceManager {
 
     tableHTML += `</tbody></table>`;
 
-    this.container.innerHTML = tableHTML;
+    this.wrapper.innerHTML = tableHTML;
     feather.replace();
 
     this.originalAttendanceData = JSON.parse(

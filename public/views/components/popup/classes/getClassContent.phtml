@@ -422,47 +422,45 @@ foreach ($SUBJECTS as $subject) {
                                 </div>
                                 <div class="attendance-list">
                                     <?php foreach($SUBJECTS as $index => $subject): ?>
+                                       
                                         <div class="attendance-table-container subject-attendance <?= $index === 0 ? 'active' : '' ?>" data-subject="<?= $subject->subject_name ?>" data-subject-id="<?= $subject->section_subject_id ?>">
-                                            <div class="attendance-controls">
-                                                <div class="attendance-actions">
-                                                    <button class="btn btn-primary save-attendance" disabled>Save Changes</button>
-                                                    <button class="btn btn-secondary discard-attendance" disabled>Discard Changes</button>
+                                        <div class="pickers-container">
+                                            <div class="pickers">
+                                                <div class="month-picker">
+                                                    <button class="btn btn-icon prev-month">
+                                                        <
+                                                    </button>
+                                                    <select id="monthSelect">
+                                                        <?php for($m = 1; $m <= 12; $m++): ?>
+                                                            <option value="<?= $m ?>" <?= $m == date('n') ? 'selected' : '' ?>>
+                                                                <?= date('F', mktime(0, 0, 0, $m, 1)) ?>
+                                                            </option>
+                                                        <?php endfor; ?>
+                                                    </select>
+                                                    <button class="btn btn-icon next-month">
+                                                        >
+                                                    </button>
                                                 </div>
-                                                <div class="pickers">
-                                                    <div class="month-picker">
-                                                        <button class="btn btn-icon prev-month">
-                                                            <
-                                                        </button>
-                                                        <select id="monthSelect">
-                                                            <?php for($m = 1; $m <= 12; $m++): ?>
-                                                                <option value="<?= $m ?>" <?= $m == date('n') ? 'selected' : '' ?>>
-                                                                    <?= date('F', mktime(0, 0, 0, $m, 1)) ?>
-                                                                </option>
-                                                            <?php endfor; ?>
-                                                        </select>
-                                                        <button class="btn btn-icon next-month">
-                                                            >
-                                                        </button>
-                                                    </div>
-                                                    <div class="year-picker">
-                                                        <button class="btn btn-icon prev-year">
-                                                            <<
-                                                        </button>
-                                                        <select id="yearSelect">
-                                                            <?php for($y = date('Y') - 2; $y <= date('Y') + 2; $y++): ?>
-                                                                <option value="<?= $y ?>" <?= $y == date('Y') ? 'selected' : '' ?>>
-                                                                    <?= $y ?>
-                                                                </option>
-                                                            <?php endfor; ?>
-                                                        </select>
-                                                        <button class="btn btn-icon next-year">
-                                                            >>
-                                                        </button>
-                                                    </div>
+                                                <div class="year-picker">
+                                                    <button class="btn btn-icon prev-year">
+                                                        <<
+                                                    </button>
+                                                    <select id="yearSelect">
+                                                        <?php for($y = date('Y') - 2; $y <= date('Y') + 2; $y++): ?>
+                                                            <option value="<?= $y ?>" <?= $y == date('Y') ? 'selected' : '' ?>>
+                                                                <?= $y ?>
+                                                            </option>
+                                                        <?php endfor; ?>
+                                                    </select>
+                                                    <button class="btn btn-icon next-year">
+                                                        >>
+                                                    </button>
                                                 </div>
                                             </div>
-
-                                            <div id="attendanceTableContainer" data-section-subject-id="<?= $subject->section_subject_id ?>"></div>
+                                        </div>    
+                                        <div class="main-content">
+                                                <div id="attendanceTableContainer" data-section-subject-id="<?= $subject->section_subject_id ?>"></div>
+                                            </div>
                                         </div>
                                     <?php endforeach; ?>
                                 </div>
@@ -476,6 +474,11 @@ foreach ($SUBJECTS as $subject) {
     </div>
 </div>
 <style>
+    .pickers-container {
+        padding: 10px;
+        display: flex;
+        justify-content: flex-start;
+    }
 .attendance-container {
 padding: 20px;
 overflow-x: auto;

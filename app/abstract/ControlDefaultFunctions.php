@@ -156,6 +156,13 @@ abstract class ControlDefaultFunctions
         return new Response($ID ? 200 : 204, $ID ? "Already Exists" : "Not Exists", ["id" => $ID]);
     }
 
+    public function alreadyExistsOr($record)
+    {
+        $ID = $this->CONNECTION->ExistOr($this->TABLE_NAME, $record, $this->TABLE_PRIMARY_ID);
+
+        return new Response($ID ? 200 : 204, $ID ? "Already Exists" : "Not Exists", ["id" => $ID]);
+    }
+
     public function editRecord($id, $record)
     {
         $update = $this->CONNECTION->Update($this->TABLE_NAME, $record, [$this->TABLE_PRIMARY_ID => $id]);
