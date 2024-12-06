@@ -18,7 +18,6 @@ class Session extends UserAbstract
     public function __construct()
     {
         $this->hasUser = isset($_SESSION['user_id']);
-
     }
 
     public function update()
@@ -92,6 +91,9 @@ class Session extends UserAbstract
     public function getAsProfessor() {
         global $APPLICATION;
 
-        return $APPLICATION->FUNCTIONS->PROFESSOR_CONTROL->getBy("user_id",$this->user_id, true);
+        $records = $APPLICATION->FUNCTIONS->PROFESSOR_CONTROL->filterRecords(["user_id" => $this->user_id], true);
+
+        return count($records) > 0 ? $records[0] : false;
+        // return $APPLICATION->FUNCTIONS->PROFESSOR_CONTROL->getBy("user_id", $this->user_id, true);
     }
 }

@@ -243,25 +243,24 @@ $FACULTY = array(
         "text" => "News Feed",
         "path" => '/newsfeed',
         "icon" => '<i data-feather="rss"></i>',
-        "sub-content" => [
+        "sub-content" =>  array_filter(array_merge([
             [
                 "text" => "Public",
                 "path" => '/newsfeed',
                 "icon" => '<i data-feather="rss"></i>',
             ],
-            [
-                "text" => "Subjects",
-                "path" => '/newsfeed_subjects',
-                "icon" => '<i data-feather="rss"></i>',
-                "sub-content" => [
-                    [
-                        "text" => "Public",
-                        "path" => '/newsfeed/public',
-                        "icon" => '<i data-feather="rss"></i>',
-                    ],
-                ]
-            ],
-        ]
+        ], ($isProfessor ? [
+            "text" => "Subjects",
+            "path" => '/newsfeed_subjects',
+            "icon" => '<i data-feather="rss"></i>',
+            "sub-content" => [
+                [
+                    "text" => "Public",
+                    "path" => '/newsfeed/public',
+                    "icon" => '<i data-feather="rss"></i>',
+                ],
+            ]
+        ] : [])), function($record) { return count($record); })
     ],
     ($isProfessor ? [
         "text" => "My Classes",

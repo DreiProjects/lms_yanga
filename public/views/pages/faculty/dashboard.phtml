@@ -5,23 +5,29 @@ global $APPLICATION, $SESSION;
 
 $isProfessor = $SESSION->user_type == 2;
 
+$isReallyProfessor = $isProfessor && $SESSION->getAsProfessor();
+
 if ($isProfessor) {
     $user = $SESSION->getAsProfessor();
-    $classes = $user->getClasses();
-    $sectionsStudents = $APPLICATION->FUNCTIONS->SECTION_CONTROL->query(
-        "SELECT ss.section_id, ss.subject_id, COUNT(st.student_id) as student_count 
-        FROM section_subjects ss
-        LEFT JOIN section_students st ON st.section_id = ss.section_id
-        WHERE ss.professor_id = " . $user->professor_id . "
-        GROUP BY ss.section_id, ss.subject_id", 
-        false
-    );
+
+    if ($isReallyProfessor) {
+        $classes = $user->getClasses();
+
+        $sectionsStudents = $APPLICATION->FUNCTIONS->SECTION_CONTROL->query(
+            "SELECT ss.section_id, ss.subject_id, COUNT(st.student_id) as student_count 
+            FROM section_subjects ss
+            LEFT JOIN section_students st ON st.section_id = ss.section_id
+            WHERE ss.professor_id = " . $user->professor_id . "
+            GROUP BY ss.section_id, ss.subject_id", 
+            false
+        );
+    }
 } else {
     $user = $SESSION;
 }
 
 
-if ($isProfessor) {
+if ($isProfessor && $isReallyProfessor) {
     $dashboardCards = [
         [
             "title" => "Classes",
@@ -114,7 +120,8 @@ $events = array_slice($events, 0, 3);
             <div class="dashboard-grid">
                 <div class="left-right">
                     <div class="left-grid">
-                        <div class="first">
+                        <?php if (count($dashboardCards)): ?>
+                            <div class="first">
                             <div class="dash-title">
                                 <h2>System</h2>
                             </div>
@@ -129,6 +136,7 @@ $events = array_slice($events, 0, 3);
                                 <?php endforeach ?>
                             </div>
                         </div>
+                            <?php endif ?>
                         <div class="first">
                             <div class="dash-title">
                                 <h2>Maintenance</h2>
