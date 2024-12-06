@@ -5,6 +5,7 @@ namespace Application\core;
 use Application\abstract\UserAbstract;
 use Application\abstract\UserProfileAbstract;
 use Application\models\User;
+use Exception;
 
 class Session extends UserAbstract
 {
@@ -78,7 +79,10 @@ class Session extends UserAbstract
 
         session_destroy();
 
-        $KLEIN->response()->redirect('/login');
+        try {
+            $KLEIN->response()->redirect('/login');
+        } catch(Exception $e) {
+        }
 
         header("Location: /login");
     }

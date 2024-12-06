@@ -10,7 +10,7 @@ class EmailControl
 
     public $MAILER;
 
-    protected $APPLICATION_PASSWORD = "snvlfskpaqkwqewe";
+    protected $APPLICATION_PASSWORD = "jdypslyqcgqfiacd";
 
     protected $HOST = "smtp.gmail.com";
 
@@ -66,8 +66,8 @@ class EmailControl
         $verification = random_int(100000, 999999);
         $subject = $altSubject != false ? $altSubject : "Dr. Yanga's Learning Management System";
         $body = "Your verification code for LMS Authentication  is: " . $verification;
-        // $send = $this->sendTo($email, $subject, $body);
-        $send = true;
+        $send = $this->sendTo($email, $subject, $body);
+        // $send = true;
         return $send && $this->insertVerificationToUser($userID, $verification, $table);
     }
 
