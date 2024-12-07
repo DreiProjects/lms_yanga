@@ -13,6 +13,8 @@ class Student extends StudentAbstract
     public $photoURL;
     public $typeName;
 
+    public $student_no;
+
 
     // section
 
@@ -48,6 +50,9 @@ class Student extends StudentAbstract
     private function initOther()
     {
         global $APPLICATION;
+
+
+        $this->student_no = $this->no;
     }
 
     public function getSectionStudent() {

@@ -6,7 +6,7 @@ $control = $APPLICATION->FUNCTIONS->USER_CONTROL;
 $search = $_POST['search'];
 $filter = json_decode($_POST['filter'], true);
 
-$RECORDS = $control->searchRecords($search,true, ['user_type' => 3]);
+$RECORDS = $control->searchRecords($search,true, null);
 
 ?>
 

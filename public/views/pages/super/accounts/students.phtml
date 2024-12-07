@@ -3,6 +3,12 @@
 global $APPLICATION, $USER_HEADER_BODY;
 
 $control = $APPLICATION->FUNCTIONS->USER_CONTROL;
+
+$BODY = $USER_HEADER_BODY;
+
+Array_insert($BODY["header"], 1, "Student No");
+Array_insert($BODY["body"], 1, "student_no");
+
 $RECORDS = $control->filterRecords(['user_type' => 1],true);
 
 ?>
@@ -95,7 +101,7 @@ $RECORDS = $control->filterRecords(['user_type' => 1],true);
                         </div>
                         <div class="main-table-body main-table-requests"  data-user-type="1">
                             <?= CreateTable([
-                                "content" => $USER_HEADER_BODY,
+                                "content" => $BODY,
                                 "data" => $RECORDS,
                                 "id" => "user_id"
                             ]) ?>

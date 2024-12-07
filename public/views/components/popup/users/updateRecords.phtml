@@ -2,15 +2,21 @@
 
 global $APPLICATION, $USER_HEADER_BODY;
 
-
 $forUser = $_POST['forUser'];
+
+$BODY = $USER_HEADER_BODY;
+
+if ($forUser == '1') {
+    Array_insert($BODY["header"], 1, "Student No");
+    Array_insert($BODY["body"], 1, "student_no");
+}
 
 $control = $APPLICATION->FUNCTIONS->USER_CONTROL;
 $RECORDS = $control->filterRecords(['user_type' => $forUser],true);
 ?>
 
 <?= CreateTable([
-    "content" => $USER_HEADER_BODY,
+    "content" => $BODY,
     "data" => $RECORDS,
     "id" => "user_id"
 ]) ?>

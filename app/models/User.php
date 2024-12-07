@@ -12,6 +12,8 @@ class User extends UserAbstract
     public $photoURL;
     public $typeName;
 
+    public $student_no;
+
     public function __construct($userData = [])
     {
         global $CONNECTION;
@@ -35,6 +37,8 @@ class User extends UserAbstract
 
         $this->photoURL = strlen($this->photo) > 0 ? '/' . $this->photo : $CHARACTER_AVATAR_PATH . strtoupper($this->displayName[0]) . '.' . $EXTENSION;
         $this->typeName = $ALL_USER_TYPES[$this->user_type - 1];
+
+        $this->student_no = $this->no;
     }
 
     public function isType($type)
