@@ -18,6 +18,8 @@ class SectionSubject extends SectionSubjectAbstract
 
     public $classroom;
 
+    public $student_count;
+
     public function __construct($data = [])
     {
         $this->applyData($data, SectionSubjectAbstract::class);
@@ -34,6 +36,8 @@ class SectionSubject extends SectionSubjectAbstract
 
         $this->classroom = $APPLICATION->FUNCTIONS->CLASSROOM_CONTROL->get($this->classroom_id, true);
 
+        $this->student_count = $this->countStudents();
+
         if ($this->schedule_id != 0) {
             $this->schedule = $APPLICATION->FUNCTIONS->SCHEDULE_CONTROL->get($this->schedule_id, true);
 
@@ -41,6 +45,12 @@ class SectionSubject extends SectionSubjectAbstract
                 $this->schedule_label = $this->schedule->schedule_label;
             }
         }
+    }
+
+    public function countStudents() {
+        global $APPLICATION;
+
+        return count($APPLICATION->FUNCTIONS->SECTION_STUDENT_CONTROL->filterRecords(['section_id' => $this->section_id], false));
     }
 
     public function getSection()

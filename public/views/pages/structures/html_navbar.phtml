@@ -243,24 +243,25 @@ $FACULTY = array(
         "text" => "News Feed",
         "path" => '/newsfeed',
         "icon" => '<i data-feather="rss"></i>',
-        "sub-content" =>  array_filter(array_merge([
+        "sub-content" =>  [
             [
                 "text" => "Public",
                 "path" => '/newsfeed',
                 "icon" => '<i data-feather="rss"></i>',
             ],
-        ], ($isProfessor ? [
-            "text" => "Subjects",
-            "path" => '/newsfeed_subjects',
-            "icon" => '<i data-feather="rss"></i>',
-            "sub-content" => [
-                [
-                    "text" => "Public",
-                    "path" => '/newsfeed/public',
-                    "icon" => '<i data-feather="rss"></i>',
-                ],
-            ]
-        ] : [])), function($record) { return count($record); })
+            ($isProfessor ? [
+                "text" => "Subjects",
+                "path" => '/newsfeed_subjects',
+                "icon" => '<i data-feather="rss"></i>',
+                "sub-content" => [
+                    [
+                        "text" => "Public",
+                        "path" => '/newsfeed/public',
+                        "icon" => '<i data-feather="rss"></i>',
+                    ],
+                ]
+            ] : [])
+        ],
     ],
     ($isProfessor ? [
         "text" => "My Classes",
@@ -404,6 +405,13 @@ $NAVLINKS = $ALL[$SESSION->user_type - 1];
                     $match = $this->view_path === $link['path'] || '/' . $this->view_path === $link['path'];
                     ?>
                     <?php if (isset($link['sub-content'])): ?>
+
+                        <?php 
+                                $link['sub-content'] = array_filter($link['sub-content'], function($record) {
+                                    return count($record);
+                                });
+
+                            ?>
                         <a>
                     <?php else: ?>
                         <a href="<?= $link['path'] ?>">

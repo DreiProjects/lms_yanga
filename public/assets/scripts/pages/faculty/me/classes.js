@@ -77,7 +77,7 @@ function NewExam(section_id) {
             popup.Remove();
 
             AddRecord("exams", { data: JSON.stringify(data) }).then((res) => {
-              console.log(res); 
+              console.log(res);
               popup.Remove();
               resolve(res);
             });
@@ -191,13 +191,13 @@ function Exams() {
   const examItems = document.querySelectorAll(".exam-item");
   const createExamBtn = document.querySelector(".create-exam-btn");
   const examsMenu = document.querySelector(".exams-menu");
-  
+
   // Handle exams menu
   examsMenu.addEventListener("click", (e) => {
     if (e.target.classList.contains("subject-tab")) {
       const subject = e.target.dataset.subject;
-        document
-          .querySelectorAll(".subject-tab")
+      document
+        .querySelectorAll(".subject-tab")
         .forEach((tab) => tab.classList.remove("active"));
       document
         .querySelectorAll(".subject-exams")
@@ -645,13 +645,12 @@ function Activities() {
   const activities = document.querySelectorAll(".activity-item");
   const activitiesMenu = document.querySelector(".activities-menu");
 
-
   // Handle activities menu
   activitiesMenu.addEventListener("click", (e) => {
     if (e.target.classList.contains("subject-tab")) {
       const subject = e.target.dataset.subject;
-        document
-          .querySelectorAll(".subject-tab")
+      document
+        .querySelectorAll(".subject-tab")
         .forEach((tab) => tab.classList.remove("active"));
       document
         .querySelectorAll(".subject-activities")
@@ -770,7 +769,7 @@ function NewResource(section_id, professor_id) {
             data: JSON.stringify(data),
             file: data.file,
           }).then((res) => {
-            if (res === 200) {
+              if (res.code == 200) {
               NewNotification({
                 type: "success",
                 message: "Resource added successfully!",
@@ -1019,53 +1018,53 @@ class AttendanceManager {
   }
 
   setupEventListeners() {
-      this.monthSelect.addEventListener("change", () => this.generateTable());
-      this.yearSelect.addEventListener("change", () => this.generateTable());
+    this.monthSelect.addEventListener("change", () => this.generateTable());
+    this.yearSelect.addEventListener("change", () => this.generateTable());
 
-      document.querySelector(".prev-month").addEventListener("click", () => {
-        let month = parseInt(this.monthSelect.value);
-        let year = parseInt(this.yearSelect.value);
-        console.log(month, year);
+    document.querySelector(".prev-month").addEventListener("click", () => {
+      let month = parseInt(this.monthSelect.value);
+      let year = parseInt(this.yearSelect.value);
+      console.log(month, year);
 
-        month--;
-        if (month < 1) {
-          month = 12;
-          year--;
-          this.yearSelect.value = year;
-        }
-        this.monthSelect.value = month;
-        this.generateTable();
-      });
+      month--;
+      if (month < 1) {
+        month = 12;
+        year--;
+        this.yearSelect.value = year;
+      }
+      this.monthSelect.value = month;
+      this.generateTable();
+    });
 
-      document.querySelector(".next-month").addEventListener("click", () => {
-        let month = parseInt(this.monthSelect.value);
-        let year = parseInt(this.yearSelect.value);
+    document.querySelector(".next-month").addEventListener("click", () => {
+      let month = parseInt(this.monthSelect.value);
+      let year = parseInt(this.yearSelect.value);
 
-        month++;
-        if (month > 12) {
-          month = 1;
-          year++;
-          this.yearSelect.value = year;
-        }
-        this.monthSelect.value = month;
-        this.generateTable();
-      });
+      month++;
+      if (month > 12) {
+        month = 1;
+        year++;
+        this.yearSelect.value = year;
+      }
+      this.monthSelect.value = month;
+      this.generateTable();
+    });
 
-      document.querySelector(".prev-year").addEventListener("click", () => {
-        let year = parseInt(this.yearSelect.value);
-        this.yearSelect.value = year - 1;
-        this.generateTable();
-      });
+    document.querySelector(".prev-year").addEventListener("click", () => {
+      let year = parseInt(this.yearSelect.value);
+      this.yearSelect.value = year - 1;
+      this.generateTable();
+    });
 
-      document.querySelector(".next-year").addEventListener("click", () => {
-        let year = parseInt(this.yearSelect.value);
-        this.yearSelect.value = year + 1;
-        this.generateTable();
-      });
+    document.querySelector(".next-year").addEventListener("click", () => {
+      let year = parseInt(this.yearSelect.value);
+      this.yearSelect.value = year + 1;
+      this.generateTable();
+    });
 
-      document.addEventListener("mouseup", () => {
-        this.isMouseDown = false;
-      });
+    document.addEventListener("mouseup", () => {
+      this.isMouseDown = false;
+    });
   }
 
   getDaysInMonth(month, year) {
@@ -1342,8 +1341,6 @@ class AttendanceManager {
       }.bind(this)
     );
   }
-
- 
 
   generateTable() {
     const month = parseInt(this.monthSelect.value);

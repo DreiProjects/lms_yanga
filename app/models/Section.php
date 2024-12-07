@@ -29,6 +29,10 @@ class Section extends SectionAbstract
         $this->adviser = $APPLICATION->FUNCTIONS->PROFESSOR_CONTROL->get($this->adviser_id, true);
     }
 
+    public function countAllStudents() {
+        
+    }
+
     public function getAllStudents()
     {
         global $APPLICATION;

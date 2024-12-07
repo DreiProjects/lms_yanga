@@ -174,16 +174,18 @@ $POSTS = $selectedSubject ? $postControl->getLatestRecordsInfiniteScroll(1, 5, t
             </style>
             
             <div class="subject-cover"></div>
+
+
             <div class="subject-info">
-                <div class="subject-name"><?= $selectedSubject ? $selectedSubject->subject->subject_name : 'No Subject Selected' ?></div>
+                <div class="subject-name" id="subject-name"><?= $selectedSubject ? $selectedSubject->subject->subject_name : 'No Subject Selected' ?></div>
                 <div class="subject-details">
                     <div class="professor">
                         <i class="fas fa-user-tie"></i> 
-                        <?= $selectedSubject ? $selectedSubject->professor->displayName : '-' ?>
+                        <span id="subject-professor"><?= $selectedSubject ? $selectedSubject->professor->displayName : '-' ?></span>
                     </div>
                     <div class="students">
                         <i class="fas fa-users"></i>
-                        <?= $selectedSubject ? count($selectedSubject->getSection()->students) : '0' ?> Students
+                        <span id="subject-students"><?= $selectedSubject ? count($selectedSubject->getSection()->students) : '0' ?> Students</span>
                     </div>
                 </div>
             </div>
