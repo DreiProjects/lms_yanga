@@ -125,8 +125,8 @@ $STUDENTS_IN_CLASSES_HEADER_BODY = [
 ];
 
 $SUBJECTS_IN_CLASSES_HEADER_BODY = [
-    "header" => ["No","Subject","Classroom", "Schedule"],
-    "body" => ["no","subject_name","classroom_id","schedule_label"]
+    "header" => ["No","Subject","Classroom", "Mon", "Tue", "Wed", "Thurs", "Fri", "Sat"],
+    "body" => ["no","subject_name","classroom_id", "mon", "tue", "wed", "thu", "fri", "sat"]
 ];
 
 $EVENTS_HEADER_BODY = [

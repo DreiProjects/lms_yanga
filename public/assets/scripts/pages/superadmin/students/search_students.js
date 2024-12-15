@@ -14,7 +14,7 @@ function Init() {
     const searchInput = document.querySelector('.filters-panel input[type="text"]');
     const courseSelect = document.querySelector('#course-filter');
     const yearSelect = document.querySelector('#year-level-filter');
-    const genderSelect = document.querySelector('#gender-filter');
+    // const genderSelect = document.querySelector('#gender-filter');
 
     // Add event listeners to all filter elements
     searchInput.addEventListener('input', (e) => {
@@ -37,12 +37,12 @@ function Init() {
         });
     }
 
-    if (genderSelect) {
-        genderSelect.addEventListener('change', (e) => {
-            searchOptions.gender = e.target.value;
-            performSearch();
-        });
-    }
+    // if (genderSelect) {
+    //     genderSelect.addEventListener('change', (e) => {
+    //         searchOptions.gender = e.target.value;
+    //         performSearch();
+    //     });
+    // }
 
     async function performSearch() {
 

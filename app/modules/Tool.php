@@ -742,6 +742,22 @@ function renderPosts($POSTS, $SESSION) {
         $output .= '<p class="primary">' . ucwords($POST->author->displayName) . '</p>';
         $output .= '<p class="secondary">' . $POST->author->typeName . '</p>';
         $output .= '</div>';
+        
+        // Add ellipsis button and floating container if user is post author
+        if ($POST->author->user_id == $SESSION->user_id) {
+            $output .= '<div class="post-actions">';
+            $output .= '<div class="ellipsis-button">';
+            $output .= UseIcon('more-vertical', 'feather');
+            $output .= '</div>';
+            $output .= '<div class="floating-actions-container">';
+            $output .= '<div class="action-item delete-post">';
+            $output .= '<div class="icon">' . UseIcon('trash-2', 'feather') . '</div>';
+            $output .= '<span>Delete Post</span>';
+            $output .= '</div>';
+            $output .= '</div>';
+            $output .= '</div>';
+        }
+        
         $output .= '</div>';
         $output .= '<div class="post-body">';
         $output .= '<div class="post-content">';
@@ -809,7 +825,7 @@ function renderPosts($POSTS, $SESSION) {
         $output .= '<div class="comments-container">';
         if (isset($POST->comments) && count($POST->comments) > 0) {
             foreach ($POST->comments as $comment) {
-                $output .= '<div class="comment-item">';
+                $output .= '<div class="comment-item" data-id="'. $comment->post_comment_id .'">';
                 $output .= '<div class="photo">';
                 $output .= '<div class="image">';
                 $output .= '<img src="' . $comment->author->photoURL . '" alt="">';
@@ -819,6 +835,22 @@ function renderPosts($POSTS, $SESSION) {
                 $output .= '<div class="comment-header">';
                 $output .= '<span class="author-name">' . ucwords($comment->author->displayName) . '</span>';
                 $output .= '<span class="comment-time">' . date('F j, Y \a\t g:i A', strtotime($comment->date_created)) . '</span>';
+                
+                // Add ellipsis button and floating container for comments if user is comment author
+                if ($comment->author->user_id == $SESSION->user_id) {
+                    $output .= '<div class="comment-actions">';
+                    $output .= '<div class="ellipsis-button">';
+                    $output .= UseIcon('more-vertical', 'feather');
+                    $output .= '</div>';
+                    $output .= '<div class="floating-actions-container">';
+                    $output .= '<div class="action-item delete-comment">';
+                    $output .= '<div class="icon">' . UseIcon('trash-2', 'feather') . '</div>';
+                    $output .= '<span>Delete Comment</span>';
+                    $output .= '</div>';
+                    $output .= '</div>';
+                    $output .= '</div>';
+                }
+                
                 $output .= '</div>';
                 $output .= '<div class="comment-text">';
                 $output .= $comment->comment;

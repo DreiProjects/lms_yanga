@@ -14,7 +14,11 @@ class ProfessorControl extends ControlDefaultFunctions
     protected $MODEL_CLASS = Professor::class;
     protected $TABLE_NAME = "professors";
     protected $TABLE_PRIMARY_ID = "professor_id";
-    protected $SEARCH_LOOKUP = ["description"];
+    protected $SEARCH_LOOKUP = ["description", [
+        "primary" => "user_id",
+        "table" => "users",
+        "into" => ["displayName"]
+    ]];
 
     public function add($data)
     {

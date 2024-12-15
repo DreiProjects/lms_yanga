@@ -22,7 +22,6 @@ function ResetDatabase() {
   popup.AddListeners({
     onYes: () => {
       PostRequest("ResetDatabase", {}).then((res) => {
-        console.log(res);
         NewNotification(
           {
             title: "Success",

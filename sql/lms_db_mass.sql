@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 15, 2024 at 05:51 AM
+-- Generation Time: Dec 15, 2024 at 02:49 PM
 -- Server version: 10.4.27-MariaDB
 -- PHP Version: 8.1.12
 
@@ -32,7 +32,7 @@ CREATE TABLE `activities` (
   `section_subject_id` int(11) NOT NULL,
   `title` varchar(255) NOT NULL,
   `description` text NOT NULL,
-  `due_date` date DEFAULT NULL,
+  `due_date` datetime DEFAULT NULL,
   `file` varchar(255) DEFAULT NULL,
   `passing_type` varchar(255) NOT NULL,
   `activity_status` varchar(255) NOT NULL DEFAULT 'On Going',
@@ -45,10 +45,12 @@ CREATE TABLE `activities` (
 --
 
 INSERT INTO `activities` (`activity_id`, `section_subject_id`, `title`, `description`, `due_date`, `file`, `passing_type`, `activity_status`, `status`, `date_created`) VALUES
-(1, 1, 'Activity 11', 'This is sample activity description', '2024-11-07', NULL, 'File', 'On Going', 0, '2024-10-23 01:45:05'),
+(1, 1, 'Activity 11', 'This is sample activity description', '2024-11-07 00:00:00', NULL, 'File', 'On Going', 0, '2024-10-23 01:45:05'),
 (2, 1, 'Activity 2', 'Nanaman?', NULL, NULL, 'Link', 'On Going', 0, '2024-10-31 06:46:03'),
-(3, 1, 'Activity 3', 'Text lang naman to', '0000-00-00', NULL, 'Text', 'On Going', 0, '2024-10-31 06:49:44'),
-(4, 1, 'A', 'aw', NULL, NULL, 'Link', 'On Going', 0, '2024-10-31 06:52:08');
+(3, 1, 'Activity 3', 'Text lang naman to', '0000-00-00 00:00:00', NULL, 'Text', 'On Going', 0, '2024-10-31 06:49:44'),
+(4, 1, 'A', 'aw', NULL, NULL, 'Link', 'On Going', 0, '2024-10-31 06:52:08'),
+(5, 4, 'Activity 1', 'Please Describe what is Unity', '2024-11-15 00:00:00', NULL, 'Text', 'On Going', 0, '2024-11-13 07:38:31'),
+(6, 4, 'Yahhh', 'hatdog', NULL, NULL, 'File', 'On Going', 0, '2024-12-15 12:57:02');
 
 -- --------------------------------------------------------
 
@@ -73,7 +75,9 @@ CREATE TABLE `activities_complied` (
 
 INSERT INTO `activities_complied` (`comply_id`, `activity_id`, `student_id`, `text`, `link`, `file`, `status`, `date_created`) VALUES
 (2, 2, 5, '', 'https://www.chess.com/home', '', 0, '2024-11-01 13:14:04'),
-(3, 1, 5, '', '', '', 0, '2024-11-05 14:37:45');
+(3, 1, 5, '', '', '', 0, '2024-11-05 14:37:45'),
+(4, 5, 10, 'Unityyyyyyy wasssssssssss Unityyyyy pooooo', '', '', 0, '2024-11-13 07:40:29'),
+(5, 6, 10, '', '', 'public/assets/media/uploads/activities_complied/INSTRUCTION.PNG.PNG', 0, '2024-12-15 12:58:11');
 
 -- --------------------------------------------------------
 
@@ -87,6 +91,8 @@ CREATE TABLE `announcements` (
   `for_view` int(11) NOT NULL,
   `title` varchar(255) NOT NULL,
   `content` text NOT NULL,
+  `date_start` datetime NOT NULL,
+  `date_end` datetime NOT NULL,
   `status` int(11) NOT NULL,
   `date_created` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -95,8 +101,8 @@ CREATE TABLE `announcements` (
 -- Dumping data for table `announcements`
 --
 
-INSERT INTO `announcements` (`announcement_id`, `user_id`, `for_view`, `title`, `content`, `status`, `date_created`) VALUES
-(6, 1, 0, 'Semi Finals Exam', '<p>November 18 - November 21</p>', 0, '2024-11-09 05:09:18');
+INSERT INTO `announcements` (`announcement_id`, `user_id`, `for_view`, `title`, `content`, `date_start`, `date_end`, `status`, `date_created`) VALUES
+(7, 1, 0, 'Announcement 1', '<p>aBBABABA</p>', '2024-11-29 14:39:00', '2024-12-03 14:39:00', 0, '2024-11-29 06:39:56');
 
 -- --------------------------------------------------------
 
@@ -212,10 +218,10 @@ INSERT INTO `email_verifications` (`verification_id`, `user_id`, `verification`,
 (30, '4', '358643', '2024-11-08 05:26:44'),
 (40, '3', '795574', '2024-11-09 05:10:35'),
 (43, '11', '965434', '2024-11-09 05:21:32'),
-(55, '1', '220876', '2024-11-10 21:01:59'),
-(59, '53', '251238', '2024-11-14 15:13:25'),
-(61, '10', '623360', '2024-11-14 17:18:30'),
-(62, '32', '260969', '2024-11-15 04:50:37');
+(44, '53', '290250', '2024-11-09 05:48:06'),
+(85, '32', '712337', '2024-12-15 12:32:43'),
+(86, '1', '242627', '2024-12-15 12:44:15'),
+(88, '10', '669839', '2024-12-15 13:47:42');
 
 -- --------------------------------------------------------
 
@@ -271,8 +277,11 @@ CREATE TABLE `exams` (
 
 INSERT INTO `exams` (`exam_id`, `section_id`, `section_subject_id`, `title`, `description`, `count_items`, `duration`, `date_start`, `due_date`, `file`, `form_id`, `exam_status`, `status`, `date_created`) VALUES
 (2, 4, 4, 'Exam Nanaman', '', 2, '50', '2024-11-14 02:30:00', '2024-11-29', '', 1, 0, 0, '2024-11-11 18:30:32'),
-(3, 4, 4, 'AB', '', 5, '100', '2024-11-16 01:28:00', '2024-11-30', '', 3, 0, 0, '2024-11-14 17:28:38'),
-(4, 4, 4, 'Exam nanaman sa Capstone', '', 5, '100', '2024-11-16 01:42:00', '2024-11-23', '', 4, 0, 0, '2024-11-14 17:42:29');
+(3, 4, 4, 'Web Development Exam ', '', 4, '30', '2024-11-13 15:36:00', '2024-11-21', '', 2, 0, 0, '2024-11-13 07:36:38'),
+(4, 4, 4, 'Semi final exam', 'SEMIs', 5, '30', '2024-11-14 13:00:00', '2024-11-14', '', 3, 0, 0, '2024-11-14 05:03:58'),
+(5, 4, 6, 'Exam', '', 8, '50', '2024-12-18 10:11:00', '2024-12-18', '', 6, 0, 0, '2024-12-15 02:11:47'),
+(6, 4, 4, 'Examin nyo to guyz', '', 8, '50', '2024-12-15 10:12:00', '2024-12-24', '', 6, 0, 0, '2024-12-15 02:12:23'),
+(7, 4, 4, 'Ahhm', '', 3, '22', '2024-12-15 10:25:00', '2024-12-31', '', 7, 0, 0, '2024-12-15 02:25:18');
 
 -- --------------------------------------------------------
 
@@ -298,9 +307,12 @@ CREATE TABLE `forms` (
 
 INSERT INTO `forms` (`form_id`, `professor_id`, `title`, `description`, `form_type`, `duration`, `points`, `status`, `date_created`) VALUES
 (1, 4, 'Untitled Form', 'Click to add description', 'Exam', '50', '80', 0, '2024-11-11 16:33:16'),
-(2, 4, 'Form1', 'Form 1 example', 'Survey', '20', '80', 0, '2024-11-14 17:20:53'),
-(3, 4, 'Sample Form', 'Form 1', 'Exam', '100', '50', 0, '2024-11-14 17:28:07'),
-(4, 4, 'Untitled Form', 'Click to add description', 'Exam', '100', '100', 0, '2024-11-14 17:41:12');
+(2, 4, 'Web Development Exam', 'This is exam', 'Exam', '30', '100', 0, '2024-11-13 07:35:52'),
+(3, 4, 'Semi final exam', 'Click to add description', 'Exam', '30', '30', 0, '2024-11-14 05:01:28'),
+(4, 4, 'Semi final exam', 'Click to add description', 'Exam', '30', '50', 0, '2024-11-14 05:02:29'),
+(5, 4, 'Cute Form', 'Make sure you answer this respectfully and honestly', 'Survey', '10', '20', 0, '2024-12-14 15:39:20'),
+(6, 4, 'Untitled Form', 'Click to add description', 'Exam', '50', '50', 0, '2024-12-15 02:04:40'),
+(7, 4, 'Luh Form', 'Luh sila', 'Exam', '22', '10', 0, '2024-12-15 02:24:45');
 
 -- --------------------------------------------------------
 
@@ -311,18 +323,11 @@ INSERT INTO `forms` (`form_id`, `professor_id`, `title`, `description`, `form_ty
 CREATE TABLE `form_completions` (
   `form_completion_id` int(11) NOT NULL,
   `form_id` int(11) NOT NULL,
-  `parent_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
+  `parent_id` int(11) NOT NULL,
   `status` int(11) NOT NULL,
   `date_created` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `form_completions`
---
-
-INSERT INTO `form_completions` (`form_completion_id`, `form_id`, `parent_id`, `user_id`, `status`, `date_created`) VALUES
-(13, 4, 4, 10, 0, '2024-11-14 18:07:30');
 
 -- --------------------------------------------------------
 
@@ -336,26 +341,10 @@ CREATE TABLE `form_completion_answers` (
   `question_id` int(11) NOT NULL,
   `type` varchar(255) NOT NULL,
   `answer` varchar(255) NOT NULL,
-  `choice_id` varchar(255) NOT NULL,
+  `choice_id` int(11) NOT NULL,
   `status` int(11) NOT NULL,
   `date_created` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `form_completion_answers`
---
-
-INSERT INTO `form_completion_answers` (`form_completion_answer_id`, `form_completion_id`, `question_id`, `type`, `answer`, `choice_id`, `status`, `date_created`) VALUES
-(33, 12, 13, 'multiple-choice', 'A', '21', 0, '2024-11-14 17:51:10'),
-(34, 12, 14, 'checkbox', '[\"A\",\"B\"]', '[\"25\",\"26\"]', 0, '2024-11-14 17:51:10'),
-(35, 12, 15, 'dropdown', 'C', '31', 0, '2024-11-14 17:51:10'),
-(36, 12, 16, 'short-answer', 'AWdwa', '', 0, '2024-11-14 17:51:10'),
-(37, 12, 17, 'paragraph', 'bbb', '', 0, '2024-11-14 17:51:10'),
-(38, 13, 13, 'multiple-choice', 'A', '21', 0, '2024-11-14 18:07:30'),
-(39, 13, 14, 'checkbox', '[\"B\"]', '[\"26\"]', 0, '2024-11-14 18:07:30'),
-(40, 13, 15, 'dropdown', 'B', '30', 0, '2024-11-14 18:07:30'),
-(41, 13, 16, 'short-answer', 'awdwa', '', 0, '2024-11-14 18:07:30'),
-(42, 13, 17, 'paragraph', '123', '', 0, '2024-11-14 18:07:30');
 
 -- --------------------------------------------------------
 
@@ -381,21 +370,36 @@ CREATE TABLE `form_questions` (
 INSERT INTO `form_questions` (`form_question_id`, `form_id`, `question_number`, `question`, `question_type`, `image_url`, `status`, `date_created`) VALUES
 (1, 1, '1', 'Multiple Choice', 'multiple-choice', '', 0, '2024-11-11 16:33:16'),
 (2, 1, '3', 'Dropdown', 'dropdown', '', 0, '2024-11-11 16:33:16'),
-(3, 2, '1', 'This is sample', 'multiple-choice', '', 0, '2024-11-14 17:20:53'),
-(4, 2, '2', 'This is sample 2', 'checkbox', '', 0, '2024-11-14 17:20:53'),
-(5, 2, '3', 'This is sample 3', 'dropdown', '', 0, '2024-11-14 17:20:53'),
-(6, 2, '4', 'This is sample 4', 'short-answer', '', 0, '2024-11-14 17:20:53'),
-(7, 2, '5', 'This is sample 5', 'paragraph', '', 0, '2024-11-14 17:20:53'),
-(8, 3, '1', 'Sample 1', 'multiple-choice', '', 0, '2024-11-14 17:28:07'),
-(9, 3, '2', 'Sample 2', 'checkbox', '', 0, '2024-11-14 17:28:07'),
-(10, 3, '3', 'Sample 3', 'dropdown', '', 0, '2024-11-14 17:28:07'),
-(11, 3, '4', 'Sample 4', 'short-answer', '', 0, '2024-11-14 17:28:07'),
-(12, 3, '5', 'Sample 5', 'paragraph', '', 0, '2024-11-14 17:28:07'),
-(13, 4, '1', 'Question #1', 'multiple-choice', '', 0, '2024-11-14 17:41:12'),
-(14, 4, '2', 'Question #2', 'checkbox', '', 0, '2024-11-14 17:41:12'),
-(15, 4, '3', 'Question #3', 'dropdown', '', 0, '2024-11-14 17:41:12'),
-(16, 4, '4', 'Question #4', 'short-answer', '', 0, '2024-11-14 17:41:12'),
-(17, 4, '5', 'Question #5', 'paragraph', '', 0, '2024-11-14 17:41:12');
+(3, 2, '1', 'awdaw', 'checkbox', '', 0, '2024-11-13 07:35:52'),
+(4, 2, '3', 'AWdwa', 'dropdown', '', 0, '2024-11-13 07:35:52'),
+(5, 2, '2', 'AWdwa44', 'paragraph', '', 0, '2024-11-13 07:35:52'),
+(6, 2, '4', 'Another question', 'dropdown', '', 0, '2024-11-13 07:35:52'),
+(7, 3, '1', 'Who found the earth', 'multiple-choice', '', 0, '2024-11-14 05:01:28'),
+(8, 3, '2', 'What was the name of the earth before?', 'multiple-choice', '', 0, '2024-11-14 05:01:28'),
+(9, 3, '3', 'Explain yourself in 3 words.', 'short-answer', '', 0, '2024-11-14 05:01:28'),
+(10, 3, '4', 'Who is me?', 'dropdown', '', 0, '2024-11-14 05:01:28'),
+(11, 3, '5', 'You sure?', 'checkbox', '', 0, '2024-11-14 05:01:28'),
+(12, 4, '1', 'Who found the earth', 'multiple-choice', '', 0, '2024-11-14 05:02:29'),
+(13, 4, '2', 'What was the name of the earth before?', 'multiple-choice', '', 0, '2024-11-14 05:02:29'),
+(14, 4, '3', 'Explain yourself in 3 words.', 'short-answer', '', 0, '2024-11-14 05:02:29'),
+(15, 4, '4', 'Who is me?', 'dropdown', '', 0, '2024-11-14 05:02:29'),
+(16, 4, '5', 'You sure?', 'checkbox', '', 0, '2024-11-14 05:02:29'),
+(17, 5, '1', 'Who is the Philippines national Hero?', 'multiple-choice', '', 0, '2024-12-14 15:39:20'),
+(18, 5, '2', 'Who is the cutest?', 'checkbox', '', 0, '2024-12-14 15:39:20'),
+(19, 5, '3', 'Ye Yo Yi', 'dropdown', '', 0, '2024-12-14 15:39:20'),
+(20, 5, '4', 'Cute ka ba?', 'short-answer', '', 0, '2024-12-14 15:39:20'),
+(21, 5, '5', 'Please write an essay about the programmer', 'paragraph', '', 0, '2024-12-14 15:39:20'),
+(22, 6, '1', 'Choice', 'multiple-choice', '', 0, '2024-12-15 02:04:40'),
+(23, 6, '2', 'Chk', 'checkbox', '', 0, '2024-12-15 02:04:40'),
+(24, 6, '3', 'Huhh', 'dropdown', '', 0, '2024-12-15 02:04:40'),
+(25, 6, '4', 'Wehh??', 'true-false', '', 0, '2024-12-15 02:04:40'),
+(26, 6, '5', 'The right&nbsp;<span class=\"blank-space\" contenteditable=\"false\" data-blank-id=\"blank_1734228211057_1\">[Blank 1]</span>&nbsp;are the&nbsp;<span class=\"blank-space\" contenteditable=\"false\" data-blank-id=\"blank_1734228216185_2\">[Blank 2]</span>&nbsp;part of the body', 'fill-blank', '', 0, '2024-12-15 02:04:40'),
+(27, 6, '6', '', 'matching', '', 0, '2024-12-15 02:04:40'),
+(28, 6, '7', 'Short', 'short-answer', '', 0, '2024-12-15 02:04:40'),
+(29, 6, '8', 'Paragraph', 'paragraph', '', 0, '2024-12-15 02:04:40'),
+(30, 7, '1', 'TF', 'true-false', '', 0, '2024-12-15 02:24:45'),
+(31, 7, '2', 'Hat&nbsp;<span class=\"blank-space\" contenteditable=\"false\" data-blank-id=\"blank_1734229434555_1\">[Blank 1]</span>&nbsp;ka&nbsp;<span class=\"blank-space\" contenteditable=\"false\" data-blank-id=\"blank_1734229438330_2\">[Blank 2]</span>&nbsp;?', 'fill-blank', '', 0, '2024-12-15 02:24:45'),
+(32, 7, '3', '', 'matching', '', 0, '2024-12-15 02:24:45');
 
 -- --------------------------------------------------------
 
@@ -421,34 +425,72 @@ INSERT INTO `form_question_choices` (`form_question_choice_id`, `form_question_i
 (2, 1, '2', '2', 0, '2024-11-11 16:33:16'),
 (3, 2, '3', '3', 0, '2024-11-11 16:33:16'),
 (4, 2, '4', '4', 0, '2024-11-11 16:33:16'),
-(5, 4, '1', 'A', 0, '2024-11-14 17:20:53'),
-(6, 4, '2', 'B', 0, '2024-11-14 17:20:53'),
-(7, 4, '3', 'C', 0, '2024-11-14 17:20:53'),
-(8, 4, '4', 'D', 0, '2024-11-14 17:20:53'),
-(9, 5, '1', 'A', 0, '2024-11-14 17:20:53'),
-(10, 5, '2', 'B', 0, '2024-11-14 17:20:53'),
-(11, 5, '3', 'C', 0, '2024-11-14 17:20:53'),
-(12, 5, '4', 'D', 0, '2024-11-14 17:20:53'),
-(13, 9, '1', 'A', 0, '2024-11-14 17:28:07'),
-(14, 9, '2', 'B', 0, '2024-11-14 17:28:07'),
-(15, 9, '3', 'C', 0, '2024-11-14 17:28:07'),
-(16, 9, '4', 'D', 0, '2024-11-14 17:28:07'),
-(17, 10, '1', 'A', 0, '2024-11-14 17:28:07'),
-(18, 10, '2', 'B', 0, '2024-11-14 17:28:07'),
-(19, 10, '3', 'C', 0, '2024-11-14 17:28:07'),
-(20, 10, '4', 'D', 0, '2024-11-14 17:28:07'),
-(21, 13, '1', 'A', 0, '2024-11-14 17:41:12'),
-(22, 13, '2', 'B', 0, '2024-11-14 17:41:12'),
-(23, 13, '3', 'C', 0, '2024-11-14 17:41:12'),
-(24, 13, '4', 'D', 0, '2024-11-14 17:41:12'),
-(25, 14, '1', 'A', 0, '2024-11-14 17:41:12'),
-(26, 14, '2', 'B', 0, '2024-11-14 17:41:12'),
-(27, 14, '3', 'C', 0, '2024-11-14 17:41:12'),
-(28, 14, '4', 'D', 0, '2024-11-14 17:41:12'),
-(29, 15, '1', 'A', 0, '2024-11-14 17:41:12'),
-(30, 15, '2', 'B', 0, '2024-11-14 17:41:12'),
-(31, 15, '3', 'C', 0, '2024-11-14 17:41:12'),
-(32, 15, '4', 'D', 0, '2024-11-14 17:41:12');
+(5, 3, '1', 'awdwa', 0, '2024-11-13 07:35:52'),
+(6, 3, '2', '33', 0, '2024-11-13 07:35:52'),
+(7, 3, '3', '32', 0, '2024-11-13 07:35:52'),
+(8, 4, '1', '11', 0, '2024-11-13 07:35:52'),
+(9, 4, '2', '233', 0, '2024-11-13 07:35:52'),
+(10, 6, '1', 'Choice 1', 0, '2024-11-13 07:35:52'),
+(11, 6, '2', 'Choice 2', 0, '2024-11-13 07:35:52'),
+(12, 10, '1', 'YOU', 0, '2024-11-14 05:01:28'),
+(13, 10, '2', 'ME', 0, '2024-11-14 05:01:28'),
+(14, 11, '1', 'yes', 0, '2024-11-14 05:01:28'),
+(15, 11, '2', 'no', 0, '2024-11-14 05:01:28'),
+(16, 15, '1', 'YOU', 0, '2024-11-14 05:02:29'),
+(17, 15, '2', 'ME', 0, '2024-11-14 05:02:29'),
+(18, 16, '1', 'yes', 0, '2024-11-14 05:02:29'),
+(19, 16, '2', 'no', 0, '2024-11-14 05:02:29'),
+(20, 17, '1', 'Aguinaldo', 0, '2024-12-14 15:39:20'),
+(21, 17, '2', 'Ronaldo', 0, '2024-12-14 15:39:20'),
+(22, 17, '3', 'Mr Beast', 0, '2024-12-14 15:39:20'),
+(23, 17, '4', 'Jose Rizal', 0, '2024-12-14 15:39:20'),
+(24, 18, '1', 'Orlan', 0, '2024-12-14 15:39:20'),
+(25, 18, '2', 'Si Onie', 0, '2024-12-14 15:39:20'),
+(26, 18, '3', 'Tero', 0, '2024-12-14 15:39:20'),
+(27, 18, '4', 'Yung nag program', 0, '2024-12-14 15:39:20'),
+(28, 19, '1', 'Ahhh', 0, '2024-12-14 15:39:20'),
+(29, 19, '2', 'Ohhh', 0, '2024-12-14 15:39:20'),
+(30, 19, '3', 'Ihhhh', 0, '2024-12-14 15:39:20'),
+(31, 19, '4', 'Uuuuuu', 0, '2024-12-14 15:39:20'),
+(32, 22, '1', 'A', 0, '2024-12-15 02:04:40'),
+(33, 22, '2', 'B', 0, '2024-12-15 02:04:40'),
+(34, 22, '3', 'C', 0, '2024-12-15 02:04:40'),
+(35, 22, '4', 'D', 0, '2024-12-15 02:04:40'),
+(36, 23, '1', '1', 0, '2024-12-15 02:04:40'),
+(37, 23, '2', '2', 0, '2024-12-15 02:04:40'),
+(38, 23, '3', '3', 0, '2024-12-15 02:04:40'),
+(39, 23, '4', '4', 0, '2024-12-15 02:04:40'),
+(40, 23, '5', '5', 0, '2024-12-15 02:04:40'),
+(41, 24, '1', 'A', 0, '2024-12-15 02:04:40'),
+(42, 24, '2', 'B', 0, '2024-12-15 02:04:40'),
+(43, 24, '3', 'C', 0, '2024-12-15 02:04:40'),
+(44, 25, '1', 'True', 0, '2024-12-15 02:04:40'),
+(45, 25, '2', 'False', 0, '2024-12-15 02:04:40'),
+(46, 30, '1', 'True', 0, '2024-12-15 02:24:45'),
+(47, 30, '2', 'False', 0, '2024-12-15 02:24:45');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `form_question_options`
+--
+
+CREATE TABLE `form_question_options` (
+  `form_question_option_id` int(11) NOT NULL,
+  `form_question_id` int(11) NOT NULL,
+  `options` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`options`)),
+  `date_created` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `form_question_options`
+--
+
+INSERT INTO `form_question_options` (`form_question_option_id`, `form_question_id`, `options`, `date_created`) VALUES
+(1, 26, '0', '2024-12-15 02:04:40'),
+(2, 27, '0', '2024-12-15 02:04:40'),
+(3, 31, '{\"type\":\"fill-blank\",\"blanks\":[{\"blankId\":\"blank_1734229434555_1\",\"text\":\"[Blank 1]\"},{\"blankId\":\"blank_1734229438330_2\",\"text\":\"[Blank 2]\"}]}', '2024-12-15 02:24:45'),
+(4, 32, '{\"type\":\"matching\",\"questions\":[\"Boy\",\"Girl\"],\"words\":[\"Tama\",\"Mali\"]}', '2024-12-15 02:24:45');
 
 -- --------------------------------------------------------
 
@@ -472,7 +514,7 @@ CREATE TABLE `grade_scores` (
 
 INSERT INTO `grade_scores` (`grade_score_id`, `id`, `parent_id`, `category`, `grade`, `status`, `date_created`) VALUES
 (1, 3, 1, 'Activity', 100, 0, '2024-11-08 09:30:25'),
-(2, 13, 4, 'Form', 50, 0, '2024-11-14 18:49:21');
+(2, 4, 5, 'Activity', 80, 0, '2024-11-13 07:41:03');
 
 -- --------------------------------------------------------
 
@@ -487,13 +529,6 @@ CREATE TABLE `grade_show_requests` (
   `status` int(11) NOT NULL,
   `date_created` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `grade_show_requests`
---
-
-INSERT INTO `grade_show_requests` (`grade_show_request_id`, `grading_platform_id`, `data`, `status`, `date_created`) VALUES
-(3, 5, '[\"10\",\"11\",\"12\"]', 0, '2024-11-14 14:55:51');
 
 -- --------------------------------------------------------
 
@@ -518,9 +553,12 @@ INSERT INTO `grading_categories` (`grading_category_id`, `grading_platform_id`, 
 (1, 1, 'Written Works', 30, 0, '2024-10-29 01:16:42'),
 (2, 1, 'Performance Tasks', 50, 0, '2024-10-29 01:16:42'),
 (3, 1, 'Exams', 20, 0, '2024-10-29 01:16:42'),
-(20, 5, 'Written Works', 30, 0, '2024-11-14 14:30:55'),
-(21, 5, 'Performance Tasks', 50, 0, '2024-11-14 14:30:55'),
-(22, 5, 'Exams', 20, 0, '2024-11-14 14:30:55');
+(20, 5, 'Written Works', 30, 0, '2024-12-15 13:21:41'),
+(21, 5, 'Performance Tasks', 50, 0, '2024-12-15 13:21:41'),
+(22, 5, 'Exams', 20, 0, '2024-12-15 13:21:41'),
+(26, 7, 'Written Works', 30, 0, '2024-12-15 13:26:59'),
+(27, 7, 'Performance Tasks', 50, 0, '2024-12-15 13:26:59'),
+(28, 7, 'Exams', 20, 0, '2024-12-15 13:26:59');
 
 -- --------------------------------------------------------
 
@@ -540,8 +578,7 @@ CREATE TABLE `grading_platforms` (
 --
 
 INSERT INTO `grading_platforms` (`grading_platform_id`, `section_subject_id`, `status`, `date_created`) VALUES
-(1, 1, 0, '2024-10-29 01:16:42'),
-(5, 4, 0, '2024-11-14 14:30:55');
+(7, 4, 0, '2024-12-15 13:26:59');
 
 -- --------------------------------------------------------
 
@@ -563,10 +600,7 @@ CREATE TABLE `grading_scores` (
 --
 
 INSERT INTO `grading_scores` (`grading_score_id`, `grading_score_column_id`, `student_id`, `score`, `status`, `date_created`) VALUES
-(3, 2, 5, 100, 0, '2024-10-29 13:10:13'),
-(4, 3, 5, 100, 0, '2024-10-31 01:38:27'),
-(9, 14, 5, 50, 0, '2024-10-31 02:20:39'),
-(11, 17, 10, 100, 0, '2024-11-14 14:30:55');
+(13, 19, 10, 100, 0, '2024-12-15 13:44:28');
 
 -- --------------------------------------------------------
 
@@ -588,11 +622,7 @@ CREATE TABLE `grading_score_columns` (
 --
 
 INSERT INTO `grading_score_columns` (`grading_score_column_id`, `grading_category_id`, `column_number`, `passing_score`, `status`, `date_created`) VALUES
-(1, 1, '1', 100, 0, '2024-10-29 09:49:21'),
-(2, 2, '1', 100, 0, '2024-10-29 09:49:21'),
-(3, 1, '2', 100, 0, '2024-10-31 01:38:27'),
-(14, 1, '3', 100, 0, '2024-10-31 02:20:39'),
-(17, 20, '1', 100, 0, '2024-11-14 14:30:55');
+(19, 26, '1', 100, 0, '2024-12-15 13:26:59');
 
 -- --------------------------------------------------------
 
@@ -640,7 +670,8 @@ CREATE TABLE `post_comments` (
 --
 
 INSERT INTO `post_comments` (`post_comment_id`, `post_id`, `user_id`, `comment`, `status`, `date_created`) VALUES
-(2, 2, 4, 'This is my comment', 0, '2024-10-31 17:25:25');
+(2, 2, 4, 'This is my comment', 0, '2024-10-31 17:25:25'),
+(3, 14, 10, 'yahh', 0, '2024-12-15 11:58:45');
 
 -- --------------------------------------------------------
 
@@ -725,7 +756,8 @@ INSERT INTO `professors` (`professor_id`, `user_id`, `main_course_id`, `descript
 (11, 50, 1, 'Mentor in Research and Development in IT', 1, '2024-11-09 06:21:32'),
 (12, 51, 1, 'Specialized in Mobile Computing and Internet of Things (IoT)', 1, '2024-11-09 06:21:52'),
 (13, 49, 1, 'Proficient in IT Hardware and Electronics', 1, '2024-11-09 06:22:09'),
-(14, 52, 1, 'Mentor in Research and Development in IT', 1, '2024-11-09 06:22:40');
+(14, 52, 1, 'Mentor in Research and Development in IT', 1, '2024-11-09 06:22:40'),
+(15, 40, 9, 'AA', 1, '2024-12-15 12:22:43');
 
 -- --------------------------------------------------------
 
@@ -802,7 +834,7 @@ CREATE TABLE `schedules` (
 --
 
 INSERT INTO `schedules` (`schedule_id`, `id`, `description`, `status`, `date_created`) VALUES
-(1, 1, 'Subject Web Development Schedule', 1, '2024-10-07 02:19:35');
+(4, 4, 'Subject Capstone Project and Research 2 Schedule', 1, '2024-12-15 12:50:45');
 
 -- --------------------------------------------------------
 
@@ -825,7 +857,8 @@ CREATE TABLE `schedule_items` (
 --
 
 INSERT INTO `schedule_items` (`schedule_item_id`, `schedule_id`, `day`, `start_time`, `end_time`, `status`, `date_created`) VALUES
-(1, 1, 'Monday', '13:02:00', '13:02:00', 1, '2024-10-07 02:19:35');
+(7, 4, 'Monday', '20:50:00', '21:50:00', 1, '2024-12-15 12:50:45'),
+(8, 4, 'Tuesday', '22:50:00', '12:50:00', 1, '2024-12-15 12:50:45');
 
 -- --------------------------------------------------------
 
@@ -900,12 +933,10 @@ CREATE TABLE `section_subjects` (
 --
 
 INSERT INTO `section_subjects` (`section_subject_id`, `section_id`, `subject_id`, `professor_id`, `schedule_id`, `classroom_id`, `status`, `date_created`) VALUES
-(1, 1, 1, 1, 1, 0, 0, '2024-10-07 00:22:41'),
+(1, 1, 1, 1, 0, 0, 0, '2024-10-07 00:22:41'),
 (2, 1, 2, 2, 0, 0, 0, '2024-10-23 09:15:42'),
 (3, 1, 3, 3, 0, 0, 0, '2024-10-23 09:19:03'),
-(4, 4, 4, 4, 0, 0, 0, '2024-11-10 21:02:49'),
-(6, 4, 7, 11, 0, 6, 0, '2024-11-14 17:12:02'),
-(7, 4, 12, 13, 0, 5, 0, '2024-11-14 17:12:02');
+(4, 4, 4, 4, 4, 0, 0, '2024-11-10 21:02:49');
 
 -- --------------------------------------------------------
 
@@ -921,13 +952,6 @@ CREATE TABLE `staffs` (
   `status` int(11) NOT NULL,
   `date_created` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `staffs`
---
-
-INSERT INTO `staffs` (`staff_id`, `user_id`, `department_id`, `description`, `status`, `date_created`) VALUES
-(2, 33, 3, 'awdaw', 0, '2024-11-14 16:36:23');
 
 -- --------------------------------------------------------
 
@@ -960,7 +984,8 @@ INSERT INTO `sticky_notes` (`sticky_note_id`, `section_id`, `professor_id`, `use
 (2, 1, 1, 4, 0.193506, 0.12, 0.267064, 0.284, 0, 'This is first sticky ', 'rgb(255, 229, 180)', 0, 0, '0000-00-00 00:00:00'),
 (3, 1, 1, 4, 0.62699256110521, 0.061666666666667, 0.2125398512221, 0.33333333333333, 0, 'Yeeyy', 'rgb(242, 115, 115)', 0, 0, '0000-00-00 00:00:00'),
 (4, 1, 1, 4, 0.45377258235919, 0.51166666666667, 0.2125398512221, 0.33333333333333, 0, 'Lastt', 'rgb(174, 198, 207)', 0, 0, '0000-00-00 00:00:00'),
-(5, 1, 1, 5, 0.0896624, 0.528, 0.315599, 0.286, 0, 'Hello', 'rgb(230, 230, 250)', 0, 0, '0000-00-00 00:00:00');
+(5, 1, 1, 5, 0.0896624, 0.528, 0.315599, 0.286, 0, 'Hello', 'rgb(230, 230, 250)', 0, 0, '0000-00-00 00:00:00'),
+(6, 4, 4, 32, 0.143231, 0.1, 0.367052, 0.301625, 0, 'For Example Note', 'rgb(230, 230, 250)', 0, 0, '2024-11-13 07:37:39');
 
 -- --------------------------------------------------------
 
@@ -1023,7 +1048,7 @@ CREATE TABLE `subject_attendances` (
 --
 
 INSERT INTO `subject_attendances` (`attendance_id`, `section_subject_id`, `attendance_data`, `status`, `date_created`, `date_modify`) VALUES
-(1, 4, '{\"2024-11-08\":{\"10\":\"present\",\"11\":\"present\",\"12\":\"present\",\"13\":\"present\"},\"2024-11-11\":{\"10\":\"present\",\"11\":\"present\",\"12\":\"present\",\"13\":\"present\"},\"2024-11-12\":{\"10\":\"present\",\"11\":\"present\",\"12\":\"present\",\"13\":\"present\"},\"2024-11-13\":{\"10\":\"present\",\"11\":\"present\",\"12\":\"present\",\"13\":\"present\"},\"2024-11-14\":{\"10\":\"present\",\"11\":\"present\",\"12\":\"present\",\"13\":\"present\"},\"2024-11-15\":{\"10\":\"present\",\"11\":\"present\",\"12\":\"present\"},\"2024-11-16\":{\"10\":\"present\",\"11\":\"present\",\"12\":\"present\"},\"2024-11-17\":{\"10\":\"present\",\"11\":\"present\",\"12\":\"present\"},\"2024-11-18\":{\"10\":\"present\",\"11\":\"present\",\"12\":\"present\"},\"2024-11-19\":{\"10\":\"present\",\"11\":\"present\",\"12\":\"present\"},\"2024-11-20\":{\"10\":\"present\",\"11\":\"present\",\"12\":\"present\"},\"2024-11-21\":{\"10\":\"present\",\"11\":\"present\",\"12\":\"present\"},\"2024-11-22\":{\"10\":\"present\",\"11\":\"present\",\"12\":\"present\"},\"2024-11-23\":{\"10\":\"present\",\"11\":\"present\",\"12\":\"present\"},\"2024-11-24\":{\"10\":\"present\",\"11\":\"present\",\"12\":\"present\"},\"2024-11-25\":{\"10\":\"present\",\"11\":\"present\",\"12\":\"present\"},\"2024-11-26\":{\"10\":\"present\",\"11\":\"present\",\"12\":\"present\"},\"2024-11-27\":{\"10\":\"present\",\"11\":\"present\",\"12\":\"present\"},\"2024-11-28\":{\"10\":\"present\",\"11\":\"present\",\"12\":\"present\"},\"2024-11-29\":{\"10\":\"present\",\"11\":\"present\",\"12\":\"present\"},\"2024-11-30\":{\"10\":\"present\",\"11\":\"present\",\"12\":\"present\"},\"2024-11-01\":{\"11\":\"present\",\"12\":\"present\",\"13\":\"present\"},\"2024-11-02\":{\"11\":\"present\",\"12\":\"present\",\"13\":\"present\"},\"2024-11-03\":{\"11\":\"present\",\"12\":\"present\",\"13\":\"present\"},\"2024-11-04\":{\"11\":\"present\",\"12\":\"present\",\"13\":\"present\"},\"2024-11-05\":{\"11\":\"present\",\"12\":\"present\",\"13\":\"present\"},\"2024-11-06\":{\"11\":\"present\",\"12\":\"present\",\"13\":\"present\"},\"2024-11-07\":{\"11\":\"present\",\"12\":\"present\",\"13\":\"present\"},\"2024-11-09\":{\"10\":\"absent\",\"11\":\"present\",\"12\":\"present\",\"13\":\"present\"},\"2024-11-10\":{\"11\":\"present\",\"12\":\"present\",\"13\":\"present\"}}', 0, '2024-11-12 15:40:19', '2024-11-12 15:45:20');
+(1, 4, '{\"2024-11-08\":{\"10\":\"absent\",\"11\":\"present\",\"12\":\"present\",\"13\":\"present\"},\"2024-11-11\":{\"10\":\"present\",\"11\":\"present\",\"12\":\"present\",\"13\":\"present\"},\"2024-11-12\":{\"10\":\"present\",\"11\":\"present\",\"12\":\"present\",\"13\":\"present\"},\"2024-11-13\":{\"10\":\"present\",\"11\":\"present\",\"12\":\"present\",\"13\":\"present\"},\"2024-11-14\":{\"10\":\"present\",\"11\":\"present\",\"12\":\"present\",\"13\":\"present\"},\"2024-11-15\":{\"10\":\"present\",\"11\":\"present\",\"12\":\"present\"},\"2024-11-16\":{\"10\":\"present\",\"11\":\"present\",\"12\":\"present\"},\"2024-11-17\":{\"10\":\"present\",\"11\":\"present\",\"12\":\"present\"},\"2024-11-18\":{\"10\":\"present\",\"11\":\"present\",\"12\":\"present\"},\"2024-11-19\":{\"10\":\"present\",\"11\":\"present\",\"12\":\"present\"},\"2024-11-20\":{\"10\":\"present\",\"11\":\"present\",\"12\":\"present\"},\"2024-11-21\":{\"10\":\"present\",\"11\":\"present\",\"12\":\"present\"},\"2024-11-22\":{\"10\":\"present\",\"11\":\"present\",\"12\":\"present\"},\"2024-11-23\":{\"10\":\"present\",\"11\":\"present\",\"12\":\"present\"},\"2024-11-24\":{\"10\":\"present\",\"11\":\"present\",\"12\":\"present\"},\"2024-11-25\":{\"10\":\"present\",\"11\":\"present\",\"12\":\"present\"},\"2024-11-26\":{\"10\":\"present\",\"11\":\"present\",\"12\":\"present\"},\"2024-11-27\":{\"10\":\"present\",\"11\":\"present\",\"12\":\"present\"},\"2024-11-28\":{\"10\":\"present\",\"11\":\"present\",\"12\":\"present\"},\"2024-11-29\":{\"10\":\"present\",\"11\":\"present\",\"12\":\"present\"},\"2024-11-30\":{\"10\":\"present\",\"11\":\"present\",\"12\":\"present\"},\"2024-11-01\":{\"11\":\"present\",\"12\":\"present\",\"13\":\"present\"},\"2024-11-02\":{\"11\":\"present\",\"12\":\"present\",\"13\":\"present\"},\"2024-11-03\":{\"11\":\"present\",\"12\":\"present\",\"13\":\"present\"},\"2024-11-04\":{\"11\":\"present\",\"12\":\"present\",\"13\":\"present\"},\"2024-11-05\":{\"11\":\"present\",\"12\":\"present\",\"13\":\"present\"},\"2024-11-06\":{\"11\":\"present\",\"12\":\"present\",\"13\":\"present\"},\"2024-11-07\":{\"11\":\"present\",\"12\":\"present\",\"13\":\"present\"},\"2024-11-09\":{\"10\":\"absent\",\"11\":\"present\",\"12\":\"present\",\"13\":\"present\"},\"2024-11-10\":{\"11\":\"present\",\"12\":\"present\",\"13\":\"present\"}}', 0, '2024-11-12 15:40:19', '2024-11-14 04:57:23');
 
 -- --------------------------------------------------------
 
@@ -1042,6 +1067,8 @@ CREATE TABLE `users` (
   `lastname` varchar(255) NOT NULL,
   `birthdate` date NOT NULL,
   `gender` int(11) NOT NULL,
+  `photo` varchar(255) NOT NULL,
+  `contact_number` varchar(255) NOT NULL,
   `user_type` int(11) NOT NULL DEFAULT 1,
   `lock_timeout` int(11) NOT NULL,
   `date_created` timestamp NOT NULL DEFAULT current_timestamp(),
@@ -1052,53 +1079,53 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`user_id`, `no`, `email`, `password`, `displayName`, `firstname`, `middlename`, `lastname`, `birthdate`, `gender`, `user_type`, `lock_timeout`, `date_created`, `status`) VALUES
-(1, '', 'dreiprojects2@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Drei Projects', 'Drei', '', 'Projects', '2002-03-21', 1, 4, 0, '2024-09-22 18:45:18', 1),
-(3, '', 'dycilibrary@dyci.edu.ph', '827ccb0eea8a706c4c34a16891f84e7b', 'DYCI Library', 'DYCI', '', 'Library', '2024-09-17', 0, 4, 0, '2024-09-22 21:59:25', 1),
-(10, '2021-00964', 'andreicruz@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Andrei Cruz', 'Andrei', '', 'Cruz', '2002-09-30', 0, 1, 0, '2024-11-09 05:18:28', 1),
-(11, '2021-00549', 'stephenivan@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Stephen Santiago', 'Stephen', '', 'Santiago', '2003-09-12', 0, 1, 0, '2024-11-09 05:19:06', 1),
-(12, '2021-00579', 'jainusaurelio@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Jainus Aurelio', 'Jainus', '', 'Aurelio', '2002-08-03', 0, 1, 0, '2024-11-09 05:19:33', 1),
-(13, '2021-01713', 'linuzdelacruz@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Linuz Delacruz', 'Linuz', '', 'Delacruz', '2003-03-06', 0, 1, 0, '2024-11-09 05:20:21', 1),
-(14, '2021-00700', 'markkevin@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Kevin Villanueva', 'Kevin', '', 'Villanueva', '2002-10-02', 0, 1, 0, '2024-11-09 05:21:19', 1),
-(15, '2021-01189', 'dharrelmontion@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Dharrell Montion', 'Dharrell', '', 'Montion', '2003-06-20', 0, 1, 0, '2024-11-09 05:23:00', 1),
-(16, '2021-01529', 'andreidavevillanueva@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Andrei Dave', 'Andrei', '', 'Dave', '2002-10-21', 0, 1, 0, '2024-11-09 05:27:47', 1),
-(17, '2021-01766', 'malacajohnkerwin@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Kerwin Malaca', 'Kerwin', '', 'Malaca', '2003-02-21', 0, 1, 0, '2024-11-09 05:28:16', 1),
-(18, '2021-02086', 'hadjidimarucot@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Hadji Dimarucot', 'Hadji', '', 'Dimarucot', '2002-02-12', 0, 1, 0, '2024-11-09 05:28:40', 1),
-(19, '2021-01989', 'jacobmanalad@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Jacob Manalad', 'Jacob', '', 'Manalad', '2002-12-12', 0, 1, 0, '2024-11-09 05:29:05', 1),
-(20, '2021-01671', 'davidsantiago@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'David Santiago', 'David', '', 'Santiago', '2002-12-12', 0, 1, 0, '2024-11-09 05:29:28', 1),
-(21, '2021-01696', 'alvarezreiniel@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Reiniel Alvarez', 'Reiniel', '', 'Alvarez', '2002-02-12', 0, 1, 0, '2024-11-09 05:30:03', 1),
-(22, '2021-01914', 'patriciacastillo@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Patricia Castillo', 'Patricia', '', 'Castillo', '2003-02-21', 0, 1, 0, '2024-11-09 05:30:40', 1),
-(23, '2021 - 01853', 'delmarkjohn@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Jan Delmarc  Galicia', 'Jan Delmarc ', '', 'Galicia', '2002-02-12', 0, 1, 0, '2024-11-09 05:31:19', 1),
-(24, '2021-01754', 'leighbucad@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Leigh Bucad', 'Leigh', '', 'Bucad', '2002-02-12', 0, 1, 0, '2024-11-09 05:31:45', 1),
-(25, '2021-01598', 'labradormyrvin@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Myrvin Labrador', 'Myrvin', '', 'Labrador', '2002-02-12', 0, 1, 0, '2024-11-09 05:33:16', 1),
-(26, '2021-01593', 'victolerogarvin@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Garvin Victolero', 'Garvin', '', 'Victolero', '2001-02-12', 0, 1, 0, '2024-11-09 05:33:47', 1),
-(27, '2021-01226', 'libunaobianca@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Bianca Libunao', 'Bianca', '', 'Libunao', '2002-12-12', 0, 1, 0, '2024-11-09 05:34:10', 1),
-(28, '2021-00880', 'boonegabriel@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Gabriel Boone', 'Gabriel', '', 'Boone', '2002-12-12', 0, 1, 0, '2024-11-09 05:34:30', 1),
-(29, '2021-01699', 'marinojose@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Jose Marino', 'Jose', '', 'Marino', '2002-02-12', 0, 1, 0, '2024-11-09 05:34:52', 1),
-(30, '2021-00102', 'markemmanuel@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Mark Emmanuel', 'Mark', '', 'Emmanuel', '2002-12-12', 0, 1, 0, '2024-11-09 05:35:16', 1),
-(31, '2021-01959', 'caycoangelanne@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Angel Cayco', 'Angel', '', 'Cayco', '2002-12-12', 0, 1, 0, '2024-11-09 05:35:41', 1),
-(32, '', 'herliza@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Herliza Estrada', 'Herliza', '', 'Estrada', '1980-12-12', 0, 2, 0, '2024-11-09 05:39:02', 1),
-(33, '', 'abbiecasala@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Abbie Casala', 'Abbie', '', 'Casala', '1989-12-12', 0, 2, 0, '2024-11-09 05:39:20', 1),
-(34, '', 'jeremyagapito@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Jeremy Agapito', 'Jeremy', '', 'Agapito', '1999-12-12', 0, 2, 0, '2024-11-09 05:39:35', 1),
-(35, '', 'jocelyntejada@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Jocelyn Tejada', 'Jocelyn', '', 'Tejada', '1970-12-12', 0, 2, 0, '2024-11-09 05:39:50', 1),
-(36, '', 'henrydeguzman@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Henry De Guzman', 'Henry', '', 'De Guzman', '1999-12-12', 0, 2, 0, '2024-11-09 05:40:06', 1),
-(37, '', 'kingolgado@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'King Olgado', 'King', '', 'Olgado', '2002-12-12', 0, 2, 0, '2024-11-09 05:41:13', 1),
-(38, '', 'rowellsantos@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Rowell Santos', 'Rowell', '', 'Santos', '1997-12-12', 0, 2, 0, '2024-11-09 05:41:27', 1),
-(39, '', 'ivymera@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Ivy Mera', 'Ivy', '', 'Mera', '1998-12-12', 0, 2, 0, '2024-11-09 05:41:45', 1),
-(40, '', 'alougonzales@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Alou Bitangcol', 'Alou', '', 'Bitangcol', '1995-12-12', 0, 2, 0, '2024-11-09 05:41:59', 1),
-(41, '', 'lizelledelposo@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Lizelle Del Poso', 'Lizelle', '', 'Del Poso', '1998-12-12', 0, 2, 0, '2024-11-09 05:42:20', 1),
-(42, '', 'albertocruz@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Alberto Cruz', 'Alberto', '', 'Cruz', '1997-12-12', 0, 2, 0, '2024-11-09 05:42:53', 1),
-(43, '', 'jasperalberto@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Jasper  Alberto', 'Jasper ', '', 'Alberto', '1649-12-12', 0, 2, 0, '2024-11-09 05:43:12', 1),
-(44, '', 'carlapineda@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Carla Pineda', 'Carla', '', 'Pineda', '1992-12-12', 0, 2, 0, '2024-11-09 05:43:32', 1),
-(45, '', 'jessmaedelacruz@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Jessa Dela Cruz', 'Jessa', '', 'Dela Cruz', '1992-12-12', 0, 2, 0, '2024-11-09 05:43:48', 1),
-(46, '', 'carinavillanueva@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Carisa Villanueva', 'Carisa', '', 'Villanueva', '1996-12-12', 0, 2, 0, '2024-11-09 05:44:05', 1),
-(47, '', 'leaearl@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Earl  Lea', 'Earl ', '', 'Lea', '1998-12-12', 0, 2, 0, '2024-11-09 05:44:38', 1),
-(48, '', 'jonreebalmeo@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Jonree Balmeo', 'Jonree', '', 'Balmeo', '1888-12-12', 0, 2, 0, '2024-11-09 05:45:01', 1),
-(49, '', 'renenbantillo@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Renen Bantillo', 'Renen', '', 'Bantillo', '2001-12-12', 0, 2, 0, '2024-11-09 05:45:29', 1),
-(50, '', 'annlim@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Ann Lim', 'Ann', '', 'Lim', '2024-12-12', 0, 2, 0, '2024-11-09 05:45:43', 1),
-(51, '', 'litosanjose@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Lito San Jose', 'Lito', '', 'San Jose', '1986-12-12', 0, 2, 0, '2024-11-09 05:46:38', 1),
-(52, '', 'gemmagibaga@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Gemma Gibaga', 'Gemma', '', 'Gibaga', '1875-12-12', 0, 2, 0, '2024-11-09 05:46:59', 1),
-(53, '', 'admin@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Admin Sample', 'Admin', '', 'Sample', '2005-12-12', 0, 3, 0, '2024-11-09 05:47:58', 1);
+INSERT INTO `users` (`user_id`, `no`, `email`, `password`, `displayName`, `firstname`, `middlename`, `lastname`, `birthdate`, `gender`, `photo`, `contact_number`, `user_type`, `lock_timeout`, `date_created`, `status`) VALUES
+(1, '', 'dreiprojects2@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Drei Project', 'Drei', 'Reyez', 'Projects', '2002-03-21', 1, 'public/assets/media/uploads/aa.png.png', '', 4, 0, '2024-09-22 18:45:18', 1),
+(3, '', 'dycilibrary@dyci.edu.ph', '827ccb0eea8a706c4c34a16891f84e7b', 'DYCI Library', 'DYCI', '', 'Library', '2024-09-17', 0, '', '', 4, 0, '2024-09-22 21:59:25', 1),
+(10, '2021-00964', 'andreicruz@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Andrei Cruz', 'Andrei', '', 'Cruz', '2002-09-30', 0, '', '', 1, 0, '2024-11-09 05:18:28', 1),
+(11, '2021-00549', 'stephenivan@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Stephen Santiago', 'Stephen', '', 'Santiago', '2003-09-12', 0, '', '', 1, 0, '2024-11-09 05:19:06', 1),
+(12, '2021-00579', 'jainusaurelio@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Jainus Aurelio', 'Jainus', '', 'Aurelio', '2002-08-03', 0, '', '', 1, 0, '2024-11-09 05:19:33', 1),
+(13, '2021-01713', 'linuzdelacruz@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Linuz Delacruz', 'Linuz', '', 'Delacruz', '2003-03-06', 0, '', '', 1, 0, '2024-11-09 05:20:21', 1),
+(14, '2021-00700', 'markkevin@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Kevin Villanueva', 'Kevin', '', 'Villanueva', '2002-10-02', 0, '', '', 1, 0, '2024-11-09 05:21:19', 1),
+(15, '2021-01189', 'dharrelmontion@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Dharrell Montion', 'Dharrell', '', 'Montion', '2003-06-20', 0, '', '', 1, 0, '2024-11-09 05:23:00', 1),
+(16, '2021-01529', 'andreidavevillanueva@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Andrei Dave', 'Andrei', '', 'Dave', '2002-10-21', 0, '', '', 1, 0, '2024-11-09 05:27:47', 1),
+(17, '2021-01766', 'malacajohnkerwin@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Kerwin Malaca', 'Kerwin', '', 'Malaca', '2003-02-21', 0, '', '', 1, 0, '2024-11-09 05:28:16', 1),
+(18, '2021-02086', 'hadjidimarucot@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Hadji Dimarucot', 'Hadji', '', 'Dimarucot', '2002-02-12', 0, '', '', 1, 0, '2024-11-09 05:28:40', 1),
+(19, '2021-01989', 'jacobmanalad@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Jacob Manalad', 'Jacob', '', 'Manalad', '2002-12-12', 0, '', '', 1, 0, '2024-11-09 05:29:05', 1),
+(20, '2021-01671', 'davidsantiago@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'David Santiago', 'David', '', 'Santiago', '2002-12-12', 0, '', '', 1, 0, '2024-11-09 05:29:28', 1),
+(21, '2021-01696', 'alvarezreiniel@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Reiniel Alvarez', 'Reiniel', '', 'Alvarez', '2002-02-12', 0, '', '', 1, 0, '2024-11-09 05:30:03', 1),
+(22, '2021-01914', 'patriciacastillo@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Patricia Castillo', 'Patricia', '', 'Castillo', '2003-02-21', 0, '', '', 1, 0, '2024-11-09 05:30:40', 1),
+(23, '2021 - 01853', 'delmarkjohn@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Jan Delmarc  Galicia', 'Jan Delmarc ', '', 'Galicia', '2002-02-12', 0, '', '', 1, 0, '2024-11-09 05:31:19', 1),
+(24, '2021-01754', 'leighbucad@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Leigh Bucad', 'Leigh', '', 'Bucad', '2002-02-12', 0, '', '', 1, 0, '2024-11-09 05:31:45', 1),
+(25, '2021-01598', 'labradormyrvin@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Myrvin Labrador', 'Myrvin', '', 'Labrador', '2002-02-12', 0, '', '', 1, 0, '2024-11-09 05:33:16', 1),
+(26, '2021-01593', 'victolerogarvin@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Garvin Victolero', 'Garvin', '', 'Victolero', '2001-02-12', 0, '', '', 1, 0, '2024-11-09 05:33:47', 1),
+(27, '2021-01226', 'libunaobianca@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Bianca Libunao', 'Bianca', '', 'Libunao', '2002-12-12', 0, '', '', 1, 0, '2024-11-09 05:34:10', 1),
+(28, '2021-00880', 'boonegabriel@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Gabriel Boone', 'Gabriel', '', 'Boone', '2002-12-12', 0, '', '', 1, 0, '2024-11-09 05:34:30', 1),
+(29, '2021-01699', 'marinojose@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Jose Marino', 'Jose', '', 'Marino', '2002-02-12', 0, '', '', 1, 0, '2024-11-09 05:34:52', 1),
+(30, '2021-00102', 'markemmanuel@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Mark Emmanuel', 'Mark', '', 'Emmanuel', '2002-12-12', 0, '', '', 1, 0, '2024-11-09 05:35:16', 1),
+(31, '2021-01959', 'caycoangelanne@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Angel Cayco', 'Angel', '', 'Cayco', '2002-12-12', 0, '', '', 1, 0, '2024-11-09 05:35:41', 1),
+(32, '', 'herliza@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Herliza Estrada', 'Herliza', '', 'Estrada', '1980-12-12', 0, '', '', 2, 0, '2024-11-09 05:39:02', 1),
+(33, '', 'abbiecasala@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Abbie Casala', 'Abbie', '', 'Casala', '1989-12-12', 0, '', '', 2, 0, '2024-11-09 05:39:20', 1),
+(34, '', 'jeremyagapito@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Jeremy Agapito', 'Jeremy', '', 'Agapito', '1999-12-12', 0, '', '', 2, 0, '2024-11-09 05:39:35', 1),
+(35, '', 'jocelyntejada@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Jocelyn Tejada', 'Jocelyn', '', 'Tejada', '1970-12-12', 0, '', '', 2, 0, '2024-11-09 05:39:50', 1),
+(36, '', 'henrydeguzman@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Henry De Guzman', 'Henry', '', 'De Guzman', '1999-12-12', 0, '', '', 2, 0, '2024-11-09 05:40:06', 1),
+(37, '', 'kingolgado@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'King Olgado', 'King', '', 'Olgado', '2002-12-12', 0, '', '', 2, 0, '2024-11-09 05:41:13', 1),
+(38, '', 'rowellsantos@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Rowell Santos', 'Rowell', '', 'Santos', '1997-12-12', 0, '', '', 2, 0, '2024-11-09 05:41:27', 1),
+(39, '', 'ivymera@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Ivy Mera', 'Ivy', '', 'Mera', '1998-12-12', 0, '', '', 2, 0, '2024-11-09 05:41:45', 1),
+(40, '', 'alougonzales@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Alou Bitangcol', 'Alou', '', 'Bitangcol', '1995-12-12', 0, '', '', 2, 0, '2024-11-09 05:41:59', 1),
+(41, '', 'lizelledelposo@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Lizelle Del Poso', 'Lizelle', '', 'Del Poso', '1998-12-12', 0, '', '', 2, 0, '2024-11-09 05:42:20', 1),
+(42, '', 'albertocruz@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Alberto Cruz', 'Alberto', '', 'Cruz', '1997-12-12', 0, '', '', 2, 0, '2024-11-09 05:42:53', 1),
+(43, '', 'jasperalberto@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Jasper  Alberto', 'Jasper ', '', 'Alberto', '1649-12-12', 0, '', '', 2, 0, '2024-11-09 05:43:12', 1),
+(44, '', 'carlapineda@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Carla Pineda', 'Carla', '', 'Pineda', '1992-12-12', 0, '', '', 2, 0, '2024-11-09 05:43:32', 1),
+(45, '', 'jessmaedelacruz@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Jessa Dela Cruz', 'Jessa', '', 'Dela Cruz', '1992-12-12', 0, '', '', 2, 0, '2024-11-09 05:43:48', 1),
+(46, '', 'carinavillanueva@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Carisa Villanueva', 'Carisa', '', 'Villanueva', '1996-12-12', 0, '', '', 2, 0, '2024-11-09 05:44:05', 1),
+(47, '', 'leaearl@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Earl  Lea', 'Earl ', '', 'Lea', '1998-12-12', 0, '', '', 2, 0, '2024-11-09 05:44:38', 1),
+(48, '', 'jonreebalmeo@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Jonree Balmeo', 'Jonree', '', 'Balmeo', '1888-12-12', 0, '', '', 2, 0, '2024-11-09 05:45:01', 1),
+(49, '', 'renenbantillo@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Renen Bantillo', 'Renen', '', 'Bantillo', '2001-12-12', 0, '', '', 2, 0, '2024-11-09 05:45:29', 1),
+(50, '', 'annlim@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Ann Lim', 'Ann', '', 'Lim', '2024-12-12', 0, '', '', 2, 0, '2024-11-09 05:45:43', 1),
+(51, '', 'litosanjose@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Lito San Jose', 'Lito', '', 'San Jose', '1986-12-12', 0, '', '', 2, 0, '2024-11-09 05:46:38', 1),
+(52, '', 'gemmagibaga@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Gemma Gibaga', 'Gemma', '', 'Gibaga', '1875-12-12', 0, '', '', 2, 0, '2024-11-09 05:46:59', 1),
+(53, '', 'admin@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Admin Sample', 'Admin', '', 'Sample', '2005-12-12', 0, '', '', 3, 0, '2024-11-09 05:47:58', 1);
 
 --
 -- Indexes for dumped tables
@@ -1194,6 +1221,12 @@ ALTER TABLE `form_questions`
 --
 ALTER TABLE `form_question_choices`
   ADD PRIMARY KEY (`form_question_choice_id`);
+
+--
+-- Indexes for table `form_question_options`
+--
+ALTER TABLE `form_question_options`
+  ADD PRIMARY KEY (`form_question_option_id`);
 
 --
 -- Indexes for table `grade_scores`
@@ -1370,19 +1403,19 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `activities`
 --
 ALTER TABLE `activities`
-  MODIFY `activity_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `activity_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `activities_complied`
 --
 ALTER TABLE `activities_complied`
-  MODIFY `comply_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `comply_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `announcements`
 --
 ALTER TABLE `announcements`
-  MODIFY `announcement_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `announcement_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `classrooms`
@@ -1406,7 +1439,7 @@ ALTER TABLE `departments`
 -- AUTO_INCREMENT for table `email_verifications`
 --
 ALTER TABLE `email_verifications`
-  MODIFY `verification_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=63;
+  MODIFY `verification_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=89;
 
 --
 -- AUTO_INCREMENT for table `events`
@@ -1418,37 +1451,43 @@ ALTER TABLE `events`
 -- AUTO_INCREMENT for table `exams`
 --
 ALTER TABLE `exams`
-  MODIFY `exam_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `exam_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `forms`
 --
 ALTER TABLE `forms`
-  MODIFY `form_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `form_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `form_completions`
 --
 ALTER TABLE `form_completions`
-  MODIFY `form_completion_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `form_completion_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `form_completion_answers`
 --
 ALTER TABLE `form_completion_answers`
-  MODIFY `form_completion_answer_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
+  MODIFY `form_completion_answer_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `form_questions`
 --
 ALTER TABLE `form_questions`
-  MODIFY `form_question_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `form_question_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
 
 --
 -- AUTO_INCREMENT for table `form_question_choices`
 --
 ALTER TABLE `form_question_choices`
-  MODIFY `form_question_choice_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
+  MODIFY `form_question_choice_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
+
+--
+-- AUTO_INCREMENT for table `form_question_options`
+--
+ALTER TABLE `form_question_options`
+  MODIFY `form_question_option_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `grade_scores`
@@ -1460,49 +1499,49 @@ ALTER TABLE `grade_scores`
 -- AUTO_INCREMENT for table `grade_show_requests`
 --
 ALTER TABLE `grade_show_requests`
-  MODIFY `grade_show_request_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `grade_show_request_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `grading_categories`
 --
 ALTER TABLE `grading_categories`
-  MODIFY `grading_category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `grading_category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT for table `grading_platforms`
 --
 ALTER TABLE `grading_platforms`
-  MODIFY `grading_platform_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `grading_platform_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `grading_scores`
 --
 ALTER TABLE `grading_scores`
-  MODIFY `grading_score_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `grading_score_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `grading_score_columns`
 --
 ALTER TABLE `grading_score_columns`
-  MODIFY `grading_score_column_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `grading_score_column_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `posts`
 --
 ALTER TABLE `posts`
-  MODIFY `post_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `post_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `post_comments`
 --
 ALTER TABLE `post_comments`
-  MODIFY `post_comment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `post_comment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `post_likes`
 --
 ALTER TABLE `post_likes`
-  MODIFY `post_like_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
+  MODIFY `post_like_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
 
 --
 -- AUTO_INCREMENT for table `post_medias`
@@ -1514,7 +1553,7 @@ ALTER TABLE `post_medias`
 -- AUTO_INCREMENT for table `professors`
 --
 ALTER TABLE `professors`
-  MODIFY `professor_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `professor_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `resources`
@@ -1532,13 +1571,13 @@ ALTER TABLE `resources_groups`
 -- AUTO_INCREMENT for table `schedules`
 --
 ALTER TABLE `schedules`
-  MODIFY `schedule_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `schedule_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `schedule_items`
 --
 ALTER TABLE `schedule_items`
-  MODIFY `schedule_item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `schedule_item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `sections`
@@ -1556,19 +1595,19 @@ ALTER TABLE `section_students`
 -- AUTO_INCREMENT for table `section_subjects`
 --
 ALTER TABLE `section_subjects`
-  MODIFY `section_subject_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `section_subject_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `staffs`
 --
 ALTER TABLE `staffs`
-  MODIFY `staff_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `staff_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `sticky_notes`
 --
 ALTER TABLE `sticky_notes`
-  MODIFY `sticky_note_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `sticky_note_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `subjects`

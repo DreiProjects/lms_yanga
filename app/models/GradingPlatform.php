@@ -26,7 +26,7 @@ class GradingPlatform extends GradingPlatformAbstract
             "grading_platform_id" => $this->grading_platform_id
         ], true);
 
-        $this->selected_students = $APPLICATION->FUNCTIONS->GRADING_SHOW_REQUEST_CONTROL->getBy("grading_platform_id", $this->grading_platform_id, false);
+        $this->selected_students = $APPLICATION->FUNCTIONS->GRADING_SHOW_REQUEST_CONTROL->getOnlyRecord(["grading_platform_id" => $this->grading_platform_id], false);
     }
 
     public function isStudentSelected($user_id) {

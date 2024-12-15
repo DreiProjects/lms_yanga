@@ -36,6 +36,7 @@ use Application\controllers\system\GradeScoreControl;
 use Application\controllers\system\FormControl;
 use Application\controllers\system\FormQuestionControl;
 use Application\controllers\system\FormQuestionChoicesControl;
+use Application\controllers\system\FormQuestionOptionControl;
 use Application\controllers\system\FormCompletionControl;
 use Application\controllers\system\FormCompletionAnswerControl;
 use Application\controllers\system\SubjectAttendanceControl;
@@ -119,6 +120,8 @@ class GlobalFunctions
     public $FORM_QUESTION_CONTROL;
 
     public $FORM_QUESTION_CHOICES_CONTROL;
+    
+    public $FORM_QUESTION_OPTION_CONTROL;
 
     public $FORM_COMPLETION_CONTROL;
 
@@ -127,6 +130,7 @@ class GlobalFunctions
     public $SUBJECT_ATTENDANCE_CONTROL;
 
     public $GRADING_SHOW_REQUEST_CONTROL;
+
 
     public function __construct($SESSION)
     {
@@ -215,5 +219,8 @@ class GlobalFunctions
         $this->SUBJECT_ATTENDANCE_CONTROL = new SubjectAttendanceControl();
 
         $this->GRADING_SHOW_REQUEST_CONTROL = new GradingShowRequestControl();
+
+        $this->FORM_QUESTION_OPTION_CONTROL = new FormQuestionOptionControl();
+        
     }
 }

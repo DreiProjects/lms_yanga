@@ -20,4 +20,26 @@ class ActivityComplyControl extends ControlDefaultFunctions
 
         return $this->addRecord($data);
     }
+
+    public function download($comply_id) {
+        global $APPLICATION;
+
+        $comply = $this->get($comply_id, false);
+
+        $file_url = $comply['file']; 
+
+        // Read file contents
+        $file_content = file_get_contents($file_url);
+        
+        // Get file type
+        $file_type = pathinfo($file_url, PATHINFO_EXTENSION);
+
+        // Return base64 encoded file content and file type
+        
+        return [
+            'code' => 200,
+            'body' => base64_encode($file_content),
+            'type' => $file_type
+        ];
+    }
 }

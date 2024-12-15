@@ -2,11 +2,9 @@
 
 global $APPLICATION, $PROFESSORS_HEADER_BODY;
 
-$search = $_POST['search'];
-
 $control = $APPLICATION->FUNCTIONS->PROFESSOR_CONTROL;
+$RECORDS = $control->searchRecords($_POST['search'], false);
 
-$RECORDS = $control->searchRecords($search, false);
 ?>
 
 <?= CreateTable([

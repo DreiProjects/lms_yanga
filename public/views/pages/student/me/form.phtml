@@ -557,6 +557,42 @@ $alreadyTaken = $main_form->isStudentTaken($student->user_id);
                             object-fit: contain;
                         }
                     </style>
+
+<style>
+                        /* Fill in the blank styles */
+                        .fill-blank-answer { padding: 1rem; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; line-height: 2; }
+                        .blank-input-wrapper { display: inline-block; margin: 0 0.25rem; }
+                        .blank-input { width: 150px; padding: 0.375rem 0.75rem; border: 2px solid #e2e8f0; border-radius: 6px; transition: all 0.2s; }
+                        .blank-input:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+
+                        /* Matching question styles */
+                        .matching-answer-container { padding: 1.5rem; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; }
+                        .matching-columns { display: grid; grid-template-columns: 1fr auto 1fr; gap: 2rem; position: relative; }
+                        .matching-questions, .matching-words { display: flex; flex-direction: column; gap: 1rem; }
+                        .matching-question, .matching-word { display: flex; align-items: center; padding: 0.75rem; background: white; border: 1px solid #e2e8f0; border-radius: 8px; }
+                        .question-number, .word-letter { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: #e0f2fe; color: #0369a1; border-radius: 6px; }
+                        
+                        /* Correction type styles */
+                        .correction-type-selector { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem; }
+                        .correction-option { display: flex; align-items: center; gap: 1rem; padding: 1rem; border: 2px solid #e2e8f0; border-radius: 8px; cursor: pointer; }
+                        .correction-option:hover { border-color: #94a3b8; background: #f8fafc; }
+                        .correction-option.selected { border-color: #3b82f6; background: #f0f9ff; }
+
+                        /* Keywords styles */
+                        .keywords-input-wrapper { display: flex; gap: 0.75rem; margin-bottom: 1rem; padding: 1rem; background: white; border-radius: 8px; }
+                        .keyword-input { flex: 1; height: 42px; padding: 0 1rem; border: 1px solid #e2e8f0; border-radius: 8px; }
+                        .keywords-list { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0; padding: 1rem; min-height: 50px; }
+                        
+                        /* Fill in blank editor styles */
+                        .fill-blank-editor { border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; }
+                        .editor-toolbar { padding: 0.75rem; background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+                        .editor-content { min-height: 100px; padding: 1rem; outline: none; }
+                        
+                        /* Matching container styles */
+                        .matching-container { display: flex; flex-direction: column; gap: 1.5rem; padding: 1.5rem; background: #f8fafc; border-radius: 12px; }
+                        .matching-section { background: white; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; }
+                        .matching-items { padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem; min-height: 100px; }
+                    </style>
                 </div>
             </div>
         </div>

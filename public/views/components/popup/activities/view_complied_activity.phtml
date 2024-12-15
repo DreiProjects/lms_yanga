@@ -127,6 +127,13 @@ $passing_types = array_map(function($passing_type) {
                 <?php if($SESSION->user_type == 2): ?>
                     <div class="popup-footer">
                         <div class="form-group-container submit-group right-side">
+                            <?php if ($activity['passing_type'] == "File"): ?>
+                            <div class="form-group">
+                                <div class="link download-btn" data-category="<?= GradeScoreCategories::ACTIVITY->value ?>" data-id="<?= $complied->comply_id ?>">
+                                    <span>Download File</span>
+                                </div>
+                            </div>
+                            <?php endif ?>
                             <div class="form-group">
                                 <?php if ($complied->grade_score): ?>
                                     <div class="link edit-btn" data-category="<?= GradeScoreCategories::ACTIVITY->value ?>" data-comply-id="<?= $complied->comply_id ?>" data-id="<?= $complied->grade_score['grade_score_id'] ?>">
@@ -137,6 +144,8 @@ $passing_types = array_map(function($passing_type) {
                                         <span>Grade Activity</span>
                                     </div>
                                 <?php endif; ?>
+
+                            
                             </div>
                         </div>
                     </div>

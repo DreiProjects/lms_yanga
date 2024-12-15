@@ -198,5 +198,29 @@ class PostControl
         $id = $_POST['id'];
         return $APPLICATION->FUNCTIONS->RESOURCES_GROUP_CONTROL->downloadResource($id);
     }
+
+    public function DownloadCompliedFile() {
+        global $APPLICATION;
+
+        $id = $_POST['comply_id'];
+        return $APPLICATION->FUNCTIONS->ACTIVITY_COMPLY_CONTROL->download($id);
+    }
+
+    public function RequestDeletePost() {
+        global $APPLICATION;
+
+        $id = $_POST['post_id'];
+
+        return $APPLICATION->FUNCTIONS->POSTS_CONTROL->remove($id);
+    }
+
+    public function RequestDeleteComment() {
+        global $APPLICATION;
+
+        $post_id = $_POST['post_id'];
+        $comment_id = $_POST['comment_id'];
+
+        return $APPLICATION->FUNCTIONS->POSTS_CONTROL->removeComment($post_id, $comment_id);
+    }
     
 }

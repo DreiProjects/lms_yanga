@@ -60,7 +60,8 @@ abstract class ControlDefaultFunctions
     public function getBy($by,$ID, $AS_OBJECT)
     {
         $activity = $this->CONNECTION->Select($this->TABLE_NAME, [$by => $ID], false);
-        return $AS_OBJECT ? $this->newInstanceOfModel($activity) : $activity;
+
+        return $AS_OBJECT ? ($activity ? $this->newInstanceOfModel($activity) : null) : $activity;
     }
 
     public function getByWhere($where, $AS_OBJECT)

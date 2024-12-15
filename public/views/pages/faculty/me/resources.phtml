@@ -20,7 +20,7 @@ $menuItems = array_map(function($sectionSubject) use ($professor) {
     return [
         'id' => $section->section_id,
         'label' => $section->section_name,
-        'icon' => 'folder-thin',
+        'icon' => 'folder',
         'tag' => 'section',
         'submenu' => array_map(function($subject) use ($section) {
             return [
@@ -37,7 +37,7 @@ $menuItems = array_map(function($sectionSubject) use ($professor) {
 
 array_push($menuItems, [
     'id' => 'all',
-    'icon' => 'folder-thin',
+    'icon' => 'folder',
     'label' => 'All Forms',
     'tag' => 'form',
     ]);
@@ -87,7 +87,7 @@ $forms = $APPLICATION->FUNCTIONS->FORM_CONTROL->filterRecords(['professor_id' =>
                                     <div class="menu-item <?= $count === 0 ? 'active' : '' ?>" data-content="<?= $item['id'] ?>">
                                         <div class="menu-item-content">
                                             <div class="icon">
-                                                <?= UseIcon($item['icon']) ?>
+                                                <i data-feather="<?= $item['icon'] ?>"></i>
                                             </div>
                                             <span><?= $item['label'] ?></span>
                                         </div>
@@ -128,7 +128,7 @@ $forms = $APPLICATION->FUNCTIONS->FORM_CONTROL->filterRecords(['professor_id' =>
                                                                     <div class="resource-actions">
                                                                         <div class="icon-button download-resource-group-btn" title="Download">
                                                                             <div class="icon">
-                                                                                <?= UseIcon("download-thin") ?>
+                                                                                <i data-feather="download"></i>
                                                                             </div>
                                                                             <div class="text">
                                                                                 <span>Download Resource Group</span>
@@ -148,7 +148,7 @@ $forms = $APPLICATION->FUNCTIONS->FORM_CONTROL->filterRecords(['professor_id' =>
                                                                             <div class="resource-actions">
                                                                                 <div class="icon-button download-resource-btn" title="Download">
                                                                                     <div class="icon">
-                                                                                        <?= UseIcon("download-thin") ?>
+                                                                                        <i data-feather="download"></i>
                                                                                     </div>
                                                                                     <div class="text">
                                                                                         <span>Download</span>
@@ -176,14 +176,14 @@ $forms = $APPLICATION->FUNCTIONS->FORM_CONTROL->filterRecords(['professor_id' =>
                                                 <div class="form-header">
                                                     <h3>My Forms</h3>
                                                     <button class="create-form-btn">
-                                                        <?= UseIcon("plus-thin") ?>
+                                                        <i data-feather="plus"></i>
                                                         Create New Form
                                                     </button>
                                                 </div>
 
                                                 <div class="forms-list">
                                                     <?php foreach ($forms as $form): ?>
-                                                        <div class="form-card">
+                                                        <div class="form-card" data-form-id="<?= $form->form_id ?>">
                                                             <div class="form-card-header">
                                                                 <div class="form-info">
                                                                     <span class="badge <?= strtolower($form->form_type) ?>"><?= ucfirst($form->form_type) ?></span>
@@ -191,11 +191,13 @@ $forms = $APPLICATION->FUNCTIONS->FORM_CONTROL->filterRecords(['professor_id' =>
                                                                     <p><?= $form->description ?></p>
                                                                 </div>
                                                                 <div class="form-menu">
-                                                                    <?= UseIcon("dots-vertical-thin") ?>
+                                                                    <button class="options-btn">
+                                                                        <i data-feather="more-vertical"></i>
+                                                                    </button>
                                                                     <div class="dropdown-menu">
-                                                                        <button class="edit-form-btn" data-id="<?= $form->form_id ?>">Edit Form</button>
-                                                                        <button class="duplicate-form-btn" data-id="<?= $form->form_id ?>">Duplicate</button>
-                                                                        <button class="delete-form-btn" data-id="<?= $form->form_id ?>">Delete</button>
+                                                                        <a href="/me/forms/update/<?= $form->form_id ?>" class="edit-form-btn">Edit Form</a>
+                                                                        <a href="/me/forms/corrections/<?= $form->form_id ?>" class="check-correction-btn">Add Correction</a>
+                                                                        <button class="delete-form-btn" data-id="<?= $form->form_id ?>">Remove</button>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -318,13 +320,29 @@ $forms = $APPLICATION->FUNCTIONS->FORM_CONTROL->filterRecords(['professor_id' =>
 
                         .form-menu {
                             position: relative;
+                        }
+
+                        .options-btn {
+                            background: none;
+                            border: none;
                             cursor: pointer;
+                            padding: 0.5rem;
+                            border-radius: 50%;
+                            transition: background 0.2s;
+                        }
+
+                        .options-btn:hover {
+                            background: #f1f5f9;
                         }
 
                         .form-container svg {
                             width: 20px !important;
                             height: 20px;
-                            fill: #fff;
+                            stroke: currentColor;
+                            stroke-width: 2;
+                            stroke-linecap: round;
+                            stroke-linejoin: round;
+                            fill: none;
                         }
 
                         .dropdown-menu {
@@ -336,13 +354,16 @@ $forms = $APPLICATION->FUNCTIONS->FORM_CONTROL->filterRecords(['professor_id' =>
                             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
                             padding: 0.5rem;
                             display: none;
+                            z-index: 10;
+                            min-width: 150px;
                         }
 
-                        .form-menu:hover .dropdown-menu {
+                        .form-menu.active .dropdown-menu {
                             display: flex;
                             flex-direction: column;
                         }
 
+                        .dropdown-menu a,
                         .dropdown-menu button {
                             padding: 0.5rem 1rem;
                             border: none;
@@ -350,10 +371,24 @@ $forms = $APPLICATION->FUNCTIONS->FORM_CONTROL->filterRecords(['professor_id' =>
                             text-align: left;
                             cursor: pointer;
                             border-radius: 4px;
+                            color: #1e293b;
+                            transition: all 0.2s;
+                            width: 100%;
+                            text-decoration: none;
+                            display: block;
                         }
 
+                        .dropdown-menu a:hover,
                         .dropdown-menu button:hover {
                             background: #f1f5f9;
+                        }
+
+                        .dropdown-menu .delete-form-btn {
+                            color: #ef4444;
+                        }
+
+                        .dropdown-menu .delete-form-btn:hover {
+                            background: #fee2e2;
                         }
 
                         .form-stats {
@@ -451,6 +486,11 @@ $forms = $APPLICATION->FUNCTIONS->FORM_CONTROL->filterRecords(['professor_id' =>
                         .menu-item .icon svg {
                             width: 100%;
                             height: 100%;
+                            stroke: currentColor;
+                            stroke-width: 2;
+                            stroke-linecap: round;
+                            stroke-linejoin: round;
+                            fill: none;
                         }
 
                         .submenu {
@@ -519,19 +559,42 @@ $forms = $APPLICATION->FUNCTIONS->FORM_CONTROL->filterRecords(['professor_id' =>
                     <script type="module">
                         import { Resources } from "/public/assets/scripts/pages/faculty/me/classes.js";
                         document.addEventListener('DOMContentLoaded', function() {
+                            feather.replace();
+                            
                             const menuItems = document.querySelectorAll('.menu-item');
                             const submenuItems = document.querySelectorAll('.submenu-item');
                             const contentContainers = document.querySelectorAll('.content-container');
                             const subcontents = document.querySelectorAll('.subcontent');
+                            const optionsBtns = document.querySelectorAll('.options-btn');
+
+                            // Handle options menu toggle
+                            optionsBtns.forEach(btn => {
+                                btn.addEventListener('click', (e) => {
+                                    e.stopPropagation();
+                                    const menu = btn.closest('.form-menu');
+                                    // Close all other menus
+                                    document.querySelectorAll('.form-menu').forEach(m => {
+                                        if (m !== menu) m.classList.remove('active');
+                                    });
+                                    // Toggle current menu
+                                    menu.classList.toggle('active');
+                                });
+                            });
+
+                            // Close dropdown when clicking outside
+                            document.addEventListener('click', (e) => {
+                                if (!e.target.closest('.form-menu')) {
+                                    document.querySelectorAll('.form-menu').forEach(menu => {
+                                        menu.classList.remove('active');
+                                    });
+                                }
+                            });
 
                             menuItems.forEach(item => {
                                 item.addEventListener('click', () => {
-                                    // Remove active class from all menu items
                                     menuItems.forEach(i => i.classList.remove('active'));
-                                    // Add active class to clicked menu item
                                     item.classList.add('active');
 
-                                    // Show corresponding content container
                                     const contentId = item.dataset.content;
                                     contentContainers.forEach(container => {
                                         container.classList.remove('active');
@@ -540,7 +603,6 @@ $forms = $APPLICATION->FUNCTIONS->FORM_CONTROL->filterRecords(['professor_id' =>
                                         }
                                     });
 
-                                    // Activate first subcontent of the active content
                                     const activeContent = document.querySelector(`.content-container[data-content="${contentId}"]`);
                                     if(activeContent) {
                                         const firstSubcontent = activeContent.querySelector('.subcontent');
@@ -556,13 +618,10 @@ $forms = $APPLICATION->FUNCTIONS->FORM_CONTROL->filterRecords(['professor_id' =>
                                 item.addEventListener('click', (e) => {
                                     e.stopPropagation();
                                     
-                                    // Remove active class from all submenu items in the same menu
                                     const parentMenu = item.closest('.menu-item');
                                     parentMenu.querySelectorAll('.submenu-item').forEach(i => i.classList.remove('active'));
-                                    // Add active class to clicked submenu item
                                     item.classList.add('active');
 
-                                    // Show corresponding subcontent
                                     const subcontentId = item.dataset.subcontent;
                                     subcontents.forEach(subcontent => {
                                         subcontent.classList.remove('active');

@@ -9,7 +9,6 @@ class Schedule extends ScheduleAbstract
 {
 
     public $items;
-
     public $schedule_label;
     public function __construct($data = [])
     {
@@ -22,10 +21,11 @@ class Schedule extends ScheduleAbstract
         global $APPLICATION;
 
         $this->items = $APPLICATION->FUNCTIONS->SCHEDULE_ITEM_CONTROL->filterRecords(['schedule_id' => $this->schedule_id], true);
-
-        $this->schedule_label = join(",", array_map(function ($record) {
-            return $record->day;
-        }, $this->items));
+        if (count($this->items)) {
+            $this->schedule_label = join(",", array_map(function ($record) {
+                return $record->day;
+            }, $this->items));
+        }
     }
 
     public function get($day) {

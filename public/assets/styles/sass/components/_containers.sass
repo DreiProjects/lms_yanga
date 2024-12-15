@@ -271,6 +271,7 @@
   .post-head
     display: flex
     align-items: center // Align items vertically
+    position: relative // Add position relative for absolute positioning of floating container
     
     .photo
       margin-right: 15px // Increase margin for better spacing
@@ -299,6 +300,64 @@
       
       p.secondary
         font-size: 14px
+
+    .post-actions
+      position: relative
+      margin-left: auto // Push to right side
+      
+      .ellipsis-button
+        width: 32px
+        height: 32px
+        display: flex
+        align-items: center
+        justify-content: center
+        border-radius: 50%
+        cursor: pointer
+        transition: background-color 0.2s ease
+
+        &:hover
+          background-color: #f0f2f5
+
+        svg
+          width: 20px
+          height: 20px
+          color: $textgray
+
+      .floating-actions-container
+        position: absolute
+        top: 100%
+        right: 0
+        background: #ffffff
+        border-radius: 8px
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15)
+        min-width: 180px
+        z-index: 1000
+        display: none // Hidden by default
+
+        &.show
+          display: block
+
+        .action-item
+          padding: 8px 16px
+          display: flex
+          align-items: center
+          cursor: pointer
+          transition: background-color 0.2s ease
+
+          &:hover
+            background-color: #f0f2f5
+
+          .icon
+            margin-right: 12px
+            
+            svg
+              width: 18px
+              height: 18px
+              color: $textgray
+
+          span
+            color: $textgray
+            font-size: 14px
   
   .post-body
     padding: 15px 0
@@ -320,7 +379,6 @@
       .date-content
         small
           color: $textgray
-      
       .reaction-content
         display: flex
         gap: 10px
@@ -345,6 +403,72 @@
       height: auto
       border-radius: 4px // Add border radius to images
 
+  .comments-section
+    .comment-item
+      position: relative // For positioning the ellipsis button
+      
+      .comment-header
+        display: flex
+        align-items: center
+        gap: 10px
+        
+        .comment-actions
+          position: relative
+          margin-left: auto
+          
+          .ellipsis-button
+            width: 28px
+            height: 28px
+            display: flex
+            align-items: center
+            justify-content: center
+            border-radius: 50%
+            cursor: pointer
+            transition: background-color 0.2s ease
+
+            &:hover
+              background-color: #f0f2f5
+
+            svg
+              width: 16px
+              height: 16px
+              color: $textgray
+
+          .floating-actions-container
+            position: absolute
+            top: 100%
+            right: 0
+            background: #ffffff
+            border-radius: 8px
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15)
+            min-width: 160px
+            z-index: 1000
+            display: none
+
+            &.show
+              display: block
+
+            .action-item
+              padding: 8px 16px
+              display: flex
+              align-items: center
+              cursor: pointer
+              transition: background-color 0.2s ease
+
+              &:hover
+                background-color: #f0f2f5
+
+              .icon
+                margin-right: 12px
+                
+                svg
+                  width: 16px
+                  height: 16px
+                  color: $textgray
+
+              span
+                color: $textgray
+                font-size: 13px
 .post-creator-popup
   width: 90% // Use percentage width for better responsiveness
   max-width: 600px // Set a max-width

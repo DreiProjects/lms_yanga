@@ -524,6 +524,28 @@ function ViewStudentForms(exam_id) {
   });
 }
 
+function DownloadCompliedFile(comply_id) {
+  return PostRequest("DownloadCompliedFile", { comply_id }).then((res) => {
+    res = JSON.parse(res);
+    const binaryStr = atob(res.body);
+    const bytes = new Uint8Array(binaryStr.length);
+    for (let i = 0; i < binaryStr.length; i++) {
+      bytes[i] = binaryStr.charCodeAt(i);
+    }
+    const blob = new Blob([bytes], { type: res.type });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.href = url;
+    link.download = `complied_file.${res.type}`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url); // Ensure the blob URL is revoked after use
+  }).catch((error) => {
+    console.error("Failed to download complied file:", error);
+  });
+}
+
 function ViewCompliedActivity(activity_id, id) {
   const popup = new Popup(
     `${"activities"}/view_complied_activity`,
@@ -537,6 +559,7 @@ function ViewCompliedActivity(activity_id, id) {
 
     const gradeBtn = popup.ELEMENT.querySelector(".grade-btn");
     const editBtn = popup.ELEMENT.querySelector(".edit-btn");
+    const dlBtn = popup.ELEMENT.querySelector(".download-btn");
 
     if (gradeBtn) {
       gradeBtn.addEventListener("click", () => {
@@ -553,6 +576,12 @@ function ViewCompliedActivity(activity_id, id) {
     if (editBtn) {
       editBtn.addEventListener("click", () => {
         EditGradeScore(editBtn.dataset.id);
+      });
+    }
+
+    if (dlBtn) {
+      dlBtn.addEventListener("click", () => {
+        DownloadCompliedFile(id);
       });
     }
   });
@@ -1024,7 +1053,6 @@ class AttendanceManager {
     document.querySelector(".prev-month").addEventListener("click", () => {
       let month = parseInt(this.monthSelect.value);
       let year = parseInt(this.yearSelect.value);
-      console.log(month, year);
 
       month--;
       if (month < 1) {

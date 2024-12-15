@@ -114,7 +114,7 @@ $is_editable = $SESSION->user_type == 2;
                             </div>
                             <label for=""><span>Due Date <?= $is_editable ? "( Optional )" : "" ?></span></label>
                             <div class="error-container">
-                                <input type="date" name="due_date" placeholder="Due Date" value="<?= $activity->due_date ?>" <?= !$is_editable ? "readonly" : "" ?>>
+                                <input type="datetime-local" name="due_date" placeholder="Due Date" value="<?= $activity->due_date ?>" <?= !$is_editable ? "readonly" : "" ?>>
                             </div>
                         </div>
                     </div>

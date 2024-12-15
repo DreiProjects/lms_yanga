@@ -4,11 +4,23 @@ global $APPLICATION, $COURSE_HEADER_BODY, $SESSION;
 
 $professor = $SESSION->getAsProfessor();
 
+$url = $_SERVER['REQUEST_URI'];
+$parts = explode('/', trim($url, '/'));
+
+// Get action and form_id from URL if they exist
+$action = isset($parts[2]) ? $parts[2] : null;
+$form_id = isset($parts[3]) ? $parts[3] : null;
+
+// Get form if editing
+$form = null;
+
+$form = $APPLICATION->FUNCTIONS->FORM_CONTROL->get($form_id, true);
+
 ?>
 
 <?php include "public/views/pages/structures/html_headings.phtml" ?>
 
-<title>My Resources</title>
+<title><?= $action == 'update' ? "Update Form" : "Create Form" ?></title>
 
 <?php include "public/views/pages/structures/html_heading_closing.phtml" ?>
 
@@ -44,34 +56,43 @@ $professor = $SESSION->getAsProfessor();
                 <div class="main-body-body">
                     <div class="create-form-container">
                         <div class="create-form-header">
-                            <h3>Create New Form</h3>
-                            <p>Create a new assessment form for your students. Fill in the details below to get started.</p>
+                            <h3><?= $action == 'update' ? "Update Form" : "Create New Form" ?></h3>
+                            <p><?= $action == 'update' ? "Update the details of the form below." : "Create a new assessment form for your students. Fill in the details below to get started." ?></p>
                         </div>
                         <div class="create-form-body">
                             <div class="form-content">
-                                <h1 class="form-title" id="formTitle" contenteditable="true">Untitled Form</h1>
-                                <p class="form-description" id="formDescription" contenteditable="true">Click to add description</p>
+                                <h1 class="form-title" id="formTitle" contenteditable="true"><?= $form ? $form->form_title : "Untitled Form" ?></h1>
+                                <p class="form-description" id="formDescription" contenteditable="true"><?= $form ? $form->form_description : "Click to add description" ?></p>
                                 
-                                <div id="questionsContainer">
+                                <div id="questionsContainer" data-action="<?= $action ?>" data-form-id="<?= $form ? $form->form_id : null ?>">
                                     <!-- Questions will be dynamically added here -->
                                 </div>
                             </div>
 
                             <div class="form-actions-container">
-                                <div class="form-actions">
-                                    <button id="addQuestionBtn" class="action-btn">
-                                        <i data-feather="plus-circle"></i>
-                                        Add Question
-                                    </button>
-                                    <button id="saveFormBtn" class="action-btn primary">
-                                        <i data-feather="save"></i>
-                                        Save Form
-                                    </button>
-                                    <button id="resetFormBtn" class="action-btn danger">
-                                        <i data-feather="refresh-cw"></i>
-                                        Reset Form
-                                    </button>
-                                </div>
+                                <?php if ($action == 'update') : ?>
+                                    <div class="form-actions">
+                                        <button id="addQuestionBtn" class="action-btn">
+                                            <i data-feather="plus-circle"></i>
+                                            Add Question
+                                        </button>
+                                        <button id="saveFormBtn" class="action-btn primary">
+                                            <i data-feather="save"></i>
+                                            Save Form
+                                        </button>
+                                        <button id="resetFormBtn" class="action-btn danger">
+                                            <i data-feather="refresh-cw"></i>
+                                            Reset Form
+                                        </button>
+                                    </div>
+                                <?php else: ?>
+                                    <div class="form-actions">
+                                        <button class="action-btn primary">
+                                            <i data-feather="save"></i>
+                                            Save Correction
+                                        </button>
+                                    </div>
+                                <?php endif; ?>
                             </div>
 
                             <style>
@@ -483,7 +504,7 @@ $professor = $SESSION->getAsProfessor();
                             font-size: 0.95rem;
                         }
                     </style>
-                      <style>
+                    <style>
                         /* Fill in the blank styles */
                         .fill-blank-answer { padding: 1rem; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; line-height: 2; }
                         .blank-input-wrapper { display: inline-block; margin: 0 0.25rem; }
@@ -491,11 +512,51 @@ $professor = $SESSION->getAsProfessor();
                         .blank-input:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
 
                         /* Matching question styles */
-                        .matching-answer-container { padding: 1.5rem; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; }
-                        .matching-columns { display: grid; grid-template-columns: 1fr auto 1fr; gap: 2rem; position: relative; }
-                        .matching-questions, .matching-words { display: flex; flex-direction: column; gap: 1rem; }
-                        .matching-question, .matching-word { display: flex; align-items: center; padding: 0.75rem; background: white; border: 1px solid #e2e8f0; border-radius: 8px; }
-                        .question-number, .word-letter { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: #e0f2fe; color: #0369a1; border-radius: 6px; }
+                        .matching-answer-container { 
+                            padding: 1.5rem;
+                            background: #f8fafc;
+                            border-radius: 8px;
+                            border: 1px solid #e2e8f0;
+                            position: relative;
+                        }
+                        .matching-columns {
+                            display: grid;
+                            grid-template-columns: 1fr 100px 1fr;
+                            gap: 1rem;
+                            align-items: start;
+                        }
+                        .matching-questions, .matching-words {
+                            display: flex;
+                            flex-direction: column;
+                            gap: 1rem;
+                            position: relative;
+                            z-index: 1;
+                        }
+                        .matching-question, .matching-word {
+                            display: flex;
+                            align-items: center;
+                            padding: 0.75rem;
+                            background: white;
+                            border: 1px solid #e2e8f0;
+                            border-radius: 8px;
+                            position: relative;
+                        }
+                        .matching-select {
+                            width: 80px;
+                            padding: 0.5rem;
+                            border: 1px solid #e2e8f0;
+                            border-radius: 6px;
+                            background: white;
+                        }
+                        .matching-canvas {
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                            pointer-events: none;
+                            z-index: 0;
+                        }
                         
                         /* Correction type styles */
                         .correction-type-selector { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem; }
@@ -514,43 +575,44 @@ $professor = $SESSION->getAsProfessor();
                         .editor-content { min-height: 100px; padding: 1rem; outline: none; }
                         
                         /* Matching container styles */
-                        .matching-container { display: flex; flex-direction: column; gap: 1.5rem; padding: 1.5rem; background: #f8fafc; border-radius: 12px; }
-                        .matching-section { background: white; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; }
-                        .matching-items { padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem; min-height: 100px; }
-
-                        .matching-connections {
-                            position: relative;
-                            width: 100%;
-                            min-height: 200px;
+                        .matching-container { 
+                            display: flex !important;
+                            flex-direction: column !important;
+                            gap: 1.5rem !important;
+                            padding: 1.5rem !important;
+                            background: #f8fafc !important;
+                            border-radius: 12px !important;
                         }
-
-                        #matching-canvas {
-                            position: absolute;
-                            top: 0;
-                            left: 0;
-                            width: 100%;
-                            height: 100%;
-                            pointer-events: none;
+                        .matching-section { 
+                            background: white !important;
+                            border: 1px solid #e2e8f0 !important;
+                            border-radius: 8px !important;
+                            overflow: hidden !important;
+                        }
+                        .matching-items { 
+                            padding: 1.25rem !important;
+                            display: flex !important;
+                            flex-direction: column !important;
+                            gap: 1rem !important;
+                            min-height: 100px !important;
                         }
 
                         .connection-point {
-                            position: absolute;
-                            width: 10px;
-                            height: 10px;
-                            background: #cbd5e1;
-                            border-radius: 50%;
+                            position: absolute !important;
+                            width: 8px !important;
+                            height: 8px !important;
+                            background: #94a3b8 !important;
+                            border-radius: 50% !important;
+                            top: 50% !important;
+                            transform: translateY(-50%) !important;
                         }
 
                         .connection-point.right {
-                            right: -5px;
-                            top: 50%;
-                            transform: translateY(-50%);
+                            right: -4px !important;
                         }
 
                         .connection-point.left {
-                            left: -5px;
-                            top: 50%;
-                            transform: translateY(-50%);
+                            left: -4px !important;
                         }
                     </style>
                 </div>
@@ -560,7 +622,7 @@ $professor = $SESSION->getAsProfessor();
 
     <?php include "public/views/pages/structures/html_pipes.phtml" ?>
 
-    <script type="module" src="/public/assets/scripts/pages/faculty/me/createForm.js"></script>
+    <script type="module" src="/public/assets/scripts/pages/faculty/me/forms.js"></script>
 
     <?php include "public/views/pages/structures/html_closing_parent.phtml" ?>
 

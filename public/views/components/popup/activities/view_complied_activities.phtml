@@ -32,10 +32,10 @@ foreach($all_students as $student) {
         foreach($complies as $comply) {
             if($comply->student_id == $student['student_id']) {
                 // Check if submission is late based on activity deadline
-                if(strtotime($comply->date_created) > strtotime($activity->due_date)) {
-                    $late_submissions++;
-                } else {
+                if(empty($activity->due_date) || strtotime($comply->date_created) <= strtotime($activity->due_date)) {
                     $on_time_submissions++;
+                } else {
+                    $late_submissions++;
                 }
                 break;
             }
@@ -168,7 +168,7 @@ foreach($all_students as $student) {
                             <?php if(!empty($complies)): ?>
                                 <?php foreach($complies as $comply): ?>
                                     <?php 
-                                        $isLate = strtotime($comply->date_created) > strtotime($activity->due_date);
+                                        $isLate = !empty($activity->due_date) && strtotime($comply->date_created) > strtotime($activity->due_date);
                                         $submissionClass = $isLate ? 'late' : 'ontime';
                                     ?>
                                     <div class="comply-item <?= $submissionClass ?>" data-id="<?= $comply->comply_id ?>">

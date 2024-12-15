@@ -20,9 +20,7 @@ class FormControl extends ControlDefaultFunctions
         $CONNECTION->NewTransaction();
 
         $data['professor_id'] = $SESSION->getAsProfessor()->professor_id;
-
         $questions = $data['questions'];
-
         unset($data['questions']);
 
         $form = $APPLICATION->FUNCTIONS->FORM_CONTROL->addRecord($data);
@@ -44,8 +42,14 @@ class FormControl extends ControlDefaultFunctions
                 if ($q->code !== 200) {
                     $CONNECTION->RollBack();
                     return $question;
-                } else {
-                    if ($question['type'] === "multiple-choice" || $question['type'] === "checkbox" || $question['type'] === "dropdown") {
+                }
+
+                // Handle different question types
+                switch ($question['type']) {
+                    case 'multiple-choice':
+                    case 'checkbox':
+                    case 'dropdown':
+                        // Handle choices
                         $num = 1;
                         foreach ($question['choices'] as $choice) {
                             $choiceData = [
@@ -60,12 +64,75 @@ class FormControl extends ControlDefaultFunctions
                                 $CONNECTION->RollBack();
                                 return $choice;
                             }
-
                             $num++;
                         }
-                    }
-                }
+                        break;
 
+                    case 'true-false':
+                        // Add True/False choices
+                        $choices = ['True', 'False'];
+                        foreach ($choices as $index => $choice) {
+                            $choiceData = [
+                                "form_question_id" => $q->body['id'],
+                                "choice" => $choice,
+                                "choice_number" => $index + 1
+                            ];
+
+                            $c = $APPLICATION->FUNCTIONS->FORM_QUESTION_CHOICES_CONTROL->addRecord($choiceData);
+
+                            if ($c->code !== 200) {
+                                $CONNECTION->RollBack();
+                                return $choice;
+                            }
+                        }
+                        break;
+
+                    case 'fill-blank':
+                        // Store blanks information in options
+                        if (isset($question['blanks'])) {
+                            $optionData = [
+                                "form_question_id" => $q->body['id'],
+                                "options" => json_encode([
+                                    'type' => 'fill-blank',
+                                    'blanks' => $question['blanks']
+                                ])
+                            ];
+
+                            $o = $APPLICATION->FUNCTIONS->FORM_QUESTION_OPTION_CONTROL->addRecord($optionData);
+
+                            if ($o->code !== 200) {
+                                $CONNECTION->RollBack();
+                                return $o;
+                            }
+                        }
+                        break;
+
+                    case 'matching':
+                        // Store questions and words in options
+                        if (isset($question['questions']) && isset($question['words'])) {
+                            $optionData = [
+                                "form_question_id" => $q->body['id'],
+                                "options" => json_encode([
+                                    'type' => 'matching',
+                                    'questions' => $question['questions'],
+                                    'words' => $question['words']
+                                ])
+                            ];
+
+                            $o = $APPLICATION->FUNCTIONS->FORM_QUESTION_OPTION_CONTROL->addRecord($optionData);
+
+                            if ($o->code !== 200) {
+                                $CONNECTION->RollBack();
+                                return $o;
+                            }
+                        }
+                        break;
+
+                    case 'short-answer':
+                    case 'paragraph':
+                        // These types don't need additional data
+                        break;
+                }
             }
         } else {
             $CONNECTION->RollBack();
@@ -73,7 +140,6 @@ class FormControl extends ControlDefaultFunctions
         }
 
         $CONNECTION->Commit();
-
         return new Response(200, "Form created successfully", ['id' => $form->body['id']]);
     }
 }

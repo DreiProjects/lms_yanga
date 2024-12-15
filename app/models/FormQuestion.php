@@ -9,6 +9,8 @@ class FormQuestion extends FormQuestionAbstract
 {
 
     public $choices = [];
+
+    public $options = [];
     
     public function __construct($data = [])
     {
@@ -23,6 +25,12 @@ class FormQuestion extends FormQuestionAbstract
         $this->choices = $APPLICATION->FUNCTIONS->FORM_QUESTION_CHOICES_CONTROL->filterRecords([
             'form_question_id' => $this->form_question_id
         ], true);
+
+        $this->options = $APPLICATION->FUNCTIONS->FORM_QUESTION_OPTION_CONTROL->filterRecords([
+            'form_question_id' => $this->form_question_id
+        ], true);
+
+        $this->options = count($this->options) > 0 ? $this->options[0] : null;
     }
 
 }

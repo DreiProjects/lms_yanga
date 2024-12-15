@@ -5199,6 +5199,7 @@ table.no-check-box td:first-child, table.no-check-box th:first-child {
   -webkit-box-align: center;
       -ms-flex-align: center;
           align-items: center;
+  position: relative;
 }
 
 .post-container .post-head .photo {
@@ -5236,6 +5237,88 @@ table.no-check-box td:first-child, table.no-check-box th:first-child {
 }
 
 .post-container .post-head .texts p.secondary {
+  font-size: 14px;
+}
+
+.post-container .post-head .post-actions {
+  position: relative;
+  margin-left: auto;
+}
+
+.post-container .post-head .post-actions .ellipsis-button {
+  width: 32px;
+  height: 32px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  border-radius: 50%;
+  cursor: pointer;
+  -webkit-transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease;
+}
+
+.post-container .post-head .post-actions .ellipsis-button:hover {
+  background-color: #f0f2f5;
+}
+
+.post-container .post-head .post-actions .ellipsis-button svg {
+  width: 20px;
+  height: 20px;
+  color: #232F35;
+}
+
+.post-container .post-head .post-actions .floating-actions-container {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: #ffffff;
+  border-radius: 8px;
+  -webkit-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  min-width: 180px;
+  z-index: 1000;
+  display: none;
+}
+
+.post-container .post-head .post-actions .floating-actions-container.show {
+  display: block;
+}
+
+.post-container .post-head .post-actions .floating-actions-container .action-item {
+  padding: 8px 16px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  cursor: pointer;
+  -webkit-transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease;
+}
+
+.post-container .post-head .post-actions .floating-actions-container .action-item:hover {
+  background-color: #f0f2f5;
+}
+
+.post-container .post-head .post-actions .floating-actions-container .action-item .icon {
+  margin-right: 12px;
+}
+
+.post-container .post-head .post-actions .floating-actions-container .action-item .icon svg {
+  width: 18px;
+  height: 18px;
+  color: #232F35;
+}
+
+.post-container .post-head .post-actions .floating-actions-container .action-item span {
+  color: #232F35;
   font-size: 14px;
 }
 
@@ -5298,6 +5381,102 @@ table.no-check-box td:first-child, table.no-check-box th:first-child {
   width: 100%;
   height: auto;
   border-radius: 4px;
+}
+
+.post-container .comments-section .comment-item {
+  position: relative;
+}
+
+.post-container .comments-section .comment-item .comment-header {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  gap: 10px;
+}
+
+.post-container .comments-section .comment-item .comment-header .comment-actions {
+  position: relative;
+  margin-left: auto;
+}
+
+.post-container .comments-section .comment-item .comment-header .comment-actions .ellipsis-button {
+  width: 28px;
+  height: 28px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  border-radius: 50%;
+  cursor: pointer;
+  -webkit-transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease;
+}
+
+.post-container .comments-section .comment-item .comment-header .comment-actions .ellipsis-button:hover {
+  background-color: #f0f2f5;
+}
+
+.post-container .comments-section .comment-item .comment-header .comment-actions .ellipsis-button svg {
+  width: 16px;
+  height: 16px;
+  color: #232F35;
+}
+
+.post-container .comments-section .comment-item .comment-header .comment-actions .floating-actions-container {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: #ffffff;
+  border-radius: 8px;
+  -webkit-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  min-width: 160px;
+  z-index: 1000;
+  display: none;
+}
+
+.post-container .comments-section .comment-item .comment-header .comment-actions .floating-actions-container.show {
+  display: block;
+}
+
+.post-container .comments-section .comment-item .comment-header .comment-actions .floating-actions-container .action-item {
+  padding: 8px 16px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  cursor: pointer;
+  -webkit-transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease;
+}
+
+.post-container .comments-section .comment-item .comment-header .comment-actions .floating-actions-container .action-item:hover {
+  background-color: #f0f2f5;
+}
+
+.post-container .comments-section .comment-item .comment-header .comment-actions .floating-actions-container .action-item .icon {
+  margin-right: 12px;
+}
+
+.post-container .comments-section .comment-item .comment-header .comment-actions .floating-actions-container .action-item .icon svg {
+  width: 16px;
+  height: 16px;
+  color: #232F35;
+}
+
+.post-container .comments-section .comment-item .comment-header .comment-actions .floating-actions-container .action-item span {
+  color: #232F35;
+  font-size: 13px;
 }
 
 .post-creator-popup {

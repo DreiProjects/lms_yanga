@@ -63,13 +63,16 @@ export default class GradingPlatformEditor {
   Load(section_subject_id) {
     this.sectionSubjectId = section_subject_id;
 
+    console.log(section_subject_id)
+
     SelectModelByFilter(
       JSON.stringify({ section_subject_id: section_subject_id }),
       "GRADING_PLATFORM_CONTROL"
     ).then((res) => {
-      this.LoadGradingPlatform(res[0]);
+      console.log(res)
 
-      if (res[0]) {
+      if (res &&res[0]) {
+        this.LoadGradingPlatform(res[0]);
         this.initializeOriginalGrades(); // Initialize original grades after loading
         this.setUnsavedChanges(false); // Set initial state of save changesZ
       } else {

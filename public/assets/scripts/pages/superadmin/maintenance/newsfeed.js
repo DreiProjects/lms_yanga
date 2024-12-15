@@ -12,6 +12,7 @@ import {
 import {
   AddRecord,
   PostContainerRequest,
+  PostRequest,
   UploadFileFromFile,
 } from "../../../modules/app/SystemFunctions.js";
 import { SelectModel } from "../../../modules/app/Administrator.js";
@@ -19,7 +20,9 @@ import {
   NewNotification,
   NotificationType,
 } from "../../../classes/components/NotificationPopup.js";
-
+import AlertPopup, {
+  AlertTypes,
+} from "../../../classes/components/AlertPopup.js";
 const TARGET = "posts";
 const MINI_TARGET = "post";
 const MAIN_TITLE = "Post";
@@ -331,6 +334,23 @@ function ManagePostSubjects() {
   }
 }
 
+function HandleDeletePost(post_id) {
+  return new Promise((resolve) => {
+    PostRequest("RequestDeletePost", {post_id}).then(resolve);
+  })
+}
+
+function HandleDeleteComment(post_id, comment_id) {
+  return new Promise((resolve) => {
+    console.log(post_id, comment_id)
+    PostRequest("RequestDeleteComment", {
+      post_id: post_id,
+      comment_id: comment_id
+    }).then(resolve);
+  });
+}
+
+
 function ListenToPost(post) {
   const splide = post.querySelector(".splide.user-post-gallery");
   const postMedia = post.querySelector(".post-media");
@@ -338,10 +358,13 @@ function ListenToPost(post) {
   const likeCount = post.querySelector(".reaction-content-result span");
   const commentButton = post.querySelector(".comment-button");
   const commentInput = post.querySelector(".comment-input input");
+  const ellipsisButton = post.querySelector(".ellipsis-button");
+  const floatingContainer = post.querySelector(".floating-actions-container");
+  const deleteButton = post.querySelector(".delete-post");
+  const deleteCommentButtons = post.querySelectorAll(".delete-comment");
 
   if (splide && postMedia) {
     const ss = new Splide(splide);
-
     ss.mount();
   }
 
@@ -380,6 +403,96 @@ function ListenToPost(post) {
         } else {
           likeCount.parentElement.classList.remove("hide-component");
         }
+      });
+    });
+  }
+
+  if (ellipsisButton && floatingContainer) {
+    ellipsisButton.addEventListener("click", function(e) {
+      e.stopPropagation();
+      floatingContainer.classList.toggle("show");
+    });
+
+    // Close floating container when clicking outside
+    document.addEventListener("click", function(e) {
+      if (!floatingContainer.contains(e.target) && !ellipsisButton.contains(e.target)) {
+        floatingContainer.classList.remove("show");
+      }
+    });
+  }
+
+  if (deleteButton) {
+    deleteButton.addEventListener("click", function() {
+      const popup = new AlertPopup(
+        {
+          primary: "Delete Post?",
+          secondary: "Are you sure you want to delete this post?",
+          message: "This action cannot be undone.",
+        },
+        {
+          alert_type: AlertTypes.YES_NO,
+        }
+      );
+
+      popup.AddListeners({
+        onYes: () => {
+          HandleDeletePost(post.dataset.id).then((r) => {
+            console.log(r)
+            post.remove();
+            NewNotification(
+              {
+                title: "Success",
+                message: "Post deleted successfully",
+              },
+              3000,
+              NotificationType.SUCCESS
+            );
+          });
+        },
+      });
+
+      popup.Create().then((popup) => {
+        popup.Show();
+      });
+    });
+  }
+
+  if (deleteCommentButtons) {
+    deleteCommentButtons.forEach(button => {
+      button.addEventListener("click", function() {
+        const commentItem = button.closest(".comment-item");
+        const commentId = commentItem.dataset.id;
+
+        const popup = new AlertPopup(
+          {
+            primary: "Delete Comment?",
+            secondary: "Are you sure you want to delete this comment?",
+            message: "This action cannot be undone.",
+          },
+          {
+            alert_type: AlertTypes.YES_NO,
+          }
+        );
+
+        popup.AddListeners({
+          onYes: () => {
+            HandleDeleteComment(post.dataset.id, commentId).then(() => {
+              commentItem.remove();
+              NewNotification(
+                {
+                  title: "Success", 
+                  message: "Comment deleted successfully"
+                },
+                3000,
+                NotificationType.SUCCESS
+              );
+            });
+          },
+        });
+
+        popup.Create().then((popup) => {
+          popup.Show();
+        });
       });
     });
   }

@@ -16,19 +16,27 @@ $RECORDS = $APPLICATION->FUNCTIONS->SECTION_STUDENT_CONTROL->filterRecords(['sec
 $RECORDS = array_map(fn($record) => [
     "displayName" => $record->displayName,
     "gender" => $record->student->gender == 0 ? "Male" : "Female",
+    "student_no" => $record->student->student_no,
     "user_id" => $record->user_id
 ], $RECORDS);
+
 
 // Fetch subjects for the professor
 $SUBJECTS = array_map(fn($record) => (object) [
     'subject_name' => $record->subject->subject_name,
-    'schedule_label' => $record->schedule_label,
     'classroom_id' => $record->classroom ? $record->classroom->classroom_name : "",
-    'section_subject_id' => $record->section_subject_id
+    'section_subject_id' => $record->section_subject_id,
+    'mon' => $record->mon ? $record->mon : "",
+    'tue' => $record->tue ? $record->tue : "",
+    'wed' => $record->wed ? $record->wed : "",
+    'thu' => $record->thu ? $record->thu : "",
+    'fri' => $record->fri ? $record->fri : "",
+    'sat' => $record->sat ? $record->sat : "",
 ], $section->getSubjectForProfessor($professor_id));
 
 // Fetch resources, activities, and exams for each subject
 $RESOURCES = $ACTIVITIES = $EXAMS = [];
+
 
 foreach ($SUBJECTS as $subject) {
     $RESOURCES[$subject->subject_name] = $APPLICATION->FUNCTIONS->RESOURCES_GROUP_CONTROL->filterRecords(['section_subject_id' => $subject->section_subject_id], false);
@@ -43,6 +51,8 @@ foreach ($SUBJECTS as $subject) {
 }
 
 // $GRADING_PLATFORM = $APPLICATION->FUNCTIONS->GRADING_PLATFORM_CONTROL->getBy("section_subject_id", $SUBJECTS[0]->section_subject_id, true);
+
+
 
 ?>
 

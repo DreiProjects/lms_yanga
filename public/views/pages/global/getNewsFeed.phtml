@@ -134,24 +134,26 @@ $EVENTS = array_slice($EVENTS, 0, 3);
 
 <div class="newsfeed-flex">
     <div class="newsfeed-main-container">
-        <div class="post-creator-container">
-            <div class="creator-head">
-                <div class="photo">
-                    <div class="image">
-                        <img src="<?= $SESSION->getPhotoURL()?>" alt="">
+        <?php if ($SESSION->user_type == 3 || $SESSION->user_type == 4): ?>
+            <div class="post-creator-container">
+                <div class="creator-head">
+                    <div class="photo">
+                        <div class="image">
+                            <img src="<?= $SESSION->getPhotoURL()?>" alt="">
+                        </div>
+                    </div>
+                    <div class="texts">
+                        <p class="primary">Create a Post</p>
+                        <p class="secondary">What's on your mind, <?= $SESSION->displayName ?>?</p>
                     </div>
                 </div>
-                <div class="texts">
-                    <p class="primary">Create a Post</p>
-                    <p class="secondary">What's on your mind, <?= $SESSION->displayName ?>?</p>
+                <div class="creator-body">
+                    <div class="textarea-container">
+                        <span>Create a Post</span>
+                    </div>
                 </div>
             </div>
-            <div class="creator-body">
-                <div class="textarea-container">
-                    <span>Create a Post</span>
-                </div>
-            </div>
-        </div>
+        <?php endif ?>
 
         <div class="section-all-posts">
             <?php echo renderPosts($POSTS, $SESSION); ?>

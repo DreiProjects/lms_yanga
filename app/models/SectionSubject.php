@@ -20,6 +20,8 @@ class SectionSubject extends SectionSubjectAbstract
 
     public $student_count;
 
+    public $mon = 1, $tue = 2, $wed, $thu, $fri, $sat;
+
     public function __construct($data = [])
     {
         $this->applyData($data, SectionSubjectAbstract::class);
@@ -40,9 +42,16 @@ class SectionSubject extends SectionSubjectAbstract
 
         if ($this->schedule_id != 0) {
             $this->schedule = $APPLICATION->FUNCTIONS->SCHEDULE_CONTROL->get($this->schedule_id, true);
-
+            
             if($this->schedule) {
                 $this->schedule_label = $this->schedule->schedule_label;
+                
+            $this->mon = $this->tue = $this->wed = $this->thu = $this->fri = $this->sat = null;
+
+            foreach ($this->schedule->items as $item) {
+                $day = strtolower(substr($item->day, 0, 3));
+                $this->$day = date('g:i A', strtotime($item->start_time)) . ' - ' . date('g:i A', strtotime($item->end_time));
+            }
             }
         }
     }

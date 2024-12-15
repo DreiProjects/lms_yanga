@@ -31,6 +31,8 @@ class PostsControl extends ControlDefaultFunctions
             unset($data['files']);
         }
 
+        $data['post_type'] = 2;
+
         $add = $this->addRecord($data);
 
         if (isset($files)) {
@@ -50,5 +52,31 @@ class PostsControl extends ControlDefaultFunctions
     public function update($id, $data)
     {
         return null;
+    }
+
+    public function remove($id) {
+        global $SESSION;
+
+        $post = $this->get($id, false);
+
+        if ($post['user_id'] == $SESSION->user_id) {
+           return $this->removeRecord($id);
+        }
+
+        return false;
+    }
+
+    public function removeComment($post_id, $comment_id) {
+        global $SESSION, $APPLICATION;
+
+        $comment_control = $APPLICATION->FUNCTIONS->POST_COMMENTS_CONTROL;
+        $comment = $comment_control->get($comment_id, false);
+
+        // Only allow deletion if user is the comment author
+        if ($comment['user_id'] == $SESSION->user_id) {
+            return $comment_control->removeRecord($comment_id);
+        }
+
+        return false;
     }
 }
