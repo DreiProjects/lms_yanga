@@ -1,7 +1,8 @@
 import Popup from "./Popup.js";
-import { ListenToForm, ManageComboBoxes } from "../../modules/component/Tool.js";
+import { Ajax, ListenToForm, ManageComboBoxes } from "../../modules/component/Tool.js";
 import {
     AddRecord,
+    EditRecord,
 } from "../../modules/app/SystemFunctions.js";
 import { NewNotification } from "./NotificationPopup.js";
 
@@ -174,21 +175,10 @@ export class FormQuestion {
                 break;
 
             case 'matching':
-                const questionAnswers = [];
-                const questions = questionElement.querySelectorAll('.question-input');
-                questions.forEach((question, index) => {
-                    const questionNumber = index + 1;
-                    const selectedAnswer = questionElement.querySelector(`[name="match_${questionNumber}"]:checked`);
-                    if (selectedAnswer) {
-                        questionAnswers.push({
-                            questionIndex: questionNumber,
-                            answer: selectedAnswer.value
-                        });
-                    }
-                });
-                if (questionAnswers.length > 0) {
-                    answer = JSON.stringify(questionAnswers);
-                }
+                const matchingSelects = questionElement.querySelectorAll(`select`);
+                const questionAnswers = Array.from(matchingSelects).map(select => select.value);
+
+                answer = JSON.stringify(questionAnswers);
                 break;
 
             case 'short-answer':
@@ -1356,17 +1346,14 @@ export class FormCorrectionCreator {
         this.containerId = containerId;
         this.container = document.getElementById(containerId);
         this.formData = formData;
-        this.correctAnswers = new Map(); // Store correct answers
-        
-        console.log("FormData in constructor:", formData); // Debug log
+        this.saveCorrectionBtn = document.getElementById('saveCorrectionBtn');
         
         this.initialize();
         this.initializeEventListeners();
+        this.applyCorrections();
     }
 
     initialize() {
-        console.log("Initializing with questions:", this.formData.questions); // Debug log
-        
         // Create form preview with questions
         this.formData.questions.forEach(questionData => {
             console.log("Processing question:", questionData); // Debug log
@@ -1540,16 +1527,14 @@ export class FormCorrectionCreator {
                     <div class="fill-blank-text">
                         ${questionData.question.replace(/<span class="blank-space"[^>]*data-blank-id="([^"]*)"[^>]*>[^<]*<\/span>/g,
                             (match, blankId) => {
-                                const answer = questionData.blanks.find(b => b.blankId === blankId)?.answer || '';
+                                const answer = (questionData.blanks || []).find(b => b.blankId === blankId)?.answer || '';
                                 return `
-                                    <div class="blank-answer-item">
-                                        <span class="blank-label">[Blank]</span>
-                                        <input type="text" 
-                                               class="correct-answer-input" 
-                                               data-blank-id="${blankId}"
-                                               value="${answer}"
-                                               placeholder="Correct answer">
-                                    </div>
+                                   <div class="blank-input-wrapper">
+                                    <input type="text" 
+                                           class="blank-input" 
+                                           data-blank-id="${blankId}"
+                                           placeholder="Type answer">
+                                </div>
                                 `;
                             }
                         )}
@@ -1557,10 +1542,13 @@ export class FormCorrectionCreator {
                 </div>
             `;
         } else if (questionData.question_type === 'matching') {
+
             // Get matching data from options
-            const matchingData = questionData.options ? JSON.parse(questionData.options) : { questions: [], words: [] };
+            const matchingData = JSON.parse(questionData.options.options);
             const matchingQuestions = matchingData.questions || [];
             const matchingWords = matchingData.words || [];
+
+            console.log(matchingData)
 
             choicesHtml = `
                 <div class="matching-answer-container">
@@ -2096,8 +2084,6 @@ export class FormCorrectionCreator {
                 font-size: 0.875rem;
             }
 
-            
-
             .question-text, .word-text {
                 flex: 1;
                 padding: 0 1rem;
@@ -2171,6 +2157,7 @@ export class FormCorrectionCreator {
                 box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
             }
         `;
+
         document.head.appendChild(style);
 
         // Update the event listeners for correction options
@@ -2182,6 +2169,11 @@ export class FormCorrectionCreator {
             const keywordInput = div.querySelector('.keyword-input');
             const keywordsList = div.querySelector('.keywords-list');
             const addKeywordBtn = div.querySelector('.add-keyword-btn');
+
+            // Ensure correctAnswers is defined
+            if (!this.correctAnswers) {
+                this.correctAnswers = new Map();
+            }
 
             correctionOptions.forEach(option => {
                 option.addEventListener('click', () => {
@@ -2259,46 +2251,246 @@ export class FormCorrectionCreator {
         return div;
     }
 
+    saveCorrection(data) {
+        return new Promise((resolve) => {
+            if (this.formData.form_correction) {
+                EditRecord("form_corrections", {id: this.formData.form_correction.correction_id, data: JSON.stringify(data) }).then((res) => {
+                    NewNotification({
+                      type: "success",
+                      message: res.message
+                    });
+    
+                    resolve(res);
+                  });
+            } else {
+                AddRecord("form_corrections", { data: JSON.stringify(data) }).then((res) => {
+                    NewNotification({
+                      type: "success",
+                      message: res.message
+                    });
+    
+                    resolve(res);
+                  });
+            }
+        })
+    } 
+
     initializeEventListeners() {
-        // Listen for correct answer selections
-        this.container.addEventListener('change', (e) => {
-            if (e.target.classList.contains('correct-answer-input')) {
-                const questionId = e.target.closest('.question-container').dataset.questionId;
-                
-                if (e.target.tagName === 'SELECT') {
-                    const selectedOption = e.target.options[e.target.selectedIndex];
-                    const choiceId = selectedOption.dataset.choiceId;
-                    this.correctAnswers.set(questionId, [choiceId]);
-                } else {
-                    const choiceId = e.target.dataset.choiceId;
-                    
-                    if (e.target.type === 'radio') {
-                        // For multiple choice, store single answer
-                        this.correctAnswers.set(questionId, [choiceId]);
-                    } else if (e.target.type === 'checkbox') {
-                        // For checkboxes, store multiple answers
-                        let answers = this.correctAnswers.get(questionId) || [];
-                        if (e.target.checked) {
-                            answers.push(choiceId);
-                        } else {
-                            answers = answers.filter(id => id !== choiceId);
+        if (this.saveCorrectionBtn) {
+            this.saveCorrectionBtn.addEventListener("click", () => {
+                const answers = this.getCorrectAnswers();
+                const mainData = {
+                    form_id: this.formData.form_id,
+                    data: JSON.stringify(answers)
+                };
+
+                this.saveCorrection(mainData).then(() => {
+                    window.location.replace("/me/resources")
+                });
+            });
+        }
+    }
+
+    applyCorrections() {
+        if (!this.formData.form_correction) {
+            return;
+        }   
+
+        const correctAnswers = JSON.parse(this.formData.form_correction.data);
+        const questions = this.formData.questions;
+
+        // Apply the correct answers to each question
+        for (const questionId in correctAnswers) {
+            const answer = correctAnswers[questionId];
+            const questionContainer = this.container.querySelector(`[data-question-id="${questionId}"]`);
+            const question = questions.find(q => q.form_question_id == questionId);
+
+            
+            if (questionContainer) {
+                if (question.question_type === "short-answer" || question.question_type === "paragraph") {
+
+                    const options = questionContainer.querySelectorAll('.correction-type .correction-option');
+
+                    if (answer.type == 'specific') {
+                        setTimeout(function() {
+                            options[0].click();
+                        }, 1000);
+                        const specificInput = questionContainer.querySelector(`textarea.specific-input`);
+                        if (specificInput) {
+                            specificInput.value = answer.type === 'specific' ? answer.text : '';
                         }
-                        this.correctAnswers.set(questionId, answers);
+                    } else {
+                        setTimeout(function() {
+                            options[1].click();
+                        }, 1000);
+
+                        const keywordTagsContainer = questionContainer.querySelector('.keywords-list');
+
+                        if (keywordTagsContainer) {
+                            keywordTagsContainer.innerHTML = ''; // Clear existing tags
+                            answer.keywords.forEach(keyword => {
+                                const tag = document.createElement('span');
+                                tag.className = 'keyword-tag';
+                                tag.textContent = keyword;
+                                keywordTagsContainer.appendChild(tag);
+                            });
+                        }
+                    }
+                } else if (question.question_type === "multiple-choice" ) {
+                    if (answer.length) {
+                        const radioInput = questionContainer.querySelector(`input[value="${answer[0]}"]`);
+
+                        if (radioInput) {
+                            radioInput.checked = true;
+
+                            const choiceItem = radioInput.closest('.choice-item');
+
+                            if (choiceItem) {
+                                choiceItem.classList.add('selected');
+                                const indicator = choiceItem.querySelector('.choice-type-indicator');
+                                if (indicator) {
+                                    indicator.style.background = '#3b82f6';
+                                }
+                            }
+                        }
+                    }
+
+                } else if (question.question_type === "checkbox") {
+                    // const choiceIds = JSON.parse(answer.choice_id);
+                    answer.forEach(ans => {
+                        const checkboxInput = questionContainer.querySelector(`input[value="${ans}"]`);
+                        if (checkboxInput) {
+                            checkboxInput.checked = true;
+                            const choiceItem = checkboxInput.closest('.choice-item');
+                            if (choiceItem) {
+                                choiceItem.classList.add('selected');
+                                const indicator = choiceItem.querySelector('.choice-type-indicator');
+                                if (indicator) {
+                                    indicator.style.background = '#3b82f6';
+                                }
+                            }
+                        }
+                    });
+                } else if (question.question_type === "true-false") {
+                    const trueInput = questionContainer.querySelector('input[value="True"]');
+                    const falseInput = questionContainer.querySelector('input[value="False"]');
+
+                    if (answer === 'True') {
+                        if (trueInput) {
+                            trueInput.checked = true;
+                            const trueChoiceItem = trueInput.closest('.choice-item');
+                            if (trueChoiceItem) {
+                                trueChoiceItem.classList.add('selected');
+                                const trueIndicator = trueChoiceItem.querySelector('.choice-type-indicator');
+                                if (trueIndicator) {
+                                    trueIndicator.style.background = '#3b82f6';
+                                }
+                            }
+                        }
+                    } else if (answer === 'False') {
+                        if (falseInput) {
+                            falseInput.checked = true;
+                            const falseChoiceItem = falseInput.closest('.choice-item');
+                            if (falseChoiceItem) {
+                                falseChoiceItem.classList.add('selected');
+                                const falseIndicator = falseChoiceItem.querySelector('.choice-type-indicator');
+                                if (falseIndicator) {
+                                    falseIndicator.style.background = '#3b82f6';
+                                }
+                            }
+                        }
+                    }
+                } else if (question.question_type === "dropdown") {
+                    const select = questionContainer.querySelector(`select[name="question_${questionId}"]`);
+                    if (select) {
+                        select.value = answer; // Set selected value
+                        select.dispatchEvent(new Event('change')); // Trigger change event
+                    }
+                } else if (question.question_type === "fill-blank") {
+                    const blankInputs = questionContainer.querySelectorAll(`input.blank-input`);
+                    answer.forEach(blankAnswer => {
+                        const input = Array.from(blankInputs).find(input => input.dataset.blankId === blankAnswer.blankId);
+                        if (input) {
+                            input.value = blankAnswer.answer; // Set the answer for each blank
+                            input.dispatchEvent(new Event('input')); // Trigger input event
+                        }
+                    });
+                } else if (question.question_type === "matching") {
+                    const matchingSelects = questionContainer.querySelectorAll(`select[name^="match_${questionId}"]`);
+                    for (const questionIndex in answer) {
+                        const select = Array.from(matchingSelects).find(select => select.name.endsWith(questionIndex));
+                        if (select) {
+                            select.value = answer[questionIndex]; // Set the selected match
+                        }
                     }
                 }
-                
-                console.log("Current correctAnswers:", this.correctAnswers); // Debug log
             }
-        });
+        }
     }
 
     getCorrectAnswers() {
-        const answers = {};
-        this.correctAnswers.forEach((value, key) => {
-            answers[key] = value;
+        const correctAnswers = {};
+    
+        // Iterate through each question in the formData
+        this.formData.questions.forEach(questionData => {
+            const questionId = questionData.form_question_id;
+            let answer;
+
+            // Get the question container for the current question
+            const questionContainer = this.container.querySelector(`[data-question-id="${questionId}"]`);
+
+            // Handle different question types
+            if (questionData.question_type === 'true-false') {
+                const selectedOption = questionContainer.querySelector(`input[name="question_${questionId}"]:checked`);
+                if (selectedOption) {
+                    answer = selectedOption.value; // 'True' or 'False'
+                }
+            } else if (questionData.question_type === 'multiple-choice' || questionData.question_type === 'checkbox') {
+                const selectedOptions = questionContainer.querySelectorAll(`input[name="question_${questionId}"]:checked`);
+                answer = Array.from(selectedOptions).map(option => option.value); // Array of selected values
+            } else if (questionData.question_type === 'dropdown') {
+                const selectedOption = questionContainer.querySelector(`select[name="question_${questionId}"]`);
+                if (selectedOption) {
+                    answer = selectedOption.value; // Selected value
+                }
+            } else if (questionData.question_type === 'short-answer' || questionData.question_type === 'paragraph') {
+                const specificInput = questionContainer.querySelector(`textarea.specific-input`);
+                const keywordTags = questionContainer.querySelectorAll('.keyword-tag span');
+
+                if (specificInput && specificInput.value.trim()) {
+                    answer = {
+                        type: 'specific',
+                        text: specificInput.value.trim()
+                    };
+                } else {
+                    answer = {
+                        type: 'keyword',
+                        keywords: Array.from(keywordTags).map(tag => tag.textContent)
+                    };
+                }
+            } else if (questionData.question_type === 'fill-blank') {
+                const blankInputs = questionContainer.querySelectorAll(`input.blank-input`);
+                answer = Array.from(blankInputs).map(input => ({
+                    blankId: input.dataset.blankId,
+                    answer: input.value.trim()
+                }));
+            } else if (questionData.question_type === 'matching') {
+                const matchingAnswers = {};
+                const matchingSelects = questionContainer.querySelectorAll(`select[name^="match_${questionId}"]`);
+                matchingSelects.forEach(select => {
+                    const questionIndex = select.name.split('_')[2]; // Extract question index
+                    matchingAnswers[questionIndex] = select.value; // Store the selected match
+                });
+                answer = matchingAnswers;
+            }
+    
+            // Store the answer in the correctAnswers object
+            if (answer !== undefined) {
+                correctAnswers[questionId] = answer;
+            }
         });
-        console.log("Getting correct answers:", answers); // Debug log
-        return answers;
+    
+        return correctAnswers;
     }
 }
 
@@ -2323,6 +2515,7 @@ export class FormRenderer {
     applyAnswers() {
         if (!this.userAnswers || this.userAnswers.length === 0) return;
 
+        console.log(this.userAnswers)
         // Process each answer
         this.userAnswers.forEach(answer => {
             const questionElement = this.container.querySelector(`[data-question-id="${answer.question_id}"]`);
@@ -2330,10 +2523,12 @@ export class FormRenderer {
 
             switch (answer.type) {
                 case 'multiple-choice':
-                    const radioInput = questionElement.querySelector(`input[data-choice-id="${answer.choice_id}"]`);
+                    const radioInput = questionElement.querySelector(`input[value="${answer.answer}"]`);
+
                     if (radioInput) {
                         radioInput.checked = true;
                         const allRadios = questionElement.querySelectorAll('input[type="radio"]');
+
                         allRadios.forEach(radio => {
                             radio.disabled = true;
                             radio.style.pointerEvents = 'none';
@@ -2354,8 +2549,10 @@ export class FormRenderer {
                     break;
 
                 case 'checkbox':
-                    const choiceIds = JSON.parse(answer.choice_id);
+                    const answers = JSON.parse(answer.answer);
+
                     const allCheckboxes = questionElement.querySelectorAll('input[type="checkbox"]');
+
                     allCheckboxes.forEach(checkbox => {
                         checkbox.disabled = true;
                         checkbox.style.pointerEvents = 'none';
@@ -2364,8 +2561,9 @@ export class FormRenderer {
                             choiceItem.style.pointerEvents = 'none';
                         }
                     });
-                    choiceIds.forEach(choiceId => {
-                        const checkboxInput = questionElement.querySelector(`input[data-choice-id="${choiceId}"]`);
+
+                    answers.forEach(answer => {
+                        const checkboxInput = questionElement.querySelector(`input[value="${answer}"]`);
                         if (checkboxInput) {
                             checkboxInput.checked = true;
                             const choiceItem = checkboxInput.closest('.choice-item');
@@ -2383,8 +2581,9 @@ export class FormRenderer {
                 case 'dropdown':
                     const select = questionElement.querySelector('select');
                     if (select) {
+                        console.log(select.options, answer)
                         const option = Array.from(select.options).find(opt => 
-                            opt.dataset.choiceId === answer.choice_id
+                            parseInt(opt.dataset.choiceId) === parseInt(answer.choice_id)
                         );
                         if (option) {
                             option.selected = true;
@@ -2399,6 +2598,61 @@ export class FormRenderer {
                     if (textInput) {
                         textInput.value = answer.answer;
                         textInput.readOnly = true;
+                    }
+                    break;
+
+                case "true-false":
+                    const trueInput = questionElement.querySelector('input[value="True"]');
+                    const falseInput = questionElement.querySelector('input[value="False"]');
+
+                    if (answer.answer === 'True') {
+                        if (trueInput) {
+                            trueInput.checked = true;
+                            const trueChoiceItem = trueInput.closest('.choice-item');
+                            if (trueChoiceItem) {
+                                trueChoiceItem.classList.add('selected');
+                                const trueIndicator = trueChoiceItem.querySelector('.choice-type-indicator');
+                                if (trueIndicator) {
+                                    trueIndicator.style.background = '#3b82f6';
+                                }
+                            }
+                        }
+                    } else if (answer.answer === 'False') {
+                        if (falseInput) {
+                            falseInput.checked = true;
+                            const falseChoiceItem = falseInput.closest('.choice-item');
+                            if (falseChoiceItem) {
+                                falseChoiceItem.classList.add('selected');
+                                const falseIndicator = falseChoiceItem.querySelector('.choice-type-indicator');
+                                if (falseIndicator) {
+                                    falseIndicator.style.background = '#3b82f6';
+                                }
+                            }
+                        }
+                    }
+                    break;
+                case "fill-blank":
+                    const blankInputs = questionElement.querySelectorAll(`input.blank-input`);
+                    const blank_answers = JSON.parse(answer.answer);
+
+                    blank_answers.forEach(blankAnswer => {
+                        const input = Array.from(blankInputs).find(input => input.dataset.blankId === blankAnswer.blankId);
+                        if (input) {
+                            input.value = blankAnswer.answer; // Set the answer for each blank
+                            input.dispatchEvent(new Event('input')); // Trigger input event
+                        }
+                    });
+                    break;  
+                case "matching":
+                    const matchingSelects = questionElement.querySelectorAll(`select`);
+                    const matching_aswers = JSON.parse(answer.answer);
+
+                    for (let question_index = 0; question_index < matching_aswers.length; question_index++) {
+                        const select = Array.from(matchingSelects).find(select => select.name.endsWith(question_index));
+
+                        if (select) {
+                            select.value = matching_aswers[question_index]; // Set the selected match
+                        }
                     }
                     break;
             }

@@ -10,6 +10,7 @@ class Form extends FormAbstract
 
     public $questions = [];
     public $form_completions = [];
+    public $form_correction = null;
 
         public function __construct($data = [])
     {
@@ -23,6 +24,7 @@ class Form extends FormAbstract
 
         $this->questions = $APPLICATION->FUNCTIONS->FORM_QUESTION_CONTROL->filterRecords(['form_id' => $this->form_id], true);
         $this->form_completions = $APPLICATION->FUNCTIONS->FORM_COMPLETION_CONTROL->filterRecords(['form_id' => $this->form_id], true);
+        $this->form_correction = $APPLICATION->FUNCTIONS->FORM_CORRECTION_CONTROL->getOnlyRecord(['form_id' => $this->form_id], true);
     }
 
     public function isStudentTaken($user_id)

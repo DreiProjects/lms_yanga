@@ -34,6 +34,7 @@ use Application\controllers\system\ActivityComplyControl;
 use Application\controllers\system\EventControl;
 use Application\controllers\system\GradeScoreControl;
 use Application\controllers\system\FormControl;
+use Application\controllers\system\FormCorrectionControl;
 use Application\controllers\system\FormQuestionControl;
 use Application\controllers\system\FormQuestionChoicesControl;
 use Application\controllers\system\FormQuestionOptionControl;
@@ -124,6 +125,8 @@ class GlobalFunctions
     public $FORM_QUESTION_OPTION_CONTROL;
 
     public $FORM_COMPLETION_CONTROL;
+
+    public $FORM_CORRECTION_CONTROL;
 
     public $FORM_COMPLETION_ANSWER_CONTROL;
 
@@ -221,6 +224,8 @@ class GlobalFunctions
         $this->GRADING_SHOW_REQUEST_CONTROL = new GradingShowRequestControl();
 
         $this->FORM_QUESTION_OPTION_CONTROL = new FormQuestionOptionControl();
+
+        $this->FORM_CORRECTION_CONTROL = new FormCorrectionControl();
         
     }
 }

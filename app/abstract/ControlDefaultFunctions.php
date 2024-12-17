@@ -402,10 +402,11 @@ abstract class ControlDefaultFunctions
             return $this->newInstanceOfModel($record);
         }, $records) : $records;
     }
+
     public function getOnlyRecord($WHERE, $AS_OBJECT)
     {
         $record = $this->CONNECTION->Select($this->TABLE_NAME, count($WHERE) > 0 ? $WHERE : null, false);
-        return $AS_OBJECT ? $this->newInstanceOfModel($record) : $record;
+        return $AS_OBJECT ? ($record ?  $this->newInstanceOfModel($record) : $record) : $record;
     }
 
 }

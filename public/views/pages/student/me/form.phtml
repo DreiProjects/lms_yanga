@@ -593,6 +593,252 @@ $alreadyTaken = $main_form->isStudentTaken($student->user_id);
                         .matching-section { background: white; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; }
                         .matching-items { padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem; min-height: 100px; }
                     </style>
+                    <style>
+                        .fill-blank-container {
+                            display: flex;
+                            flex-direction: column;
+                            gap: 1.5rem;
+                            padding: 0;
+                            margin-top: 1rem;
+                        }
+
+                        .fill-blank-section {
+                            background: white;
+                            border: 1px solid #e2e8f0;
+                            border-radius: 12px;
+                            overflow: hidden;
+                        }
+
+                        .section-header {
+                            display: flex;
+                            align-items: center;
+                            gap: 0.75rem;
+                            padding: 1rem 1.25rem;
+                            background: #f8fafc;
+                            border-bottom: 1px solid #e2e8f0;
+                            color: #0f172a;
+                            font-weight: 600;
+                        }
+
+                        .section-header i {
+                            width: 18px;
+                            height: 18px;
+                            color: #3b82f6;
+                        }
+
+                        .editor-toolbar {
+                            display: flex;
+                            align-items: center;
+                            justify-content: space-between;
+                            padding: 1rem 1.25rem;
+                            background: white;
+                            border-bottom: 1px solid #e2e8f0;
+                        }
+
+                        .add-blank-btn {
+                            display: flex;
+                            align-items: center;
+                            gap: 0.5rem;
+                            padding: 0.5rem 1rem;
+                            background: #3b82f6;
+                            color: white;
+                            border: none;
+                            border-radius: 6px;
+                            font-weight: 500;
+                            cursor: pointer;
+                            transition: all 0.15s ease;
+                        }
+
+                        .add-blank-btn:hover {
+                            background: #2563eb;
+                            transform: translateY(-1px);
+                        }
+
+                        .editor-content {
+                            min-height: 120px;
+                            padding: 1.25rem;
+                            font-size: 1rem;
+                            line-height: 1.6;
+                            color: #1e293b;
+                        }
+
+                        .editor-content:focus {
+                            outline: none;
+                        }
+
+                        .editor-content[placeholder]:empty:before {
+                            content: attr(placeholder);
+                            color: #94a3b8;
+                            font-style: italic;
+                        }
+
+                        .blank-space {
+                            display: inline-flex;
+                            align-items: center;
+                            padding: 0.375rem 0.75rem;
+                            margin: 0 0.25rem;
+                            background: #dbeafe;
+                            border: 1px solid #93c5fd;
+                            border-radius: 4px;
+                            color: #1d4ed8;
+                            font-weight: 500;
+                            user-select: none;
+                        }
+
+                        .fill-blank-answer {
+                            line-height: 2;
+                            padding: 1rem;
+                            background: #f8fafc;
+                            border-radius: 8px;
+                            border: 1px solid #e2e8f0;
+                        }
+
+                        .blank-input-wrapper {
+                            display: inline-block;
+                            margin: 0 0.25rem;
+                        }
+
+                        .blank-input {
+                            width: 150px;
+                            padding: 0.375rem 0.75rem;
+                            border: 2px solid #e2e8f0;
+                            border-radius: 6px;
+                            font-size: 0.95rem;
+                            transition: all 0.2s;
+                        }
+
+                        .blank-input:focus {
+                            border-color: #3b82f6;
+                            outline: none;
+                            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+                        }
+
+                        .matching-answer-container {
+                            padding: 1.5rem;
+                            background: #f8fafc;
+                            border-radius: 8px;
+                            border: 1px solid #e2e8f0;
+                        }
+
+                        .matching-columns {
+                            display: grid;
+                            grid-template-columns: 2fr 60px 2fr;
+                            gap: 1rem;
+                            margin-bottom: 2rem;
+                            position: relative;
+                            min-height: 200px;
+                            align-items: start;
+                        }
+
+                        .matching-questions, .matching-words {
+                            display: flex;
+                            flex-direction: column;
+                            gap: 1rem;
+                        }
+
+                        .matching-question, .matching-word {
+                            display: flex;
+                            align-items: center;
+                            padding: 0.75rem;
+                            background: white;
+                            border: 1px solid #e2e8f0;
+                            border-radius: 8px;
+                            position: relative;
+                        }
+
+                        .question-number, .word-letter {
+                            width: 24px;
+                            height: 24px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            background: #e0f2fe;
+                            color: #0369a1;
+                            border-radius: 6px;
+                            font-weight: 600;
+                            font-size: 0.875rem;
+                            z-index: 1;
+                        }
+
+                        .question-text, .word-text {
+                            flex: 1;
+                            padding: 0 1rem;
+                            z-index: 0;
+                        }
+
+                        .question-text {
+                            padding-left: 40px !important;
+                        }
+
+                        .connection-point {
+                            width: 12px;
+                            height: 12px;
+                            background: #94a3b8;
+                            border-radius: 50%;
+                            position: absolute;
+                            top: 50%;
+                            transform: translateY(-50%);
+                        }
+
+                        .connection-point.right {
+                            right: -6px;
+                        }
+
+                        .connection-point.left {
+                            left: -6px;
+                        }
+
+                        .matching-connections {
+                            position: relative;
+                            width: 60px;
+                            height: 100%;
+                            margin: 0 auto;
+                        }
+
+                        #matching-canvas {
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                            pointer-events: none;
+                        }
+
+                        .matching-answers {
+                            display: flex;
+                            flex-direction: column;
+                            gap: 0.75rem;
+                            padding-top: 1rem;
+                            border-top: 1px solid #e2e8f0;
+                        }
+
+                        .matching-answer-row {
+                            display: flex;
+                            align-items: center;
+                            gap: 1rem;
+                        }
+
+                        .answer-label {
+                            min-width: 150px;
+                            color: #475569;
+                            font-size: 0.95rem;
+                        }
+
+                        .matching-select {
+                            padding: 0.5rem;
+                            border: 1px solid #e2e8f0;
+                            border-radius: 6px;
+                            background: white;
+                            min-width: 120px;
+                        }
+
+                        .matching-select:focus {
+                            border-color: #3b82f6;
+                            outline: none;
+                            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+                        }
+
+                    </style>
                 </div>
             </div>
         </div>
