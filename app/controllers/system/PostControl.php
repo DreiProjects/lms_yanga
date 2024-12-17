@@ -222,5 +222,13 @@ class PostControl
 
         return $APPLICATION->FUNCTIONS->POSTS_CONTROL->removeComment($post_id, $comment_id);
     }
+
+    public function CheckExam() {
+        global $APPLICATION;
+
+        $exam_id = $_POST['exam_id'];
+
+        return $APPLICATION->FUNCTIONS->EXAM_CONTROL->check($exam_id);
+    }
     
 }

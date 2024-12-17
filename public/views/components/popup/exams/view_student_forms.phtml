@@ -98,9 +98,6 @@ foreach($all_students as $student) {
         border-left: 4px solid #28a745;
     }
     .grade-stamp {
-        position: absolute;
-        top: 10px;
-        right: 10px;
         width: 80px;
         padding: 8px;
         background: #f8f9fa;
@@ -112,6 +109,7 @@ foreach($all_students as $student) {
         flex-direction: column;
         box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         z-index: 1; /* Added z-index to place behind button */
+        margin-left: 5px;
     }
     .grade-stamp .grade {
         font-size: 24px;
@@ -129,6 +127,14 @@ foreach($all_students as $student) {
         margin: 2px 0 0;
         padding: 0;
         line-height: 1;
+    }
+    .grade-stamp-container {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 5px;
+        position: absolute;
+        top: 10px;
+        right: 10px;
     }
 </style>
 <div class="main-popup-container">
@@ -150,11 +156,19 @@ foreach($all_students as $student) {
                 </div>
             </div>
             
-            <form action="" class="form-control">
                 <div class="popup-bot">
                     <div class="flex-container">
                         <div class="left-column">
-                            <h3>Student Submissions</h3>
+                            <div class="title" style="display:flex;justify-content:space-between">
+                                <div class="left">
+                                    <h3>Student Submissions</h3>    
+                                </div>
+                                <div class="right">
+                                    <button class="primary check-exams-btn" role="button" style="background-color: #007bff; color: white; border: none; border-radius: 4px; padding: 10px 15px; font-size: 16px; cursor: pointer; transition: background-color 0.3s;">
+                                        <span>Check All</span>
+                                    </button>
+                                </div>
+                            </div>
                             <?php if(!empty($complies)): ?>
                                 <?php foreach($complies as $comply): ?>
                                     <?php 
@@ -163,9 +177,17 @@ foreach($all_students as $student) {
                                     ?>
                                     <div class="comply-item <?= $submissionClass ?>" data-id="<?= $comply->form_completion_id ?>">
                                         <?php if($comply->grade_score): ?>
-                                        <div class="grade-stamp">
-                                            <p class="grade"><?= $comply->grade_score['grade'] ?></p>
-                                            <p class="label">Grade</p>
+                                        <div class="grade-stamp-container">
+                                            <div class="grade-stamp">
+                                                <p class="grade"><?= $comply->grade_score['grade'] ?></p>
+                                                <p class="label">Grade</p>
+                                            </div>
+                                            <?php if($comply->check_score): ?>
+                                                <div class="grade-stamp">
+                                                    <p class="grade"><?= $comply->check_score['score'] ?></p>
+                                                    <p class="label">Score</p>
+                                                </div>
+                                            <?php endif ?>
                                         </div>
                                         <?php endif; ?>
                                         <div>
@@ -204,7 +226,6 @@ foreach($all_students as $student) {
                         </div>
                     </div>
                 </div>
-            </form>
         </div>
     </div>
 </div>

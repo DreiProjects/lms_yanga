@@ -9,8 +9,12 @@ class Form extends FormAbstract
 {
 
     public $questions = [];
+
     public $form_completions = [];
+
     public $form_correction = null;
+
+    public $exam;
 
         public function __construct($data = [])
     {
@@ -43,5 +47,6 @@ class Form extends FormAbstract
         
         return count($taken) > 0 ? $taken[0] : false;
     }
+
 
 }

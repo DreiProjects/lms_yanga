@@ -18,6 +18,8 @@ abstract class FormQuestionAbstract extends ModelDefaultFunctions
 
     public $image_url;
 
+    public $points;
+
     public $date_created;
 
     public $status;

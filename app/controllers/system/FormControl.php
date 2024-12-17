@@ -34,7 +34,8 @@ class FormControl extends ControlDefaultFunctions
                     "question_number" => $question['questionNumber'],
                     "question" => $question['title'],
                     "question_type" => $question['type'],
-                    "image_url" => $question['imageUrl']
+                    "image_url" => $question['imageUrl'],
+                    "points" => $question['points']
                 ];
 
                 $q = $APPLICATION->FUNCTIONS->FORM_QUESTION_CONTROL->addRecord($questionData);

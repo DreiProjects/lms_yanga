@@ -790,7 +790,7 @@ export default class GradingPlatformEditor {
       const category = popup.ELEMENT.querySelector(".category");
       const data = popup.ELEMENT.querySelector(".data");
       const mainContent = popup.ELEMENT.querySelector(".data-main-content");
-      const sectionSubjectId = this.section_subject_id;
+      const sectionSubjectId = this.sectionSubjectId;
       const obj = this;
       const form = popup.ELEMENT.querySelector("form");
       let importedData = null;
@@ -809,6 +809,7 @@ export default class GradingPlatformEditor {
           }),
           cat == "Activity" ? "ACTIVITY_CONTROL" : "EXAM_CONTROL"
         ).then((res) => {
+          console.log(res)
           const newData = res.map((item) => {
             return {
               value: cat == "Activity" ? item.activity_id : item.exam_id,

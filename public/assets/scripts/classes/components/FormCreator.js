@@ -36,6 +36,11 @@ export class FormQuestion {
             <div class="drag-handle">
                 <i data-feather="menu" class="drag-icon"></i>
             </div>
+            <div class="points-container" style="position: absolute; bottom: 10px; left: 10px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); padding: 6px; transition: background 0.3s;">
+                <div class="points-input" contenteditable="true" style="border: 1px solid #007bff; border-radius: 4px; padding: 6px; width: 50px; text-align: center; font-size: 14px; outline: none; transition: border-color 0.3s;">
+                    1
+                </div>
+            </div>
             <div class="question-header">
                 <div class="question-input">
                     <textarea placeholder="Enter your question" class="question-title" rows="1"></textarea>
@@ -119,7 +124,8 @@ export class FormQuestion {
             choices: questionData.choices ? questionData.choices.map((choice) => choice.choice) : [],
             choices_id: questionData.choices ? questionData.choices.map((choice) => choice.form_question_choice_id) : [],
             imageUrl: questionData.image_url,
-            options: questionData.options
+            options: questionData.options,
+            points: questionData.points
 
         }
     }
@@ -127,6 +133,7 @@ export class FormQuestion {
     getQuestionSummaryAnswer() {
         const questionData = this.isPreview ? this.getQuestionDataFromPreview() : this.getQuestionSummary();
         const questionElement = this.element;
+        const pointInput = questionElement.querySelector(".points-input");
         let answer = null;
         let choice_id = null;
 
@@ -194,7 +201,8 @@ export class FormQuestion {
             question_id: questionData.question_id,
             type: questionData.type,
             answer: answer,
-            choice_id: choice_id
+            choice_id: choice_id,
+            point: pointInput.value
         };
     }
 
@@ -203,6 +211,8 @@ export class FormQuestion {
         const div = document.createElement('div');
         div.className = 'question-container preview-mode';
         div.dataset.questionId = questionData.question_id;
+
+        
 
         let answerHTML = '';
         switch(questionData.type) {
@@ -346,6 +356,11 @@ export class FormQuestion {
         }
 
         div.innerHTML = `
+            <div class="points-container" style="position: absolute; bottom: 10px; left: 10px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); padding: 6px; transition: background 0.3s;">
+                <div class="points-input" style="border: 1px solid #007bff; border-radius: 4px; padding: 6px; width: 50px; text-align: center; font-size: 14px; outline: none; transition: border-color 0.3s;">
+                    ${questionData.points}
+                </div>
+            </div>
             <div class="question-number">${questionData.questionNumber}</div>
             <div class="question-header">
                 <div class="question-input">
@@ -395,6 +410,10 @@ export class FormQuestion {
         const type = this.element.querySelector('.question-type').value;
         const imageElement = this.element.querySelector('.question-image');
         const imageUrl = imageElement && imageElement.src !== '' ? imageElement.src : null;
+        const pointsInput = this.element.querySelector('.points-input');
+
+
+    
 
         // Handle matching type
         if (type === 'matching') {
@@ -411,7 +430,8 @@ export class FormQuestion {
                 type: type,
                 questions: questions,
                 words: words,
-                imageUrl: imageUrl
+                imageUrl: imageUrl,
+                points: parseInt(pointsInput.textContent)
             };
         }
 
@@ -431,7 +451,8 @@ export class FormQuestion {
                 title: editor.innerHTML,
                 type: type,
                 blanks: blanks,
-                imageUrl: imageUrl
+                imageUrl: imageUrl,
+                points: parseInt(pointsInput.textContent)
             };
         }
 
@@ -442,7 +463,8 @@ export class FormQuestion {
                 title: this.element.querySelector('.question-title').value || 'Untitled Question',
                 type: type,
                 choices: ['True', 'False'],
-                imageUrl: imageUrl
+                imageUrl: imageUrl,
+                points: parseInt(pointsInput.textContent)
             };
         }
 
@@ -453,7 +475,8 @@ export class FormQuestion {
                 title: this.element.querySelector('.question-title').value || 'Untitled Question',
                 type: type,
                 choices: [],
-                imageUrl: imageUrl
+                imageUrl: imageUrl,
+                points: parseInt(pointsInput.textContent)
             };
         }
 
@@ -470,7 +493,8 @@ export class FormQuestion {
             title: title || 'Untitled Question',
             type: type,
             choices: choices,
-            imageUrl: imageUrl
+            imageUrl: imageUrl,
+            points: parseInt(pointsInput.textContent)
         };
     }
 
@@ -496,6 +520,7 @@ export class FormQuestion {
         const addImageBtn = this.element.querySelector('.add-image-btn');
         const imageInput = this.element.querySelector('.image-input');
         const removeImageBtn = this.element.querySelector('.remove-image-btn');
+        const pointsInput = this.element.querySelector(".points-input");
 
         questionType.addEventListener('change', () => this.updateQuestionType());
         addChoiceBtn.addEventListener('click', () => this.addChoice());
@@ -516,6 +541,10 @@ export class FormQuestion {
         questionTitle.addEventListener('input', function() {
             this.style.height = 'auto';
             this.style.height = (this.scrollHeight) + 'px';
+        });
+
+        pointsInput.addEventListener('input', (e) => {
+            pointsInput.textContent  = pointsInput.textContent.replace(/[^0-9]/g, '');
         });
     }
 
@@ -1276,7 +1305,6 @@ export default class FormCreator {
             questions: obj.questions.map((question) => question.getQuestionSummary())
         };
 
-
         // Validate required fields
         if (!mainData.title.trim()) {
             NewNotification({
@@ -1286,7 +1314,9 @@ export default class FormCreator {
             return;
         }
 
-        const popup = new Popup(`forms/add_new_form`, {title: obj.title, description: obj.description}, {
+        const totalPoints = mainData.questions.reduce((sum, question) => sum + question.points, 0);
+
+        const popup = new Popup(`forms/add_new_form`, {title: obj.title, description: obj.description, totalPoints}, {
             backgroundDismiss: false,
         });
 
@@ -2515,7 +2545,6 @@ export class FormRenderer {
     applyAnswers() {
         if (!this.userAnswers || this.userAnswers.length === 0) return;
 
-        console.log(this.userAnswers)
         // Process each answer
         this.userAnswers.forEach(answer => {
             const questionElement = this.container.querySelector(`[data-question-id="${answer.question_id}"]`);

@@ -80,7 +80,7 @@ $data = json_decode($_POST['data'], true);
                             </div>
                             <label for=""><span>Points</span></label>
                             <div class="error-container">
-                                <input type="number" min="0" name="points" placeholder="Points" >
+                                <input type="number" min="0" name="points" placeholder="Points" value="<?= $data['totalPoints'] ?>" readonly>
                             </div>
                         </div>
                     </div>

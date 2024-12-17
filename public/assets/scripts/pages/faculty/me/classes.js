@@ -516,6 +516,16 @@ function ViewStudentForms(exam_id) {
     popup.Show();
 
     const complyItems = popup.ELEMENT.querySelectorAll(".comply-item");
+    const checkExamsBtn = popup.ELEMENT.querySelector(".check-exams-btn");
+
+    if (checkExamsBtn) {
+      checkExamsBtn.addEventListener("click", function() {
+          PostRequest("CheckExam", {exam_id}).then((res) => {
+            console.log(res);
+          })
+      });
+    }
+
     complyItems.forEach((item) => {
       item.addEventListener("click", () => {
         ViewCompletedForm(exam_id, item.dataset.id);
