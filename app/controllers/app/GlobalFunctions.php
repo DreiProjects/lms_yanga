@@ -43,6 +43,7 @@ use Application\controllers\system\FormCompletionControl;
 use Application\controllers\system\FormCompletionAnswerControl;
 use Application\controllers\system\SubjectAttendanceControl;
 use Application\controllers\system\GradingShowRequestControl;
+use Application\controllers\system\SectionStudentIrregularSubjectControl;
 use Application\models\Professor;
 use Application\models\Section;
 
@@ -136,6 +137,8 @@ class GlobalFunctions
     public $GRADING_SHOW_REQUEST_CONTROL;
 
     public $FORM_CHECK_CONTROL;
+
+    public $SECTION_STUDENT_IRREGULAR_SUBJECT_CONTROL;
 
 
     public function __construct($SESSION)
@@ -231,6 +234,8 @@ class GlobalFunctions
         $this->FORM_CORRECTION_CONTROL = new FormCorrectionControl();
 
         $this->FORM_CHECK_CONTROL = new FormCheckControl();
+
+        $this->SECTION_STUDENT_IRREGULAR_SUBJECT_CONTROL = new SectionStudentIrregularSubjectControl();
         
     }
 }

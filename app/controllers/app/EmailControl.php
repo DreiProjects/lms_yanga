@@ -10,7 +10,7 @@ class EmailControl
 
     public $MAILER;
 
-    protected $APPLICATION_PASSWORD = "jdypslyqcgqfiacd";
+    protected $APPLICATION_PASSWORD = "cnyhzbwucsdmgzuu";
 
     protected $HOST = "smtp.gmail.com";
 

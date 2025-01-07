@@ -120,8 +120,8 @@ $SECTION_SUBJECT_HEADER_BODY = [
 ];
 
 $STUDENTS_IN_CLASSES_HEADER_BODY = [
-    "header" => ["No","Student Name", "Student No", "Gender"],
-    "body" => ["no","displayName", "student_no","gender"]
+    "header" => ["No","Student Name", "Student No", "Gender", "Reggular/Irregular"],
+    "body" => ["no","displayName", "student_no","gender", "irregular"]
 ];
 
 $SUBJECTS_IN_CLASSES_HEADER_BODY = [

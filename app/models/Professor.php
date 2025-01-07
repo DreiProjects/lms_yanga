@@ -38,4 +38,12 @@ class Professor extends ProfessorAbstract
 
         return $APPLICATION->FUNCTIONS->SECTION_SUBJECT_CONTROL->filterRecords(["professor_id" => $this->professor_id], true);
     }
+
+    
+    public function getAdvisoryClasses()
+    {
+        global $APPLICATION;
+
+        return $APPLICATION->FUNCTIONS->SECTION_CONTROL->filterRecords(["adviser_id" => $this->professor_id], true);
+    }
 }

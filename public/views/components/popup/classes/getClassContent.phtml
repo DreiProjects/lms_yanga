@@ -3,6 +3,8 @@ global $APPLICATION, $SESSION, $STUDENTS_IN_CLASSES_HEADER_BODY, $SUBJECTS_IN_CL
 
 $gradingControl = $APPLICATION->FUNCTIONS->GRADING_PLATFORM_CONTROL;
 
+$IS_ADIVSER =  filter_var($_POST['is_adviser'], FILTER_VALIDATE_BOOLEAN);
+
 if (!isset($section)) {
     $id = $_POST['id'];
     $professor_id = $_POST['professor_id'];
@@ -17,9 +19,9 @@ $RECORDS = array_map(fn($record) => [
     "displayName" => $record->displayName,
     "gender" => $record->student->gender == 0 ? "Male" : "Female",
     "student_no" => $record->student->student_no,
-    "user_id" => $record->user_id
+    "user_id" => $record->user_id,
+    "irregular" => ucfirst($record->irregular)
 ], $RECORDS);
-
 
 // Fetch subjects for the professor
 $SUBJECTS = array_map(fn($record) => (object) [
@@ -37,7 +39,6 @@ $SUBJECTS = array_map(fn($record) => (object) [
 // Fetch resources, activities, and exams for each subject
 $RESOURCES = $ACTIVITIES = $EXAMS = [];
 
-
 foreach ($SUBJECTS as $subject) {
     $RESOURCES[$subject->subject_name] = $APPLICATION->FUNCTIONS->RESOURCES_GROUP_CONTROL->filterRecords(['section_subject_id' => $subject->section_subject_id], false);
     $RESOURCES[$subject->subject_name] = array_map(fn($resource) => [
@@ -51,8 +52,6 @@ foreach ($SUBJECTS as $subject) {
 }
 
 // $GRADING_PLATFORM = $APPLICATION->FUNCTIONS->GRADING_PLATFORM_CONTROL->getBy("section_subject_id", $SUBJECTS[0]->section_subject_id, true);
-
-
 
 ?>
 
@@ -78,15 +77,30 @@ foreach ($SUBJECTS as $subject) {
                     <ul class="tab-nav">
                         <li class="tab-item active" data-tab="students"><?= $SESSION->user_type == 1 ? "CLASSMATES" : "STUDENTS" ?></li>
                         <li class="tab-item" data-tab="subjects">SUBJECTS</li>
+                        <?php if (!$IS_ADIVSER): ?>
                         <li class="tab-item" data-tab="resources">RESOURCES</li>
                         <li class="tab-item" data-tab="activities">ACTIVITIES</li>
                         <li class="tab-item" data-tab="exams">FORMS</li>
+                        <?php endif ?>
                         <li class="tab-item" data-tab="notes">NOTES</li>
+                        <?php if (!$IS_ADIVSER): ?>
                         <li class="tab-item" data-tab="grades">GRADES</li>
                         <li class="tab-item" data-tab="attendance">ATTENDANCE</li>
+                        <?php endif ?>
+
                     </ul>
                     <div class="tab-content">
                         <div class="tab-pane active" id="students">
+
+                            <?php if ($IS_ADIVSER): ?>
+                                <div class="list-buttons">
+                                    <button class="btn-primary show-irregular-students" data-section_id="<?= $section->section_id ?>">
+                                        <span>Irregular Students</span>
+                                    </button>
+                                </div>
+                            <?php endif ?>
+                            
+
                             <?= CreateTable([
                                 "content" => $STUDENTS_IN_CLASSES_HEADER_BODY,
                                 "data" => $RECORDS,
@@ -102,6 +116,8 @@ foreach ($SUBJECTS as $subject) {
                                 "checkbox" => true
                             ]) ?>
                         </div>
+
+                        <?php if (!$IS_ADIVSER): ?>
                         <div class="tab-pane" id="resources">
                             <div class="resources-container">
                                 <div class="resources-actions">
@@ -359,10 +375,14 @@ foreach ($SUBJECTS as $subject) {
                                 </div>
                             </div>
                         </div>
+                        <?php endif ?>
                         <div class="tab-pane" id="notes">
                             <div class="sticky-note-editor-container" data-user_id="<?= $SESSION->user_id ?>" data-section_id="<?= $section->section_id ?>" data-professor_id="<?= $professor_id ?>">
                             </div>
                         </div>
+
+                        <?php if (!$IS_ADIVSER): ?>
+
                         <div class="tab-pane" id="grades">
                             <div class="grades-container">
                                 <div class="grades-content">
@@ -477,6 +497,8 @@ foreach ($SUBJECTS as $subject) {
                             </div>
                         </div>
                     </div>
+                    <?php endif ?>
+
                 </div>
                 </div>
             </div>

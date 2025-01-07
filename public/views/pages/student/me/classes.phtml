@@ -8,8 +8,12 @@ $sectionStudent = $student->getSectionStudent();
 
 if ($sectionStudent != null) {
     $section = $sectionStudent->section;
-
     $subjects = $section->subjects;
+
+    if ($sectionStudent->irregular == 'irregular') {
+        $subjects = $sectionStudent->getIrregularSubjects();
+    } 
+
     // Group subjects by professor
     $subjectsByProfessor = [];
 
@@ -82,7 +86,7 @@ if ($sectionStudent != null) {
                             <div class="cards-flex-container">
                                 <?php if ($sectionStudent != null): ?>
                                     <?php foreach ($subjectsByProfessor as $subProf): ?>
-                                    <div class="card-flex-container" data-id="<?= $section->section_id ?>" data-professor_id="<?= $subProf['professor']->professor_id ?>">
+                                    <div class="card-flex-container main" data-id="<?= $section->section_id ?>" data-professor_id="<?= $subProf['professor']->professor_id ?>">
                                         <div class="title">
                                             <h3><?= implode(", ", array_map(fn($subject) => $subject->subject->subject_name, $subProf['subjects'])) ?></h3>
                                             <br>

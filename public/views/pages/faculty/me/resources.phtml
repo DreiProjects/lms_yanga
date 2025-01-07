@@ -205,7 +205,6 @@ $paginatedForms = array_slice($forms, $offset, $itemsPerPage);
                                                                         <i data-feather="more-vertical"></i>
                                                                     </button>
                                                                     <div class="dropdown-menu">
-                                                                        <a href="/me/forms/update/<?= $form->form_id ?>" class="edit-form-btn">Edit Form</a>
                                                                         <?php if (!$form->form_correction): ?>
                                                                             <a href="/me/forms/corrections/<?= $form->form_id ?>" class="check-correction-btn">Add Correction</a>
                                                                         <?php else: ?>

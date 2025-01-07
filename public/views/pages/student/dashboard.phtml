@@ -6,7 +6,7 @@ $sectionStudent = $student->getSectionStudent();
 
 if ($sectionStudent != null) {
     $section = $sectionStudent->section;
-    $subjects = $section->subjects;
+    $subjects = $sectionStudent->getSubjects();
 }
 
 // Get student's sections and subjects

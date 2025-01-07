@@ -74,7 +74,7 @@ class PostsControl extends ControlDefaultFunctions
 
         // Only allow deletion if user is the comment author
         if ($comment['user_id'] == $SESSION->user_id) {
-            return $comment_control->removeRecord($comment_id);
+          
         }
 
         return false;

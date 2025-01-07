@@ -15,18 +15,24 @@ import Popup from "../../../classes/components/Popup.js";
 import {
   AddRecord,
   EditRecord,
+  EditRecords,
   PostRequest,
+  RemoveRecords,
+  RemoveRecordsBatch,
   UploadFileFromFile,
 } from "../../../modules/app/SystemFunctions.js";
 import {
   SelectModels,
   SelectModel,
   SelectModelByFilter,
+  SelectSomething,
 } from "../../../modules/app/Administrator.js";
 import GradingPlatformEditor from "../../../classes/components/GradingPlatformEditor.js";
 import StickyNoteEditor from "../../../classes/components/StickyNoteEditor.js";
 import { SESSION } from "../../../modules/app/Application.js";
 import { NewNotification } from "../../../classes/components/NotificationPopup.js";
+import { TableListener } from "../../../classes/components/TableListener.js";
+import AlertPopup, { AlertTypes } from "../../../classes/components/AlertPopup.js";
 
 // Handle creating new exam
 function NewExam(section_id) {
@@ -281,26 +287,43 @@ function Grades() {
     const sectionSubjectId = platformContainer.dataset.sectionSubjectId;
 
     SelectModel(sectionSubjectId, "SECTION_SUBJECT_CONTROL").then((res) => {
-      SelectModelByFilter(
-        JSON.stringify({ section_id: res.section_id }),
-        "SECTION_STUDENT_CONTROL"
-      ).then((students) => {
-        const gradingEditor = new GradingPlatformEditor({
-          container: platformContainer,
-          students: students.map((student) => ({
-            user_id: student.user_id,
-            displayName: student.displayName,
-          })),
-          buttons: {
-            save: saveBtn,
-            discard: discardBtn,
-            export: exportBtn,
-            show: showBtn,
-          },
+      SelectModelByFilter(JSON.stringify({section_id: res.section_id, irregular: 'irregular'}),
+      "SECTION_STUDENT_CONTROL").then((irregulars) => {
+          
+        SelectModelByFilter(
+          JSON.stringify({ section_id: res.section_id }),
+          "SECTION_STUDENT_CONTROL"
+        ).then((students) => {
+          const allStudents = students.filter(student => {
+            if (student.irregular == 'irregular') {
+              const irreg = irregulars.find(ir => ir.student_id == student.user_id);
+              return irreg && irreg.subjects.some(subject => subject.section_subject_id == sectionSubjectId);
+            }
+            return true;
+          });
+
+
+          // console.log(students, irregulars, sectionSubjectId  )
+          const gradingEditor = new GradingPlatformEditor({
+            container: platformContainer,
+            students: allStudents.map((student) => ({
+              user_id: student.user_id,
+              displayName: student.displayName,
+            })),
+            buttons: {
+              save: saveBtn,
+              discard: discardBtn,
+              export: exportBtn,
+              show: showBtn,
+            },
+          });
+  
+          gradingEditor.Load(sectionSubjectId);
         });
 
-        gradingEditor.Load(sectionSubjectId);
       });
+
+     
     });
   });
 }
@@ -983,10 +1006,34 @@ function StickyNotes() {
 function GetSectionStudents(sectionSubjectId) {
   return new Promise((resolve) => {
     SelectModel(sectionSubjectId, "SECTION_SUBJECT_CONTROL").then((res) => {
+
       SelectModelByFilter(
-        JSON.stringify({ section_id: res.section_id }),
+        JSON.stringify({ section_id: res.section_id, irregular: 'irregular' }),
         "SECTION_STUDENT_CONTROL"
-      ).then(resolve);
+      ).then((irregulars) => {
+
+        SelectModelByFilter(
+          JSON.stringify({ section_id: res.section_id }),
+          "SECTION_STUDENT_CONTROL"
+        ).then(students => {
+
+          const allStudents = students.filter(student => {
+            if (student.irregular == 'irregular') {
+              const irreg = irregulars.find(ir => ir.student_id == student.user_id);
+              return irreg && irreg.subjects.some(subject => subject.section_subject_id == sectionSubjectId);
+            }
+            return true;
+          });
+
+          resolve(allStudents);
+
+        });
+
+       
+
+      });
+
+      
     });
   });
 }
@@ -1034,8 +1081,8 @@ class AttendanceManager {
   async init() {
     // Hide action buttons if user is a student
     if (this.sessionType === 1) {
-      const saveBtn = document.querySelector(".save-attendance");
-      const discardBtn = document.querySelector(".discard-attendance");
+      const saveBtn = this.container.querySelector(".save-attendance");
+      const discardBtn = this.container.querySelector(".discard-attendance");
       if (saveBtn) saveBtn.style.display = "none";
       if (discardBtn) discardBtn.style.display = "none";
     }
@@ -1049,8 +1096,8 @@ class AttendanceManager {
       JSON.stringify(this.attendanceData)
     );
 
-    this.monthSelect = document.getElementById("monthSelect");
-    this.yearSelect = document.getElementById("yearSelect");
+    this.monthSelect = this.container.querySelector("#monthSelect");
+    this.yearSelect = this.container.querySelector("#yearSelect");
 
     this.generateTable();
     this.setupEventListeners();
@@ -1060,7 +1107,7 @@ class AttendanceManager {
     this.monthSelect.addEventListener("change", () => this.generateTable());
     this.yearSelect.addEventListener("change", () => this.generateTable());
 
-    document.querySelector(".prev-month").addEventListener("click", () => {
+    this.container.querySelector(".prev-month").addEventListener("click", () => {
       let month = parseInt(this.monthSelect.value);
       let year = parseInt(this.yearSelect.value);
 
@@ -1074,7 +1121,7 @@ class AttendanceManager {
       this.generateTable();
     });
 
-    document.querySelector(".next-month").addEventListener("click", () => {
+    this.container.querySelector(".next-month").addEventListener("click", () => {
       let month = parseInt(this.monthSelect.value);
       let year = parseInt(this.yearSelect.value);
 
@@ -1088,13 +1135,13 @@ class AttendanceManager {
       this.generateTable();
     });
 
-    document.querySelector(".prev-year").addEventListener("click", () => {
+    this.container.querySelector(".prev-year").addEventListener("click", () => {
       let year = parseInt(this.yearSelect.value);
       this.yearSelect.value = year - 1;
       this.generateTable();
     });
 
-    document.querySelector(".next-year").addEventListener("click", () => {
+    this.container.querySelector(".next-year").addEventListener("click", () => {
       let year = parseInt(this.yearSelect.value);
       this.yearSelect.value = year + 1;
       this.generateTable();
@@ -1129,8 +1176,8 @@ class AttendanceManager {
   }
 
   updateButtonStates() {
-    const saveBtn = document.querySelector(".save-attendance");
-    const discardBtn = document.querySelector(".discard-attendance");
+    const saveBtn = this.container.querySelector(".save-attendance");
+    const discardBtn = this.container.querySelector(".discard-attendance");
 
     if (saveBtn && discardBtn) {
       saveBtn.disabled = !this.hasChanges;
@@ -1160,7 +1207,7 @@ class AttendanceManager {
         }
       }
 
-      const summaryCell = document.querySelector(
+      const summaryCell = this.container.querySelector(
         `.summary-cell[data-student="${student.user_id}"]`
       );
       if (summaryCell) {
@@ -1566,16 +1613,22 @@ function Attendance() {
 // Handle cards functionality
 function Cards() {
   const cards = document.querySelectorAll(
-    ".cards-flex-container .card-flex-container"
+    ".cards-flex-container .card-flex-container.main"
   );
-  const content = document.querySelector(".main-content");
 
-  function GetClassContent(id, professor_id) {
+  const content = document.querySelector(".main-content");
+  const content2 = document.querySelector(".main-content.two");
+
+  const advisor_cards = document.querySelectorAll(
+    ".cards-flex-container .card-flex-container.advisor"
+  );
+
+  function GetClassContent(id, professor_id, is_adviser) {
     return new Promise((resolve) => {
       Ajax({
         url: "/components/popup/classes/getClassContent",
         type: "POST",
-        data: { id, professor_id },
+        data: { id, professor_id, is_adviser },
         success: resolve,
       });
     });
@@ -1583,8 +1636,11 @@ function Cards() {
 
   cards.forEach((card) => {
     card.addEventListener("click", () => {
-      GetClassContent(card.dataset.id, card.dataset.professor_id).then(
+      GetClassContent(card.dataset.id, card.dataset.professor_id, false).then(
         (res) => {
+          if (content2) {
+            content2.remove();
+          }
           addHtml(content, res);
           Tabs();
           Resources();
@@ -1596,6 +1652,255 @@ function Cards() {
         }
       );
     });
+  });
+
+  advisor_cards.forEach((card) => {
+    card.addEventListener("click", function() {
+      GetClassContent(card.dataset.id, card.dataset.professor_id, true).then(
+        (res) => {
+          content2.remove();
+          addHtml(content, res);
+          Tabs();
+          ManageStudentTabs();
+          StickyNotes();
+        }
+      );
+    });
+  })
+}
+
+function ManageStudentTabs() {
+  const showBtn = document.querySelector(".show-irregular-students");
+  const section_id = showBtn.dataset.section_id;
+
+  showBtn.addEventListener("click", function() {
+    const popup = new Popup(
+      `${"sections"}/view_irregulars`,
+      { section_id },
+      {
+        backgroundDismiss: false,
+      }
+    );
+
+    popup.Create().then(() => {
+      popup.Show();
+
+      ManageStudentsTable(popup.ELEMENT, section_id);
+
+    });
+
+  });
+}
+
+function ManageStudentsSubjectsTable(element, section_id, student_id) {
+  const TABLE = element.querySelector(".main-table-container.table-component");
+
+  if (!TABLE) return;
+
+  const TABLE_LISTENER = new TableListener(TABLE);
+
+  function _Add() {
+    SelectSomething(
+      "sections/select_subject",
+      "section_subjects",
+      "SECTION_SUBJECT_CONTROL",
+      {section_id},
+      false
+    ).then((subjects) => {
+      const popup = new AlertPopup({
+            primary: `Select Subjects`,
+            secondary: `${subjects.length} selected`,
+            message: `These subjects will appear on student subjects!`
+        }, {
+            alert_type: AlertTypes.YES_NO,
+        });
+
+        popup.AddListeners({
+            onYes: () => {
+              console.log(subjects);
+
+              Promise.all(subjects.map(async (subject) => AddRecord("section_student_irregular_subjects", {
+                data: JSON.stringify({
+                  section_student_id: student_id,
+                  section_subject_id: subject.section_subject_id
+                })
+              }))).then(() => location.reload())
+            }
+        })
+
+        popup.Create().then(() => { popup.Show() })
+
+    });
+  }
+
+  function _Remove(ids) {
+    const popup = new AlertPopup({
+      primary: `Remove Subject?`,
+      secondary: `${ids.length} selected`,
+      message: `These subjects will remove on student subject list!`
+    }, {
+        alert_type: AlertTypes.YES_NO,
+    });
+
+    popup.AddListeners({
+        onYes: () => {
+            RemoveRecordsBatch("section_student_irregular_subjects", {data: JSON.stringify(ids)}).then(() => location.reload())
+        }
+    })
+
+    popup.Create().then(() => { popup.Show() })
+  }
+
+  TABLE_LISTENER.addListeners({
+      none: {
+          remove: ["delete-request", "view-request"],
+          view: ["add-request"],
+      },
+      select: {
+          view: ["delete-request", "view-request"],
+      },
+      selects: {
+          view: ["delete-request"],
+          remove: ["view-request"]
+      },
+  });
+
+  TABLE_LISTENER.init();
+
+  TABLE_LISTENER.listen(() => {
+      TABLE_LISTENER.addButtonListener([
+          {
+              name: "add-request",
+              action: _Add,
+              single: true
+          },
+          {
+              name: "delete-request",
+              action: _Remove,
+              single: false
+          },
+      ]);
+  });
+}
+
+function ManageStudentsTable(element, section_id) {
+  const TABLE = element.querySelector(".main-table-container.table-component");
+
+  if (!TABLE) return;
+
+  const TABLE_LISTENER = new TableListener(TABLE);
+
+
+  function _Add() {
+    SelectSomething(
+      "sections/select_student",
+      "section_students",
+      "SECTION_STUDENT_CONTROL",
+      {section_id},
+      false
+    ).then((students) => {
+      const popup = new AlertPopup({
+            primary: `Set as Irregular?`,
+            secondary: `${students.length} selected`,
+            message: `These students will became irregular!`
+        }, {
+            alert_type: AlertTypes.YES_NO,
+        });
+
+        popup.AddListeners({
+            onYes: () => {
+                EditRecords("section_students", students.map((st) => {
+                  return {
+                    id: st.section_student_id,
+                    data: JSON.stringify({
+                      irregular: "irregular"
+                    })
+                  }
+                })).then(() => location.reload())
+            }
+        })
+
+        popup.Create().then(() => { popup.Show() })
+
+    });
+  }
+
+  function _Remove(ids) {
+    const popup = new AlertPopup({
+      primary: `Set as Regular?`,
+      secondary: `Back to regular students`,
+      message: `These students will became irregular!`
+    }, {
+        alert_type: AlertTypes.YES_NO,
+    });
+
+    popup.AddListeners({
+        onYes: () => {
+            EditRecords("section_students", ids.map((st) => {
+              return {
+                id: st,
+                data: JSON.stringify({
+                  irregular: "regular"
+                })
+              }
+            })).then(() => location.reload())
+        }
+    })
+
+    popup.Create().then(() => { popup.Show() })
+  }
+
+  function _View(section_student_id) {
+    const popup = new Popup(
+      `${"sections"}/view_irregular_student_subjects`,
+      { section_student_id },
+      {
+        backgroundDismiss: false,
+      }
+    );
+
+    popup.Create().then(() => {
+      popup.Show();
+
+      ManageStudentsSubjectsTable(popup.ELEMENT,section_id, section_student_id);
+
+    });
+  }
+
+  TABLE_LISTENER.addListeners({
+      none: {
+          remove: ["delete-request", "view-request"],
+          view: ["add-request"],
+      },
+      select: {
+          view: ["delete-request", "view-request"],
+      },
+      selects: {
+          view: ["delete-request"],
+          remove: ["view-request"]
+      },
+  });
+
+  TABLE_LISTENER.init();
+
+  TABLE_LISTENER.listen(() => {
+      TABLE_LISTENER.addButtonListener([
+          {
+              name: "add-request",
+              action: _Add,
+              single: true
+          },
+          {
+              name: "view-request",
+              action: _View,
+              single: true
+          },
+          {
+              name: "delete-request",
+              action: _Remove,
+              single: false
+          },
+      ]);
   });
 }
 

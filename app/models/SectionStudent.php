@@ -18,6 +18,9 @@ class SectionStudent extends SectionStudentAbstract
     public $displayName;
 
     public $section;
+
+    public $subjects;
+
     public function __construct($data = [])
     {
         $this->applyData($data, SectionStudentAbstract::class);
@@ -35,6 +38,26 @@ class SectionStudent extends SectionStudentAbstract
             $this->user_id = $this->student->user_id;
             $this->student_no = $this->student->no;
             $this->displayName = $this->student->displayName;
+
+            if ($this->irregular == "irregular") {
+                $this->subjects = $APPLICATION->FUNCTIONS->SECTION_STUDENT_IRREGULAR_SUBJECT_CONTROL->filterRecords(['section_student_id' => $this->section_student_id], true);
+            } else {
+                $this->subjects = $this->section->subjects;
+            }
         }
+    }
+
+    public function getSubjects() {
+        return $this->irregular == 'irregular' ? $this->getIrregularSubjects() : $this->section->subjects;
+    }
+
+    public function getIrregularSubjects() {
+        global $APPLICATION;
+
+        $control = $APPLICATION->FUNCTIONS->SECTION_SUBJECT_CONTROL;
+
+        return array_map(function($record) use ($control) {
+            return $control->get($record->section_subject_id, true);
+        }, $this->subjects);
     }
 }

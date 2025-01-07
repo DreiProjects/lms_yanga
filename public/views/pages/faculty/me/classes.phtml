@@ -5,6 +5,7 @@ global $APPLICATION, $COURSE_HEADER_BODY, $SESSION;
 $professor = $SESSION->getAsProfessor();
 
 $classes = $professor->getClasses();
+$advisory_classes = $professor->getAdvisoryClasses();
 
 function f($year) {
     return array_reduce($year, function($store, $sectionSubject) {
@@ -29,6 +30,23 @@ $thirdYears = f(array_filter($classes, function ($section) {
 
 $fourthYears = f(array_filter($classes, function ($section) {
     return $section->getSection()->year_level == 4;
+}));
+
+
+$a_firstYears = f(array_filter($advisory_classes, function ($section) {
+    return $section->year_level == 1;
+}));
+
+$a_secondYears = f(array_filter($advisory_classes, function ($section) {
+    return $section->year_level == 2;
+}));
+
+$a_thirdYears = f(array_filter($advisory_classes, function ($section) {
+    return $section->year_level == 3;
+}));
+
+$a_fourthYears = f(array_filter($advisory_classes, function ($section) {
+    return $section->year_level == 4;
 }));
 ?>
 
@@ -99,7 +117,7 @@ $fourthYears = f(array_filter($classes, function ($section) {
                                                 $students = $section->getAllStudents();
                                                 $subjects = $section->getSubjectForProfessor($sectionSubject->professor_id);
                                                 ?>
-                                                <div class="card-flex-container" data-id="<?= $section->section_id ?>" data-professor_id="<?= $sectionSubject->professor_id ?>">
+                                                <div class="card-flex-container main" data-id="<?= $section->section_id ?>" data-professor_id="<?= $sectionSubject->professor_id ?>">
                                                     <div class="title">
                                                         <h2><?= $section->section_name ?></h2>
                                                         <p><?= count($students) ?> Students</p>
@@ -107,6 +125,58 @@ $fourthYears = f(array_filter($classes, function ($section) {
                                                     </div>
                                                 </div>
                                             <?php endforeach; ?>
+                                        </div>
+                                    <?php endif ?>
+                                    <?php  $i++ ?>
+                                <?php endforeach ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="main-content two">
+                <div class="main-body-body">
+                    <div class="data-table-content">
+                        <div class="main-table-container table-component">
+                            <div class="main-table-header">
+                                <div class="table-header">
+                                    <div class="left">
+                                        <div class="title">
+                                            <h2>Advisory Class</h2>
+                                        </div>
+                                    </div>
+                                    <div class="center">
+                                        
+                                    </div>
+                                    <div class="right"></div>
+                                </div>
+                            </div>
+                            <div class="main-table-body main-table-requests" >
+                                <?php
+                                $yearSuffixes = ['st', 'nd', 'rd', 'th'];
+                                $i = 1;
+                                foreach ([$a_firstYears, $a_secondYears, $a_thirdYears, $a_fourthYears] as $year):?>
+                                    <?php if (count($year)): ?>
+                                        <div class="cards-title">
+                                            <div class="title">
+                                                <h2><?= $i ?><sup><?= $i <= 3 ? $yearSuffixes[$i-1] : $yearSuffixes[3] ?></sup> Year</h2>
+                                            </div>
+                                        </div>
+                                        <div class="cards-flex-container">
+                                        <?php foreach ($year as $section): ?>
+                                            <?php
+                                            $students = $section->getAllStudents();
+                                            $subjects = $section->getSubjectForProfessor($sectionSubject->professor_id);
+                                            ?>
+                                            <div class="card-flex-container advisor" data-id="<?= $section->section_id ?>" data-professor_id="<?= $section->adviser_id ?>">
+                                                <div class="title">
+                                                    <h2><?= $section->section_name ?></h2>
+                                                    <p><?= count($students) ?> Students</p>
+                                                    <small><?= count($subjects) > 1 ? count($subjects) . ' Subjects' : $subjects[0]->subject->subject_name ?></small>
+                                                </div>
+                                            </div>
+                                        <?php endforeach; ?>
                                         </div>
                                     <?php endif ?>
                                     <?php  $i++ ?>

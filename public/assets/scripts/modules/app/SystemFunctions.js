@@ -27,7 +27,6 @@ export function EditRecord(target, data) {
             type: "POST",
             data: data,
             success: (data) => {
-                console.log(data)
                 resolve(JSON.parse(data))
             },
             error: reject

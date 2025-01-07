@@ -1205,22 +1205,31 @@ export class FormQuestion {
 }
 
 export default class FormCreator {
-    constructor(containerId) {
+    constructor(containerId, currentFormData = null) {
         this.containerId = containerId;
         this.container = document.getElementById(containerId);
         this.addQuestionBtn = document.getElementById('addQuestionBtn');
         this.resetBtn = document.getElementById('resetFormBtn');
         this.saveBtn = document.getElementById('saveFormBtn');
-        this.title = '';
-        this.description = '';
+        this.title = currentFormData ? currentFormData.title : '';
+        this.description = currentFormData ? currentFormData.description : '';
         this.formType = 'quiz'; // Default form type
-        this.questions = [];
+        this.questions = currentFormData ? currentFormData.questions : [];
+        this.currentFormData = currentFormData;
         this.initialize();
     }
 
+    applyFormData() {
+        console.log(this.currentFormData)
+    }
+
     initialize() {
-        // Add initial question
-        this.addNewQuestion();
+        if (!this.currentFormData) {
+            // Add initial question
+            this.addNewQuestion();
+        } else {
+            this.applyFormData();
+        }
 
         if (this.addQuestionBtn) {  
             // Add new question button handler

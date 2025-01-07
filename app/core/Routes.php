@@ -212,6 +212,8 @@ class Routes
                     "/subjects" => ["SUBJECT_CONTROL", "addRecord", "editRecord", "removeRecords"],
                     "/departments" => ["DEPARTMENT_CONTROL", "addRecord", "editRecord", "removeRecords"],
                     "/section_subjects" => ["SECTION_SUBJECT_CONTROL", "addRecord", "editRecord", "removeRecords"],
+                    "/section_students" => ["SECTION_STUDENT_CONTROL", "addRecord", "editRecord", "removeRecords"],
+                    "/section_student_irregular_subjects" => ["SECTION_STUDENT_IRREGULAR_SUBJECT_CONTROL", "addRecord", "editRecord", "removeRecords"],
                     "/staffs" => ["STAFF_CONTROL", "addRecord", "editRecord", "removeRecords"],
                     "/schedules" => ["SCHEDULE_CONTROL", "addRecord", "editRecord", "removeRecords"],
                     "/schedule_items" => ["SCHEDULE_ITEM_CONTROL", "addRecord", "editRecord", "removeRecords"],

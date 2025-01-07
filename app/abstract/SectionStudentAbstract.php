@@ -12,7 +12,9 @@ abstract class SectionStudentAbstract extends ModelDefaultFunctions
 
     public $student_id;
 
+    public $irregular;
+
     public $date_created;
 
     public $status;
-}
+}   

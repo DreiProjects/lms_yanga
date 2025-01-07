@@ -15,7 +15,13 @@ if ($SESSION->user_type == 2) {
 } else {
     $student = $SESSION->getAsStudent();
 
-    $classes = $student->getSectionStudent()->section->subjects;
+    $sectionStudent = $student->getSectionStudent();
+    
+    if ($sectionStudent->irregular == 'irregular') {
+        $classes = $sectionStudent->getIrregularSubjects();
+    } else {
+        $classes = $sectionStudent->section->subjects;
+    }
     
     $selectedSubject = count($classes) > 0 ? $classes[0] : null;
 }
