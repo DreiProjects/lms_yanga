@@ -32,7 +32,9 @@ import StickyNoteEditor from "../../../classes/components/StickyNoteEditor.js";
 import { SESSION } from "../../../modules/app/Application.js";
 import { NewNotification } from "../../../classes/components/NotificationPopup.js";
 import { TableListener } from "../../../classes/components/TableListener.js";
-import AlertPopup, { AlertTypes } from "../../../classes/components/AlertPopup.js";
+import AlertPopup, {
+  AlertTypes,
+} from "../../../classes/components/AlertPopup.js";
 
 // Handle creating new exam
 function NewExam(section_id) {
@@ -287,21 +289,28 @@ function Grades() {
     const sectionSubjectId = platformContainer.dataset.sectionSubjectId;
 
     SelectModel(sectionSubjectId, "SECTION_SUBJECT_CONTROL").then((res) => {
-      SelectModelByFilter(JSON.stringify({section_id: res.section_id, irregular: 'irregular'}),
-      "SECTION_STUDENT_CONTROL").then((irregulars) => {
-          
+      SelectModelByFilter(
+        JSON.stringify({ section_id: res.section_id, irregular: "irregular" }),
+        "SECTION_STUDENT_CONTROL"
+      ).then((irregulars) => {
         SelectModelByFilter(
           JSON.stringify({ section_id: res.section_id }),
           "SECTION_STUDENT_CONTROL"
         ).then((students) => {
-          const allStudents = students.filter(student => {
-            if (student.irregular == 'irregular') {
-              const irreg = irregulars.find(ir => ir.student_id == student.user_id);
-              return irreg && irreg.subjects.some(subject => subject.section_subject_id == sectionSubjectId);
+          const allStudents = students.filter((student) => {
+            if (student.irregular == "irregular") {
+              const irreg = irregulars.find(
+                (ir) => ir.student_id == student.user_id
+              );
+              return (
+                irreg &&
+                irreg.subjects.some(
+                  (subject) => subject.section_subject_id == sectionSubjectId
+                )
+              );
             }
             return true;
           });
-
 
           // console.log(students, irregulars, sectionSubjectId  )
           const gradingEditor = new GradingPlatformEditor({
@@ -317,13 +326,10 @@ function Grades() {
               show: showBtn,
             },
           });
-  
+
           gradingEditor.Load(sectionSubjectId);
         });
-
       });
-
-     
     });
   });
 }
@@ -542,10 +548,131 @@ function ViewStudentForms(exam_id) {
     const checkExamsBtn = popup.ELEMENT.querySelector(".check-exams-btn");
 
     if (checkExamsBtn) {
-      checkExamsBtn.addEventListener("click", function() {
-          PostRequest("CheckExam", {exam_id}).then((res) => {
+      checkExamsBtn.addEventListener("click", function () {
+        // Show loading state
+        checkExamsBtn.disabled = true;
+        checkExamsBtn.innerHTML = "<span>Checking...</span>";
+
+        PostRequest("CheckExam", { exam_id })
+          .then((res) => {
             console.log(res);
+
+            try {
+              // Parse the response
+              const result = JSON.parse(res);
+
+              if (result.code === 200) {
+                // Get the check results from the response body
+                const checks = result.body;
+
+                // Count already checked forms
+                let alreadyCheckedCount = 0;
+                let newlyCheckedCount = 0;
+
+                if (Array.isArray(checks)) {
+                  alreadyCheckedCount = checks.filter(
+                    (item) => item.already_checked
+                  ).length;
+                  newlyCheckedCount = checks.length - alreadyCheckedCount;
+
+                  // Show success message
+                  const modal = document.getElementById("checkAllResultsModal");
+                  if (modal) {
+                    // Update the modal with check results
+                    const totalCheckedEl =
+                      document.getElementById("totalChecked");
+                    const resultsDetailsEl =
+                      document.getElementById("allResultsDetails");
+                    const resultSummaryEl = document.querySelector(
+                      "#checkAllResultsModal .result-summary"
+                    );
+
+                    // Update summary text
+                    if (totalCheckedEl) {
+                      totalCheckedEl.textContent = `Total checked: ${checks.length}`;
+                    }
+
+                    // Add information about already checked forms
+                    if (resultSummaryEl) {
+                      // Clear existing summary paragraphs except the first one
+                      const paragraphs = resultSummaryEl.querySelectorAll("p");
+                      for (let i = 1; i < paragraphs.length; i++) {
+                        paragraphs[i].remove();
+                      }
+
+                      // Add message from the server
+                      const messageEl = document.createElement("p");
+                      messageEl.textContent = result.message;
+                      resultSummaryEl.appendChild(messageEl);
+
+                      // Add detailed counts
+                      if (alreadyCheckedCount > 0) {
+                        const alreadyCheckedInfo = document.createElement("p");
+                        alreadyCheckedInfo.innerHTML = `<strong>${alreadyCheckedCount}</strong> forms were already checked previously.`;
+                        alreadyCheckedInfo.style.color = "#3b82f6";
+                        resultSummaryEl.appendChild(alreadyCheckedInfo);
+                      }
+
+                      if (newlyCheckedCount > 0) {
+                        const newlyCheckedInfo = document.createElement("p");
+                        newlyCheckedInfo.innerHTML = `<strong>${newlyCheckedCount}</strong> forms were newly checked.`;
+                        newlyCheckedInfo.style.color = "#10b981";
+                        resultSummaryEl.appendChild(newlyCheckedInfo);
+                      }
+                    }
+
+                    // Show the modal
+                    modal.style.display = "flex";
+
+                    // Refresh the page after a delay to show updated grades
+                    setTimeout(() => {
+                      location.reload();
+                    }, 3000);
+                  } else {
+                    // If modal doesn't exist, show a simple alert
+                    alert(
+                      `${result.message}\n\nAll exams have been processed.`
+                    );
+
+                    // Refresh the page after a delay
+                    setTimeout(() => {
+                      location.reload();
+                    }, 1000);
+                  }
+                } else {
+                  // Show success message
+                  alert(`${result.message}\n\nAll exams have been processed.`);
+
+                  // Refresh the page after a delay
+                  setTimeout(() => {
+                    location.reload();
+                  }, 1000);
+                }
+              } else {
+                // Show error message
+                alert(
+                  result.message || "Failed to check exams. Please try again."
+                );
+              }
+            } catch (error) {
+              console.error("Error parsing response:", error);
+              alert(
+                "An error occurred while checking exams. Please try again."
+              );
+            }
+
+            // Reset button state
+            checkExamsBtn.disabled = false;
+            checkExamsBtn.innerHTML = "<span>Check All</span>";
           })
+          .catch((error) => {
+            console.error("Error checking exams:", error);
+            alert("An error occurred while checking exams. Please try again.");
+
+            // Reset button state
+            checkExamsBtn.disabled = false;
+            checkExamsBtn.innerHTML = "<span>Check All</span>";
+          });
       });
     }
 
@@ -558,25 +685,27 @@ function ViewStudentForms(exam_id) {
 }
 
 function DownloadCompliedFile(comply_id) {
-  return PostRequest("DownloadCompliedFile", { comply_id }).then((res) => {
-    res = JSON.parse(res);
-    const binaryStr = atob(res.body);
-    const bytes = new Uint8Array(binaryStr.length);
-    for (let i = 0; i < binaryStr.length; i++) {
-      bytes[i] = binaryStr.charCodeAt(i);
-    }
-    const blob = new Blob([bytes], { type: res.type });
-    const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
-    link.href = url;
-    link.download = `complied_file.${res.type}`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url); // Ensure the blob URL is revoked after use
-  }).catch((error) => {
-    console.error("Failed to download complied file:", error);
-  });
+  return PostRequest("DownloadCompliedFile", { comply_id })
+    .then((res) => {
+      res = JSON.parse(res);
+      const binaryStr = atob(res.body);
+      const bytes = new Uint8Array(binaryStr.length);
+      for (let i = 0; i < binaryStr.length; i++) {
+        bytes[i] = binaryStr.charCodeAt(i);
+      }
+      const blob = new Blob([bytes], { type: res.type });
+      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+      link.href = url;
+      link.download = `complied_file.${res.type}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url); // Ensure the blob URL is revoked after use
+    })
+    .catch((error) => {
+      console.error("Failed to download complied file:", error);
+    });
 }
 
 function ViewCompliedActivity(activity_id, id) {
@@ -831,7 +960,7 @@ function NewResource(section_id, professor_id) {
             data: JSON.stringify(data),
             file: data.file,
           }).then((res) => {
-              if (res.code == 200) {
+            if (res.code == 200) {
               NewNotification({
                 type: "success",
                 message: "Resource added successfully!",
@@ -1006,34 +1135,32 @@ function StickyNotes() {
 function GetSectionStudents(sectionSubjectId) {
   return new Promise((resolve) => {
     SelectModel(sectionSubjectId, "SECTION_SUBJECT_CONTROL").then((res) => {
-
       SelectModelByFilter(
-        JSON.stringify({ section_id: res.section_id, irregular: 'irregular' }),
+        JSON.stringify({ section_id: res.section_id, irregular: "irregular" }),
         "SECTION_STUDENT_CONTROL"
       ).then((irregulars) => {
-
         SelectModelByFilter(
           JSON.stringify({ section_id: res.section_id }),
           "SECTION_STUDENT_CONTROL"
-        ).then(students => {
-
-          const allStudents = students.filter(student => {
-            if (student.irregular == 'irregular') {
-              const irreg = irregulars.find(ir => ir.student_id == student.user_id);
-              return irreg && irreg.subjects.some(subject => subject.section_subject_id == sectionSubjectId);
+        ).then((students) => {
+          const allStudents = students.filter((student) => {
+            if (student.irregular == "irregular") {
+              const irreg = irregulars.find(
+                (ir) => ir.student_id == student.user_id
+              );
+              return (
+                irreg &&
+                irreg.subjects.some(
+                  (subject) => subject.section_subject_id == sectionSubjectId
+                )
+              );
             }
             return true;
           });
 
           resolve(allStudents);
-
         });
-
-       
-
       });
-
-      
     });
   });
 }
@@ -1107,33 +1234,37 @@ class AttendanceManager {
     this.monthSelect.addEventListener("change", () => this.generateTable());
     this.yearSelect.addEventListener("change", () => this.generateTable());
 
-    this.container.querySelector(".prev-month").addEventListener("click", () => {
-      let month = parseInt(this.monthSelect.value);
-      let year = parseInt(this.yearSelect.value);
+    this.container
+      .querySelector(".prev-month")
+      .addEventListener("click", () => {
+        let month = parseInt(this.monthSelect.value);
+        let year = parseInt(this.yearSelect.value);
 
-      month--;
-      if (month < 1) {
-        month = 12;
-        year--;
-        this.yearSelect.value = year;
-      }
-      this.monthSelect.value = month;
-      this.generateTable();
-    });
+        month--;
+        if (month < 1) {
+          month = 12;
+          year--;
+          this.yearSelect.value = year;
+        }
+        this.monthSelect.value = month;
+        this.generateTable();
+      });
 
-    this.container.querySelector(".next-month").addEventListener("click", () => {
-      let month = parseInt(this.monthSelect.value);
-      let year = parseInt(this.yearSelect.value);
+    this.container
+      .querySelector(".next-month")
+      .addEventListener("click", () => {
+        let month = parseInt(this.monthSelect.value);
+        let year = parseInt(this.yearSelect.value);
 
-      month++;
-      if (month > 12) {
-        month = 1;
-        year++;
-        this.yearSelect.value = year;
-      }
-      this.monthSelect.value = month;
-      this.generateTable();
-    });
+        month++;
+        if (month > 12) {
+          month = 1;
+          year++;
+          this.yearSelect.value = year;
+        }
+        this.monthSelect.value = month;
+        this.generateTable();
+      });
 
     this.container.querySelector(".prev-year").addEventListener("click", () => {
       let year = parseInt(this.yearSelect.value);
@@ -1655,7 +1786,7 @@ function Cards() {
   });
 
   advisor_cards.forEach((card) => {
-    card.addEventListener("click", function() {
+    card.addEventListener("click", function () {
       GetClassContent(card.dataset.id, card.dataset.professor_id, true).then(
         (res) => {
           content2.remove();
@@ -1666,14 +1797,14 @@ function Cards() {
         }
       );
     });
-  })
+  });
 }
 
 function ManageStudentTabs() {
   const showBtn = document.querySelector(".show-irregular-students");
   const section_id = showBtn.dataset.section_id;
 
-  showBtn.addEventListener("click", function() {
+  showBtn.addEventListener("click", function () {
     const popup = new Popup(
       `${"sections"}/view_irregulars`,
       { section_id },
@@ -1686,9 +1817,7 @@ function ManageStudentTabs() {
       popup.Show();
 
       ManageStudentsTable(popup.ELEMENT, section_id);
-
     });
-
   });
 }
 
@@ -1704,82 +1833,97 @@ function ManageStudentsSubjectsTable(element, section_id, student_id) {
       "sections/select_subject",
       "section_subjects",
       "SECTION_SUBJECT_CONTROL",
-      {section_id},
+      { section_id },
       false
     ).then((subjects) => {
-      const popup = new AlertPopup({
-            primary: `Select Subjects`,
-            secondary: `${subjects.length} selected`,
-            message: `These subjects will appear on student subjects!`
-        }, {
-            alert_type: AlertTypes.YES_NO,
-        });
+      const popup = new AlertPopup(
+        {
+          primary: `Select Subjects`,
+          secondary: `${subjects.length} selected`,
+          message: `These subjects will appear on student subjects!`,
+        },
+        {
+          alert_type: AlertTypes.YES_NO,
+        }
+      );
 
-        popup.AddListeners({
-            onYes: () => {
-              console.log(subjects);
+      popup.AddListeners({
+        onYes: () => {
+          console.log(subjects);
 
-              Promise.all(subjects.map(async (subject) => AddRecord("section_student_irregular_subjects", {
+          Promise.all(
+            subjects.map(async (subject) =>
+              AddRecord("section_student_irregular_subjects", {
                 data: JSON.stringify({
                   section_student_id: student_id,
-                  section_subject_id: subject.section_subject_id
-                })
-              }))).then(() => location.reload())
-            }
-        })
+                  section_subject_id: subject.section_subject_id,
+                }),
+              })
+            )
+          ).then(() => location.reload());
+        },
+      });
 
-        popup.Create().then(() => { popup.Show() })
-
+      popup.Create().then(() => {
+        popup.Show();
+      });
     });
   }
 
   function _Remove(ids) {
-    const popup = new AlertPopup({
-      primary: `Remove Subject?`,
-      secondary: `${ids.length} selected`,
-      message: `These subjects will remove on student subject list!`
-    }, {
+    const popup = new AlertPopup(
+      {
+        primary: `Remove Subject?`,
+        secondary: `${ids.length} selected`,
+        message: `These subjects will remove on student subject list!`,
+      },
+      {
         alert_type: AlertTypes.YES_NO,
-    });
+      }
+    );
 
     popup.AddListeners({
-        onYes: () => {
-            RemoveRecordsBatch("section_student_irregular_subjects", {data: JSON.stringify(ids)}).then(() => location.reload())
-        }
-    })
+      onYes: () => {
+        RemoveRecordsBatch("section_student_irregular_subjects", {
+          data: JSON.stringify(ids),
+        }).then(() => location.reload());
+      },
+    });
 
-    popup.Create().then(() => { popup.Show() })
+    popup.Create().then(() => {
+      popup.Show();
+    });
   }
 
   TABLE_LISTENER.addListeners({
-      none: {
-          remove: ["delete-request", "view-request"],
-          view: ["add-request"],
-      },
-      select: {
-          view: ["delete-request", "view-request"],
-      },
-      selects: {
-          view: ["delete-request"],
-          remove: ["view-request"]
-      },
+    none: {
+      remove: ["delete-request", "view-request"],
+      view: ["add-request"],
+    },
+    select: {
+      view: ["delete-request", "view-request"],
+    },
+    selects: {
+      view: ["delete-request"],
+      remove: ["view-request"],
+    },
   });
 
   TABLE_LISTENER.init();
 
   TABLE_LISTENER.listen(() => {
-      TABLE_LISTENER.addButtonListener([
-          {
-              name: "add-request",
-              action: _Add,
-              single: true
-          },
-          {
-              name: "delete-request",
-              action: _Remove,
-              single: false
-          },
-      ]);
+    TABLE_LISTENER.addButtonListener([
+      {
+        name: "add-request",
+        action: _Add,
+        single: true,
+      },
+      {
+        name: "delete-request",
+        action: _Remove,
+        single: false,
+      },
+    ]);
   });
 }
 
@@ -1790,64 +1934,78 @@ function ManageStudentsTable(element, section_id) {
 
   const TABLE_LISTENER = new TableListener(TABLE);
 
-
   function _Add() {
     SelectSomething(
       "sections/select_student",
       "section_students",
       "SECTION_STUDENT_CONTROL",
-      {section_id},
+      { section_id },
       false
     ).then((students) => {
-      const popup = new AlertPopup({
-            primary: `Set as Irregular?`,
-            secondary: `${students.length} selected`,
-            message: `These students will became irregular!`
-        }, {
-            alert_type: AlertTypes.YES_NO,
-        });
+      const popup = new AlertPopup(
+        {
+          primary: `Set as Irregular?`,
+          secondary: `${students.length} selected`,
+          message: `These students will became irregular!`,
+        },
+        {
+          alert_type: AlertTypes.YES_NO,
+        }
+      );
 
-        popup.AddListeners({
-            onYes: () => {
-                EditRecords("section_students", students.map((st) => {
-                  return {
-                    id: st.section_student_id,
-                    data: JSON.stringify({
-                      irregular: "irregular"
-                    })
-                  }
-                })).then(() => location.reload())
-            }
-        })
+      popup.AddListeners({
+        onYes: () => {
+          EditRecords(
+            "section_students",
+            students.map((st) => {
+              return {
+                id: st.section_student_id,
+                data: JSON.stringify({
+                  irregular: "irregular",
+                }),
+              };
+            })
+          ).then(() => location.reload());
+        },
+      });
 
-        popup.Create().then(() => { popup.Show() })
-
+      popup.Create().then(() => {
+        popup.Show();
+      });
     });
   }
 
   function _Remove(ids) {
-    const popup = new AlertPopup({
-      primary: `Set as Regular?`,
-      secondary: `Back to regular students`,
-      message: `These students will became irregular!`
-    }, {
+    const popup = new AlertPopup(
+      {
+        primary: `Set as Regular?`,
+        secondary: `Back to regular students`,
+        message: `These students will became irregular!`,
+      },
+      {
         alert_type: AlertTypes.YES_NO,
-    });
+      }
+    );
 
     popup.AddListeners({
-        onYes: () => {
-            EditRecords("section_students", ids.map((st) => {
-              return {
-                id: st,
-                data: JSON.stringify({
-                  irregular: "regular"
-                })
-              }
-            })).then(() => location.reload())
-        }
-    })
+      onYes: () => {
+        EditRecords(
+          "section_students",
+          ids.map((st) => {
+            return {
+              id: st,
+              data: JSON.stringify({
+                irregular: "regular",
+              }),
+            };
+          })
+        ).then(() => location.reload());
+      },
+    });
 
-    popup.Create().then(() => { popup.Show() })
+    popup.Create().then(() => {
+      popup.Show();
+    });
   }
 
   function _View(section_student_id) {
@@ -1862,45 +2020,48 @@ function ManageStudentsTable(element, section_id) {
     popup.Create().then(() => {
       popup.Show();
 
-      ManageStudentsSubjectsTable(popup.ELEMENT,section_id, section_student_id);
-
+      ManageStudentsSubjectsTable(
+        popup.ELEMENT,
+        section_id,
+        section_student_id
+      );
     });
   }
 
   TABLE_LISTENER.addListeners({
-      none: {
-          remove: ["delete-request", "view-request"],
-          view: ["add-request"],
-      },
-      select: {
-          view: ["delete-request", "view-request"],
-      },
-      selects: {
-          view: ["delete-request"],
-          remove: ["view-request"]
-      },
+    none: {
+      remove: ["delete-request", "view-request"],
+      view: ["add-request"],
+    },
+    select: {
+      view: ["delete-request", "view-request"],
+    },
+    selects: {
+      view: ["delete-request"],
+      remove: ["view-request"],
+    },
   });
 
   TABLE_LISTENER.init();
 
   TABLE_LISTENER.listen(() => {
-      TABLE_LISTENER.addButtonListener([
-          {
-              name: "add-request",
-              action: _Add,
-              single: true
-          },
-          {
-              name: "view-request",
-              action: _View,
-              single: true
-          },
-          {
-              name: "delete-request",
-              action: _Remove,
-              single: false
-          },
-      ]);
+    TABLE_LISTENER.addButtonListener([
+      {
+        name: "add-request",
+        action: _Add,
+        single: true,
+      },
+      {
+        name: "view-request",
+        action: _View,
+        single: true,
+      },
+      {
+        name: "delete-request",
+        action: _Remove,
+        single: false,
+      },
+    ]);
   });
 }
 

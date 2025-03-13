@@ -4,7 +4,7 @@ global $APPLICATION, $USER_HEADER_BODY;
 
 $control = $APPLICATION->FUNCTIONS->USER_CONTROL;
 $sectionControl = $APPLICATION->FUNCTIONS->SECTION_CONTROL;
-$RECORDS = $control->filterRecords(['user_type' => 2],true);
+$RECORDS = $control->filterRecords(['user_type' => 2], true);
 $SECTIONS = $sectionControl->getAllRecords(true);
 ?>
 
@@ -42,205 +42,212 @@ $SECTIONS = $sectionControl->getAllRecords(true);
             </div>
             <div class="main-body-body">
                 <div class="data-bordered-container">
-                <div class="tab-container" style="display: flex; flex-direction: row !important; gap: 10px;">
-                    <div class="tab-menu">
-                        <div class="tab-header">
-                            <h3>Import Students</h3>
-                            <p>Follow the steps to import new students.</p>
-                        </div>
-                        <div class="tab-body">
-                            <button class="tab-button active" data-tab="step1">Step 1: Add Students</button>
-                            <button class="tab-button" data-tab="step2">Step 2: Subjects</button>
-                            <button class="tab-button" data-tab="step3">Step 3: Professors</button>
-                            <button class="tab-button" data-tab="step4">Step 4: Section</button>
-                            <button class="tab-button" data-tab="step5">Step 5: Import</button>
-                        </div>
-                    </div>
-                    <div class="tab-content">
-                        <div class="tab-pane active" id="step1">
-                            <div class="tab-content-head">
-                                <h3>Step 1: Add Students</h3>
-                                <p>Enter student information manually or upload a CSV file.</p>
+                    <div class="tab-container" style="display: flex; flex-direction: row !important; gap: 10px;">
+                        <div class="tab-menu">
+                            <div class="tab-header">
+                                <h3>Import Students</h3>
+                                <p>Follow the steps to import new students.</p>
                             </div>
-                            <div class="tab-content-body">
-                                <div class="import-options-container">
-                                    <button id="importOptionsToggle" class="btn-icon"><i data-feather="settings" ></i></button>
-                                    <div class="import-options">
-                                        <h4>Import Settings</h4>
-                                        <div class="option-checkboxes">
-                                            <label>
-                                                <input type="checkbox" id="checkDuplicates"> Check for duplicate email addresses
-                                            </label>
-                                            <label>
-                                                <input type="checkbox" id="autoGenerateAccounts"> Automatic Account Generator
-                                            </label>
-                                        </div>
-                                        <h4>Choose Import Method</h4>
-                                        <div class="option-buttons">
-                                            <button class="option-btn active" data-option="manual">
-                                                <i data-feather="edit"></i>
-                                                Manual Bulk Entry
-                                            </button>
-                                            <button class="option-btn" data-option="file">
-                                                <i data-feather="upload"></i>
-                                                Upload File
-                                            </button>
-                                        </div>
-                                    </div>
+                            <div class="tab-body">
+                                <button class="tab-button active" data-tab="step1">Step 1: Add Students</button>
+                                <button class="tab-button" data-tab="step2">Step 2: Section</button>
+                                <button class="tab-button" data-tab="step3">Step 3: Subjects (Optional)</button>
+                                <button class="tab-button" data-tab="step4">Step 4: Professors (Optional)</button>
+                                <button class="tab-button" data-tab="step5">Step 5: Import</button>
+                            </div>
+                        </div>
+                        <div class="tab-content">
+                            <div class="tab-pane active" id="step1">
+                                <div class="tab-content-head">
+                                    <h3>Step 1: Add Students</h3>
+                                    <p>Enter student information manually or upload a CSV file.</p>
                                 </div>
-
-                                <div class="import-content">
-                                    <div class="manual-entry active">
-                                        <div class="table-responsive-head">
-                                            <h4>Manual Bulk Data Entry</h4>
-                                            <p>Enter multiple student information manually using the table below.</p>
-                                        </div>
-                                        
-                                        <div class="table-responsive">
-                                            <table id="manualEntryTable" class="table">
-                                                <thead>
-                                                    <tr>
-                                                        <th>First Name</th>
-                                                        <th>Middle Name</th>
-                                                        <th>Last Name</th>
-                                                        <th>Email</th>
-                                                        <th>Username</th>
-                                                        <th>Student NO</th>
-                                                        <th>Password</th>
-                                                        <th>Action</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td><input type="text" name="firstName[]" required></td>
-                                                        <td><input type="text" name="middleName[]"></td>
-                                                        <td><input type="text" name="lastName[]" required></td>
-                                                        <td><input type="email" name="email[]" required></td>
-                                                        <td><input type="text" name="username[]"></td>
-                                                        <td><input type="text" name="uniqueId[]"></td>
-                                                        <td><input type="text" name="password[]"></td>
-                                                        <td><button type="button" class="btn-remove-row"><i data-feather="trash-2"></i></button></td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                        <button type="button" id="addRowBtn" class="btn-secondary">Add Row</button>
-                                    </div>
-                                    <div class="file-upload">
-                                        <div class="file-upload-card">
-                                            <h4>File Upload</h4>
-                                            <p>Upload a CSV file containing student data.</p>
-                                            <div class="upload-area" id="dropZone">
-                                                <i data-feather="upload-cloud"></i>
-                                                <p>Drag and drop your file here or</p>
-                                                <label for="fileInput" class="btn-secondary">Choose File</label>
-                                                <input type="file" id="fileInput" accept=".csv" style="display: none;">
+                                <div class="tab-content-body">
+                                    <div class="import-options-container">
+                                        <button id="importOptionsToggle" class="btn-icon"><i
+                                                data-feather="settings"></i></button>
+                                        <div class="import-options">
+                                            <h4>Import Settings</h4>
+                                            <div class="option-checkboxes">
+                                                <label>
+                                                    <input type="checkbox" id="checkDuplicates"> Check for duplicate
+                                                    email addresses
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" id="autoGenerateAccounts"> Automatic Account
+                                                    Generator
+                                                </label>
                                             </div>
-                                            <p class="file-info">Supported format: CSV</p>
-                                            <div id="fileDetails" class="file-details">
-                                                <p>File Name: <span id="fileName"></span></p>
-                                                <p>File Size: <span id="fileSize"></span></p>
+                                            <h4>Choose Import Method</h4>
+                                            <div class="option-buttons">
+                                                <button class="option-btn active" data-option="manual">
+                                                    <i data-feather="edit"></i>
+                                                    Manual Bulk Entry
+                                                </button>
+                                                <button class="option-btn" data-option="file">
+                                                    <i data-feather="upload"></i>
+                                                    Upload File
+                                                </button>
                                             </div>
-                                            <button id="processFileBtn" class="btn-primary">Process File</button>
                                         </div>
                                     </div>
 
-                                    <div id="dataPreview"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="tab-pane" id="step2">
-                            <h3>Step 2: Subjects</h3>
-                            <p>Add or select subjects for the students.</p>
-                            <div class="subjects-container" id="subjectsContainer">
-                                <!-- Subject cards will be dynamically added here -->
-                            </div>
-                            <div class="subject-actions">
-                                <div class="add-subject-card" id="addEmptySubjectCard">
-                                    <i data-feather="plus-circle"></i>
-                                    <span>Add Subject</span>
-                                </div>
-                                <button id="addSubjectPopupBtn" class="btn-secondary">Select Subject</button>
-                            </div>
-                            <p><small>This step is required.</small></p>
-                        </div>
-                        <div class="tab-pane" id="step3">
-                            <h3>Step 3: Professors</h3>
-                            <p>Set up professors for the subjects.</p>
-                            <div class="professors-subjects-container">
-                                <div class="professors-column">
-                                    <h4>Professors</h4>
-                                    <div id="professorsContainer">
-                                        <!-- Professor cards will be dynamically added here -->
-                                    </div>
-                                    <div class="professor-actions">
-                                        <div class="add-professor-card" id="addEmptyProfessorCard">
-                                            <i data-feather="plus-circle"></i>
-                                            <span>Add Professor</span>
+                                    <div class="import-content">
+                                        <div class="manual-entry active">
+                                            <div class="table-responsive-head">
+                                                <h4>Manual Bulk Data Entry</h4>
+                                                <p>Enter multiple student information manually using the table below.
+                                                </p>
+                                            </div>
+
+                                            <div class="table-responsive">
+                                                <table id="manualEntryTable" class="table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>First Name</th>
+                                                            <th>Middle Name</th>
+                                                            <th>Last Name</th>
+                                                            <th>Email</th>
+                                                            <th>Username</th>
+                                                            <th>Student NO</th>
+                                                            <th>Password</th>
+                                                            <th>Action</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td><input type="text" name="firstName[]" required></td>
+                                                            <td><input type="text" name="middleName[]"></td>
+                                                            <td><input type="text" name="lastName[]" required></td>
+                                                            <td><input type="email" name="email[]" required></td>
+                                                            <td><input type="text" name="username[]"></td>
+                                                            <td><input type="text" name="uniqueId[]"></td>
+                                                            <td><input type="text" name="password[]"></td>
+                                                            <td><button type="button" class="btn-remove-row"><i
+                                                                        data-feather="trash-2"></i></button></td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <button type="button" id="addRowBtn" class="btn-secondary">Add Row</button>
                                         </div>
-                                        <button id="addProfessorPopupBtn" class="btn-secondary">Select Professor</button>
-                                    </div>
-                                </div>
-                                <div class="subjects-column">
-                                    <h4>Subjects</h4>
-                                    <div id="subjectsDisplayContainer">
-                                        <!-- Subject cards from subjectsArray will be displayed here -->
+                                        <div class="file-upload">
+                                            <div class="file-upload-card">
+                                                <h4>File Upload</h4>
+                                                <p>Upload a CSV file containing student data.</p>
+                                                <div class="upload-area" id="dropZone">
+                                                    <i data-feather="upload-cloud"></i>
+                                                    <p>Drag and drop your file here or</p>
+                                                    <label for="fileInput" class="btn-secondary">Choose File</label>
+                                                    <input type="file" id="fileInput" accept=".csv"
+                                                        style="display: none;">
+                                                </div>
+                                                <p class="file-info">Supported format: CSV</p>
+                                                <div id="fileDetails" class="file-details">
+                                                    <p>File Name: <span id="fileName"></span></p>
+                                                    <p>File Size: <span id="fileSize"></span></p>
+                                                </div>
+                                                <button id="processFileBtn" class="btn-primary">Process File</button>
+                                            </div>
+                                        </div>
+
+                                        <div id="dataPreview"></div>
                                     </div>
                                 </div>
                             </div>
-                            <p><small>This step is required.</small></p>
-                        </div>
-                        
-                      
-                        <div class="tab-pane" id="step4">
-                            <h3>Step 4: Section</h3>
-                            <p>Select a section for the students.</p>
-                            <div class="section-cards-container" id="sectionCardsContainer">
-                                <!-- Section cards will be dynamically added here -->
-                                <?php foreach($SECTIONS as $SECTION): ?>
-                                    <div class="section-card">
-                                        <input type="radio" name="section" id="section-<?= $SECTION->section_id; ?>" value="<?= $SECTION->section_id; ?>">
-                                        <label for="section-<?= $SECTION->section_id; ?>">
-                                            <h4><?= $SECTION->section_name; ?></h4>
-                                            <p>Course: <?= $SECTION->course->course_name; ?></p>
-                                            <p>Students: <span class="student-count"><?= count($SECTION->students); ?></span></p>
-                                        </label>
+                            <div class="tab-pane" id="step2">
+                                <h3>Step 2: Section</h3>
+                                <p>Select a section for the students.</p>
+                                <div class="section-cards-container" id="sectionCardsContainer">
+                                    <!-- Section cards will be dynamically added here -->
+                                    <?php foreach ($SECTIONS as $SECTION): ?>
+                                        <div class="section-card">
+                                            <input type="radio" name="section" id="section-<?= $SECTION->section_id; ?>"
+                                                value="<?= $SECTION->section_id; ?>">
+                                            <label for="section-<?= $SECTION->section_id; ?>">
+                                                <h4><?= $SECTION->section_name; ?></h4>
+                                                <p>Course: <?= $SECTION->course->course_name; ?></p>
+                                                <p>Students: <span
+                                                        class="student-count"><?= count($SECTION->students); ?></span></p>
+                                            </label>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                                <button id="addSectionBtn" class="btn-add-section">+ Add New Section</button>
+                                <p><small>This step is required. Please select one section.</small></p>
+                            </div>
+                            <div class="tab-pane" id="step3">
+                                <h3>Step 3: Subjects (Optional)</h3>
+                                <p>Add or select subjects for the students.</p>
+                                <div class="subjects-container" id="subjectsContainer">
+                                    <!-- Subject cards will be dynamically added here -->
+                                </div>
+                                <div class="subject-actions">
+                                    <div class="add-subject-card" id="addEmptySubjectCard">
+                                        <i data-feather="plus-circle"></i>
+                                        <span>Add Subject</span>
                                     </div>
-                                <?php endforeach; ?>
+                                    <button id="addSubjectPopupBtn" class="btn-secondary">Select Subject</button>
+                                </div>
+                                <p><small>This step is optional. You can skip if not needed.</small></p>
                             </div>
-                            <button id="addSectionBtn" class="btn-add-section">+ Add New Section</button>
-                            <p><small>This step is required. Please select one section.</small></p>
-                    
-                        </div>
-                        <div class="tab-pane" id="step5">
-                            <h3>Step 5: Import Summary</h3>
-                            <p>Review the summary below before starting the import process.</p>
-                            <div class="import-summary">
-                                <div class="summary-item">
-                                    <h4>Students to Import</h4>
-                                    <p id="studentCount">Loading...</p>
+                            <div class="tab-pane" id="step4">
+                                <h3>Step 4: Professors (Optional)</h3>
+                                <p>Set up professors for the subjects.</p>
+                                <div class="professors-subjects-container">
+                                    <div class="professors-column">
+                                        <h4>Professors</h4>
+                                        <div id="professorsContainer">
+                                            <!-- Professor cards will be dynamically added here -->
+                                        </div>
+                                        <div class="professor-actions">
+                                            <div class="add-professor-card" id="addEmptyProfessorCard">
+                                                <i data-feather="plus-circle"></i>
+                                                <span>Add Professor</span>
+                                            </div>
+                                            <button id="addProfessorPopupBtn" class="btn-secondary">Select
+                                                Professor</button>
+                                        </div>
+                                    </div>
+                                    <div class="subjects-column">
+                                        <h4>Subjects</h4>
+                                        <div id="subjectsDisplayContainer">
+                                            <!-- Subject cards from subjectsArray will be displayed here -->
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="summary-item">
-                                    <h4>Subjects</h4>
-                                    <ul id="subjectsList"></ul>
-                                </div>
-                                <div class="summary-item">
-                                    <h4>Selected Section</h4>
-                                    <p id="selectedSection">None selected</p>
-                                </div>
+                                <p><small>This step is optional. You can skip if not needed.</small></p>
                             </div>
-                            <button id="importBtn" class="btn-primary">Start Import</button>
-                            <p><small>Please review the summary carefully before starting the import process.</small></p>
-                        </div>
-                        <div class="navigation-buttons">
-                            <button id="backBtn" class="nav-btn" disabled>Back</button>
-                            <button id="skipBtn" class="nav-btn">Skip</button>
-                            <button id="nextBtn" class="nav-btn">Next</button>
+                            <div class="tab-pane" id="step5">
+                                <h3>Step 5: Import Summary</h3>
+                                <p>Review the summary below before starting the import process.</p>
+                                <div class="import-summary">
+                                    <div class="summary-item">
+                                        <h4>Students to Import</h4>
+                                        <p id="studentCount">Loading...</p>
+                                    </div>
+                                    <div class="summary-item">
+                                        <h4>Subjects</h4>
+                                        <ul id="subjectsList"></ul>
+                                    </div>
+                                    <div class="summary-item">
+                                        <h4>Selected Section</h4>
+                                        <p id="selectedSection">None selected</p>
+                                    </div>
+                                </div>
+                                <button id="importBtn" class="btn-primary">Start Import</button>
+                                <p><small>Please review the summary carefully before starting the import
+                                        process.</small></p>
+                            </div>
+                            <div class="navigation-buttons">
+                                <button id="backBtn" class="nav-btn" disabled>Back</button>
+                                <button id="skipBtn" class="nav-btn" style="display: none;">Skip</button>
+                                <button id="nextBtn" class="nav-btn">Next</button>
+                            </div>
                         </div>
                     </div>
                 </div>
-                </div>
-              
+
             </div>
         </div>
     </div>
@@ -248,10 +255,57 @@ $SECTIONS = $sectionControl->getAllRecords(true);
 
 
 
-    <?php include "public/views/pages/structures/html_pipes.phtml" ?>
+<?php include "public/views/pages/structures/html_pipes.phtml" ?>
 
-    <script type="module" src="/public/assets/scripts/pages/superadmin/students/import_students.js"></script>
+<script type="module" src="/public/assets/scripts/pages/superadmin/students/import_students.js"></script>
 
-    <?php include "public/views/pages/structures/html_closing_parent.phtml" ?>
+<?php include "public/views/pages/structures/html_closing_parent.phtml" ?>
 
-    <?php include "public/views/pages/structures/html_body_closing.phtml" ?>
+<?php include "public/views/pages/structures/html_body_closing.phtml" ?>
+
+<style>
+    .navigation-buttons {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 1px solid #eee;
+    }
+
+    .nav-btn {
+        padding: 8px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 500;
+    }
+
+    .nav-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    #skipBtn {
+        background-color: #f0f0f0;
+        border: 1px solid #ddd;
+        color: #666;
+    }
+
+    #nextBtn {
+        background-color: #4a6cf7;
+        border: none;
+        color: white;
+    }
+
+    #backBtn {
+        background-color: #f0f0f0;
+        border: 1px solid #ddd;
+        color: #666;
+    }
+
+    .tab-pane p small {
+        display: block;
+        margin-top: 10px;
+        color: #666;
+        font-style: italic;
+    }
+</style>

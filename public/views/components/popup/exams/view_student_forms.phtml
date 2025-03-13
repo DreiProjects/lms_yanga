@@ -1,5 +1,5 @@
 <?php
-global $APPLICATION, $ALL_USER_TYPES,$SESSION;
+global $APPLICATION, $ALL_USER_TYPES, $SESSION;
 
 $data = json_decode($_POST['data'], true);
 
@@ -16,13 +16,13 @@ $late_submissions = 0;
 $on_time_submissions = 0;
 $not_complied = 0;
 
-foreach($all_students as $student) {
-    if($exam->form->isStudentTaken($student->student->user_id)) {
+foreach ($all_students as $student) {
+    if ($exam->form->isStudentTaken($student->student->user_id)) {
         // Find the student's submission
-        foreach($complies as $comply) {
-            if($comply->user_id == $student->student->user_id) {
+        foreach ($complies as $comply) {
+            if ($comply->user_id == $student->student->user_id) {
                 // Check if submission is late based on activity deadline
-                if(strtotime($comply->date_created) > strtotime($exam->due_date)) {
+                if (strtotime($comply->date_created) > strtotime($exam->due_date)) {
                     $late_submissions++;
                 } else {
                     $on_time_submissions++;
@@ -40,10 +40,13 @@ foreach($all_students as $student) {
     .flex-container {
         display: flex;
     }
-    .left-column, .right-column {
+
+    .left-column,
+    .right-column {
         flex: 1;
         padding: 10px;
     }
+
     .comply-item {
         margin: 10px 0;
         padding: 10px;
@@ -51,11 +54,13 @@ foreach($all_students as $student) {
         border-radius: 4px;
         position: relative;
     }
-    .comply-item > div {
+
+    .comply-item>div {
         display: flex;
         justify-content: space-between;
         align-items: center;
     }
+
     .view-comply-btn {
         padding: 5px 10px;
         background: #4CAF50;
@@ -63,40 +68,52 @@ foreach($all_students as $student) {
         border: none;
         border-radius: 4px;
         cursor: pointer;
-        z-index: 2; /* Added z-index to ensure button stays above grade stamp */
-        position: relative; /* Added position relative */
+        z-index: 2;
+        /* Added z-index to ensure button stays above grade stamp */
+        position: relative;
+        /* Added position relative */
     }
+
     .stats-container {
         margin-top: 20px;
     }
+
     .stat-item {
         margin: 15px 0;
         padding: 15px;
         background: #f8f9fa;
         border-radius: 4px;
     }
+
     .stat-item h4 {
         margin: 0 0 5px 0;
     }
+
     .stat-item p {
         font-size: 24px;
         margin: 0;
     }
+
     .stat-item.late h4 {
         color: #dc3545;
     }
+
     .stat-item.ontime h4 {
         color: #28a745;
     }
+
     .stat-item.pending h4 {
         color: #6c757d;
     }
+
     .comply-item.late {
         border-left: 4px solid #dc3545;
     }
+
     .comply-item.ontime {
         border-left: 4px solid #28a745;
     }
+
     .grade-stamp {
         width: 80px;
         padding: 8px;
@@ -107,10 +124,12 @@ foreach($all_students as $student) {
         align-items: center;
         justify-content: center;
         flex-direction: column;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        z-index: 1; /* Added z-index to place behind button */
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        z-index: 1;
+        /* Added z-index to place behind button */
         margin-left: 5px;
     }
+
     .grade-stamp .grade {
         font-size: 24px;
         font-weight: 600;
@@ -119,6 +138,7 @@ foreach($all_students as $student) {
         line-height: 1.2;
         padding: 0;
     }
+
     .grade-stamp .label {
         font-size: 12px;
         color: #6c757d;
@@ -128,6 +148,7 @@ foreach($all_students as $student) {
         padding: 0;
         line-height: 1;
     }
+
     .grade-stamp-container {
         display: flex;
         justify-content: space-between;
@@ -135,6 +156,156 @@ foreach($all_students as $student) {
         position: absolute;
         top: 10px;
         right: 10px;
+    }
+
+    /* Responsive styles */
+    @media (max-width: 768px) {
+        .flex-container {
+            flex-direction: column;
+        }
+
+        .left-column,
+        .right-column {
+            width: 100%;
+        }
+
+        .check-result-content {
+            width: 95%;
+            padding: 1.5rem;
+        }
+
+        .grade-stamp {
+            width: 60px;
+            padding: 5px;
+        }
+
+        .grade-stamp .grade {
+            font-size: 18px;
+        }
+
+        .grade-stamp .label {
+            font-size: 10px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .check-result-content {
+            width: 100%;
+            height: 100%;
+            border-radius: 0;
+            max-height: 100%;
+        }
+
+        .check-result-modal {
+            padding: 0;
+        }
+
+        .grade-stamp-container {
+            position: static;
+            margin-top: 10px;
+            justify-content: flex-start;
+            gap: 10px;
+        }
+
+        .comply-item>div {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .checked-indicator {
+            position: static;
+            display: inline-block;
+            margin-top: 10px;
+        }
+    }
+
+    /* Styles for the result modal */
+    .check-result-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .check-result-content {
+        background-color: white;
+        padding: 2rem;
+        border-radius: 12px;
+        max-width: 600px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    .check-result-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .check-result-header h3 {
+        margin: 0;
+        color: #1e293b;
+    }
+
+    .close-result-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #64748b;
+        font-size: 1.5rem;
+        line-height: 1;
+    }
+
+    .result-summary {
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        background-color: #f8fafc;
+        border-radius: 8px;
+    }
+
+    .result-summary p {
+        margin: 0.5rem 0;
+    }
+
+    .result-details {
+        margin-top: 1.5rem;
+    }
+
+    .question-result {
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+    }
+
+    .question-result h4 {
+        margin-top: 0;
+        color: #1e293b;
+    }
+
+    /* Checked indicator style */
+    .checked-indicator {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        font-size: 12px;
+        color: #3b82f6;
+        font-weight: bold;
+        background-color: rgba(239, 246, 255, 0.8);
+        padding: 3px 8px;
+        border-radius: 4px;
+        border: 1px solid #bfdbfe;
     }
 </style>
 <div class="main-popup-container">
@@ -155,77 +326,200 @@ foreach($all_students as $student) {
                     </div>
                 </div>
             </div>
-            
-                <div class="popup-bot">
-                    <div class="flex-container">
-                        <div class="left-column">
-                            <div class="title" style="display:flex;justify-content:space-between">
-                                <div class="left">
-                                    <h3>Student Submissions</h3>    
-                                </div>
-                                <div class="right">
-                                    <button class="primary check-exams-btn" role="button" style="background-color: #007bff; color: white; border: none; border-radius: 4px; padding: 10px 15px; font-size: 16px; cursor: pointer; transition: background-color 0.3s;">
-                                        <span>Check All</span>
-                                    </button>
-                                </div>
+
+            <div class="popup-bot">
+                <div class="flex-container">
+                    <div class="left-column">
+                        <div class="title" style="display:flex;justify-content:space-between">
+                            <div class="left">
+                                <h3>Student Submissions</h3>
                             </div>
-                            <?php if(!empty($complies)): ?>
-                                <?php foreach($complies as $comply): ?>
-                                    <?php 
-                                        $isLate = strtotime($comply->date_created) > strtotime($exam->due_date);
-                                        $submissionClass = $isLate ? 'late' : 'ontime';
-                                    ?>
-                                    <div class="comply-item <?= $submissionClass ?>" data-id="<?= $comply->form_completion_id ?>">
-                                        <?php if($comply->grade_score): ?>
+                            <div class="right">
+                                <button class="primary check-exams-btn" role="button"
+                                    style="background-color: #007bff; color: white; border: none; border-radius: 4px; padding: 10px 15px; font-size: 16px; cursor: pointer; transition: background-color 0.3s;">
+                                    <span>Check All</span>
+                                </button>
+                            </div>
+                        </div>
+                        <?php if (!empty($complies)): ?>
+                            <?php foreach ($complies as $comply): ?>
+                                <?php
+                                $isLate = strtotime($comply->date_created) > strtotime($exam->due_date);
+                                $submissionClass = $isLate ? 'late' : 'ontime';
+                                ?>
+                                <div class="comply-item <?= $submissionClass ?>" data-id="<?= $comply->form_completion_id ?>">
+                                    <?php if ($comply->grade_score): ?>
                                         <div class="grade-stamp-container">
                                             <div class="grade-stamp">
                                                 <p class="grade"><?= $comply->grade_score['grade'] ?></p>
                                                 <p class="label">Grade</p>
                                             </div>
-                                            <?php if($comply->check_score): ?>
+                                            <?php if ($comply->check_score): ?>
                                                 <div class="grade-stamp">
                                                     <p class="grade"><?= $comply->check_score['score'] ?></p>
                                                     <p class="label">Score</p>
                                                 </div>
                                             <?php endif ?>
                                         </div>
-                                        <?php endif; ?>
+                                    <?php endif; ?>
+                                    <div>
                                         <div>
-                                            <div>
-                                                <strong>Student:</strong> <?= $comply->user['displayName'] ?>
-                                                <br>
-                                                <small>Submitted: <?= date('M d, Y h:i A', strtotime($comply->date_created)) ?></small>
-                                                <br>
-                                                <small style="color: <?= $isLate ? '#dc3545' : '#28a745' ?>">
-                                                    <?= $isLate ? 'Late Submission' : 'On-time Submission' ?>
-                                                </small>
-                                            </div>
+                                            <strong>Student:</strong> <?= $comply->user['displayName'] ?>
+                                            <br>
+                                            <small>Submitted:
+                                                <?= date('M d, Y h:i A', strtotime($comply->date_created)) ?></small>
+                                            <br>
+                                            <small style="color: <?= $isLate ? '#dc3545' : '#28a745' ?>">
+                                                <?= $isLate ? 'Late Submission' : 'On-time Submission' ?>
+                                            </small>
                                         </div>
                                     </div>
-                                <?php endforeach; ?>
-                            <?php else: ?>
-                                <p>No submissions yet.</p>
-                            <?php endif; ?>
-                        </div>
-                        <div class="right-column">
-                            <h3>Submission Statistics</h3>
-                            <div class="stats-container">
-                                <div class="stat-item late">
-                                    <h4>Late Submissions</h4>
-                                    <p><?= $late_submissions ?></p>
                                 </div>
-                                <div class="stat-item ontime">
-                                    <h4>On-time Submissions</h4>
-                                    <p><?= $on_time_submissions ?></p>
-                                </div>
-                                <div class="stat-item pending">
-                                    <h4>Not Yet Submitted</h4>
-                                    <p><?= $not_complied ?></p>
-                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <p>No submissions yet.</p>
+                        <?php endif; ?>
+                    </div>
+                    <div class="right-column">
+                        <h3>Submission Statistics</h3>
+                        <div class="stats-container">
+                            <div class="stat-item late">
+                                <h4>Late Submissions</h4>
+                                <p><?= $late_submissions ?></p>
+                            </div>
+                            <div class="stat-item ontime">
+                                <h4>On-time Submissions</h4>
+                                <p><?= $on_time_submissions ?></p>
+                            </div>
+                            <div class="stat-item pending">
+                                <h4>Not Yet Submitted</h4>
+                                <p><?= $not_complied ?></p>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
         </div>
     </div>
 </div>
+
+<!-- Check All Results Modal -->
+<div id="checkAllResultsModal" class="check-result-modal" style="display: none;">
+    <div class="check-result-content">
+        <div class="check-result-header">
+            <h3>Exam Check Results</h3>
+            <button class="close-result-btn">&times;</button>
+        </div>
+        <div class="result-summary">
+            <p>All exams have been checked and graded.</p>
+            <p id="totalChecked">Total checked: 0</p>
+        </div>
+        <div id="allResultsDetails" class="result-details">
+            <!-- Student results will be dynamically added here -->
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const checkAllBtn = document.querySelector('.check-exams-btn');
+        const modal = document.getElementById('checkAllResultsModal');
+        const closeBtn = modal.querySelector('.close-result-btn');
+        const totalCheckedEl = document.getElementById('totalChecked');
+        const resultsDetailsEl = document.getElementById('allResultsDetails');
+
+        // Close modal when clicking the close button
+        closeBtn.addEventListener('click', function () {
+            modal.style.display = 'none';
+        });
+
+        // Close modal when clicking outside the content
+        modal.addEventListener('click', function (event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+
+        // Close modal when pressing Escape key
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape' && modal.style.display === 'flex') {
+                modal.style.display = 'none';
+            }
+        });
+
+        // When check all button is clicked, update the UI to show results
+        if (checkAllBtn) {
+            checkAllBtn.addEventListener('click', function () {
+                // Show loading state
+                checkAllBtn.disabled = true;
+                checkAllBtn.innerHTML = '<span>Checking...</span>';
+
+                // After the check is complete (handled by classes.js), update the UI
+                setTimeout(() => {
+                    // This will be called after the PostRequest in classes.js completes
+                    const complyItems = document.querySelectorAll('.comply-item');
+
+                    // Update the total checked count
+                    totalCheckedEl.textContent = `Total checked: ${complyItems.length}`;
+
+                    // Clear previous results
+                    resultsDetailsEl.innerHTML = '';
+
+                    // Create a result item for each student
+                    complyItems.forEach((item, index) => {
+                        // Get student name
+                        const studentName = item.querySelector('strong').nextSibling.textContent.trim();
+
+                        // Get grade if available
+                        let grade = 'Pending';
+                        const gradeEl = item.querySelector('.grade');
+                        if (gradeEl) {
+                            grade = gradeEl.textContent;
+                        }
+
+                        // Create result item
+                        const resultItem = document.createElement('div');
+                        resultItem.className = 'question-result';
+
+                        // Add student info
+                        const studentInfo = document.createElement('h4');
+                        studentInfo.textContent = `${index + 1}. ${studentName}`;
+                        resultItem.appendChild(studentInfo);
+
+                        // Add grade info
+                        const gradeInfo = document.createElement('p');
+                        gradeInfo.innerHTML = `Grade: <strong>${grade}</strong>`;
+                        resultItem.appendChild(gradeInfo);
+
+                        // Add to results container
+                        resultsDetailsEl.appendChild(resultItem);
+                    });
+
+                    // Show the modal
+                    modal.style.display = 'flex';
+
+                    // Reset button state
+                    checkAllBtn.disabled = false;
+                    checkAllBtn.innerHTML = '<span>Check All</span>';
+
+                    // Refresh the page to show updated grades
+                    location.reload();
+                }, 2000); // Wait for the check to complete
+            });
+        }
+
+        // Add visual indicators for already checked forms
+        const complyItems = document.querySelectorAll('.comply-item');
+        complyItems.forEach(item => {
+            // If the item has a grade stamp, it's already been checked
+            const gradeStamp = item.querySelector('.grade-stamp');
+            if (gradeStamp) {
+                // Add a small indicator that it's already checked
+                const checkedIndicator = document.createElement('div');
+                checkedIndicator.className = 'checked-indicator';
+                checkedIndicator.innerHTML = '<span>✓ Checked</span>';
+                item.appendChild(checkedIndicator);
+            }
+        });
+    });
+</script>

@@ -54,11 +54,14 @@ $main_form = $APPLICATION->FUNCTIONS->FORM_CONTROL->get($record->form_id, true);
                             <h3>View Form</h3>
                             <p>View the form for the exam.</p>
                         </div>
-                        <div class="create-form-body"  data-form_id="<?= $main_form->form_id ?>" data-exam_id="<?= $record->exam_id ?>" data-completion_id="<?= $completion->form_completion_id ?>">
+                        <div class="create-form-body" data-form_id="<?= $main_form->form_id ?>"
+                            data-exam_id="<?= $record->exam_id ?>"
+                            data-completion_id="<?= $completion->form_completion_id ?>">
                             <div class="form-content">
                                 <h1 class="form-title" id="formTitle" contenteditable="true">Untitled Form</h1>
-                                <p class="form-description" id="formDescription" contenteditable="true">Click to add description</p>
-                                
+                                <p class="form-description" id="formDescription" contenteditable="true">Click to add
+                                    description</p>
+
                                 <div id="questionsContainer">
                                     <!-- Questions will be dynamically added here -->
                                 </div>
@@ -135,6 +138,181 @@ $main_form = $APPLICATION->FUNCTIONS->FORM_CONTROL->get($record->form_id, true);
                                 .action-btn.danger:hover {
                                     background: #dc2626;
                                 }
+
+                                /* Styles for the result modal */
+                                .check-result-modal {
+                                    display: none;
+                                    position: fixed;
+                                    top: 0;
+                                    left: 0;
+                                    width: 100%;
+                                    height: 100%;
+                                    background-color: rgba(0, 0, 0, 0.5);
+                                    z-index: 1000;
+                                    justify-content: center;
+                                    align-items: center;
+                                }
+
+                                .check-result-content {
+                                    background-color: white;
+                                    padding: 2rem;
+                                    border-radius: 12px;
+                                    max-width: 600px;
+                                    width: 90%;
+                                    max-height: 80vh;
+                                    overflow-y: auto;
+                                    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+                                }
+
+                                .check-result-header {
+                                    display: flex;
+                                    justify-content: space-between;
+                                    align-items: center;
+                                    margin-bottom: 1.5rem;
+                                    padding-bottom: 1rem;
+                                    border-bottom: 1px solid #e2e8f0;
+                                }
+
+                                .check-result-header h3 {
+                                    margin: 0;
+                                    color: #1e293b;
+                                }
+
+                                .close-result-btn {
+                                    background: none;
+                                    border: none;
+                                    cursor: pointer;
+                                    color: #64748b;
+                                    font-size: 1.5rem;
+                                    line-height: 1;
+                                }
+
+                                .result-summary {
+                                    margin-bottom: 1.5rem;
+                                    padding: 1rem;
+                                    background-color: #f8fafc;
+                                    border-radius: 8px;
+                                }
+
+                                .result-summary p {
+                                    margin: 0.5rem 0;
+                                }
+
+                                .result-grade {
+                                    font-size: 1.5rem;
+                                    font-weight: bold;
+                                    color: #3b82f6;
+                                }
+
+                                .result-details {
+                                    margin-top: 1.5rem;
+                                }
+
+                                .question-result {
+                                    margin-bottom: 1.5rem;
+                                    padding: 1rem;
+                                    border: 1px solid #e2e8f0;
+                                    border-radius: 8px;
+                                }
+
+                                .question-result.correct {
+                                    border-left: 4px solid #10b981;
+                                }
+
+                                .question-result.incorrect {
+                                    border-left: 4px solid #ef4444;
+                                }
+
+                                .question-result h4 {
+                                    margin-top: 0;
+                                    color: #1e293b;
+                                }
+
+                                .answer-comparison {
+                                    display: flex;
+                                    flex-wrap: wrap;
+                                    gap: 1rem;
+                                    margin-top: 1rem;
+                                }
+
+                                .user-answer,
+                                .correct-answer {
+                                    flex: 1;
+                                    min-width: 200px;
+                                }
+
+                                .answer-label {
+                                    font-weight: 500;
+                                    margin-bottom: 0.5rem;
+                                    color: #64748b;
+                                }
+
+                                .answer-value {
+                                    padding: 0.75rem;
+                                    background-color: #f1f5f9;
+                                    border-radius: 6px;
+                                    word-break: break-word;
+                                }
+
+                                .user-answer .answer-value {
+                                    background-color: #eff6ff;
+                                }
+
+                                .correct-answer .answer-value {
+                                    background-color: #ecfdf5;
+                                }
+
+                                @media (max-width: 768px) {
+                                    .check-result-content {
+                                        width: 95%;
+                                        padding: 1.5rem;
+                                    }
+
+                                    .answer-comparison {
+                                        flex-direction: column;
+                                    }
+
+                                    .form-actions-container {
+                                        bottom: 1rem;
+                                        right: 1rem;
+                                    }
+
+                                    .form-actions {
+                                        flex-direction: column;
+                                        gap: 0.5rem;
+                                    }
+
+                                    .action-btn {
+                                        width: 100%;
+                                    }
+                                }
+
+                                @media (max-width: 576px) {
+                                    .check-result-content {
+                                        width: 100%;
+                                        height: 100%;
+                                        border-radius: 0;
+                                        max-height: 100%;
+                                    }
+
+                                    .check-result-modal {
+                                        padding: 0;
+                                    }
+
+                                    .form-actions-container {
+                                        position: fixed;
+                                        bottom: 0;
+                                        right: 0;
+                                        left: 0;
+                                        z-index: 100;
+                                    }
+
+                                    .form-actions {
+                                        border-radius: 0;
+                                        max-width: 100%;
+                                        width: 100%;
+                                    }
+                                }
                             </style>
 
                             <style>
@@ -185,7 +363,7 @@ $main_form = $APPLICATION->FUNCTIONS->FORM_CONTROL->get($record->form_id, true);
                         </div>
                     </div>
 
-            <style>
+                    <style>
                         .form-content {
                             max-width: 600px;
                             margin: 0 auto;
@@ -453,6 +631,7 @@ $main_form = $APPLICATION->FUNCTIONS->FORM_CONTROL->get($record->form_id, true);
                                 opacity: 0;
                                 transform: translateY(-10px);
                             }
+
                             to {
                                 opacity: 1;
                                 transform: translateY(0);
@@ -467,7 +646,7 @@ $main_form = $APPLICATION->FUNCTIONS->FORM_CONTROL->get($record->form_id, true);
                             padding: 2rem;
                             background: #fff;
                             border-radius: 8px;
-                            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
                         }
 
                         .create-form-header {
@@ -487,6 +666,23 @@ $main_form = $APPLICATION->FUNCTIONS->FORM_CONTROL->get($record->form_id, true);
                         }
                     </style>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Check Result Modal -->
+    <div id="checkResultModal" class="check-result-modal">
+        <div class="check-result-content">
+            <div class="check-result-header">
+                <h3>Form Check Results</h3>
+                <button class="close-result-btn">&times;</button>
+            </div>
+            <div class="result-summary">
+                <p>Score: <span id="resultScore">0</span> / <span id="resultTotalPoints">0</span></p>
+                <p>Grade: <span id="resultGrade" class="result-grade">0%</span></p>
+            </div>
+            <div id="resultDetails" class="result-details">
+                <!-- Question results will be dynamically added here -->
             </div>
         </div>
     </div>

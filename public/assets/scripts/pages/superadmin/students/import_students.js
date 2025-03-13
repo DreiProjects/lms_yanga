@@ -46,11 +46,150 @@ document.addEventListener("DOMContentLoaded", () => {
   setupSectionManagement();
   setupSubjectsAndProfessors();
   setupImportSummary();
+  setupNavigation();
 
   if (typeof feather !== "undefined") {
     feather.replace();
   }
 });
+
+function setupNavigation() {
+  const nextBtn = document.getElementById("nextBtn");
+  const backBtn = document.getElementById("backBtn");
+  const skipBtn = document.getElementById("skipBtn");
+  const tabButtons = document.querySelectorAll(".tab-button");
+  const tabPanes = document.querySelectorAll(".tab-pane");
+
+  let currentStep = 1;
+
+  // Update button states based on current step
+  function updateButtonStates() {
+    backBtn.disabled = currentStep === 1;
+
+    // Show skip button only on optional steps (3 and 4)
+    skipBtn.style.display =
+      currentStep === 3 || currentStep === 4 ? "block" : "none";
+
+    // Update tab buttons active state
+    tabButtons.forEach((btn, index) => {
+      btn.classList.toggle("active", index + 1 === currentStep);
+    });
+
+    // Update tab panes active state
+    tabPanes.forEach((pane, index) => {
+      pane.classList.toggle("active", index + 1 === currentStep);
+    });
+  }
+
+  // Validate current step before proceeding
+  function validateCurrentStep() {
+    switch (currentStep) {
+      case 1: // Students
+        const studentData = tableBulkEntryGenerator.getData();
+        if (studentData.length === 0) {
+          alert("Please add at least one student before proceeding.");
+          return false;
+        }
+        return true;
+
+      case 2: // Section (required)
+        const selectedSection = document.querySelector(
+          'input[name="section"]:checked'
+        );
+        if (!selectedSection) {
+          alert(
+            "Please select a section before proceeding. This step is required."
+          );
+          return false;
+        }
+        return true;
+
+      case 3: // Subjects (optional)
+      case 4: // Professors (optional)
+        return true;
+
+      case 5: // Import summary
+        return validateImportRequirements();
+    }
+
+    return true;
+  }
+
+  // Handle next button click
+  nextBtn.addEventListener("click", () => {
+    if (!validateCurrentStep()) {
+      return;
+    }
+
+    if (currentStep < 5) {
+      currentStep++;
+      updateButtonStates();
+      updateImportSummary();
+    }
+  });
+
+  // Handle back button click
+  backBtn.addEventListener("click", () => {
+    if (currentStep > 1) {
+      currentStep--;
+      updateButtonStates();
+    }
+  });
+
+  // Handle skip button click (for optional steps)
+  skipBtn.addEventListener("click", () => {
+    if (currentStep === 3 || currentStep === 4) {
+      currentStep++;
+      updateButtonStates();
+      updateImportSummary();
+    }
+  });
+
+  // Handle tab button clicks
+  tabButtons.forEach((btn, index) => {
+    btn.addEventListener("click", () => {
+      // If trying to go forward, validate current step
+      if (index + 1 > currentStep) {
+        // Validate all steps up to the target step
+        for (let i = currentStep; i < index + 1; i++) {
+          currentStep = i;
+          if (!validateCurrentStep()) {
+            return;
+          }
+        }
+      }
+
+      currentStep = index + 1;
+      updateButtonStates();
+      updateImportSummary();
+    });
+  });
+
+  // Initialize button states
+  updateButtonStates();
+}
+
+function validateImportRequirements() {
+  // Check if students are added
+  const studentData = tableBulkEntryGenerator.getData();
+  if (studentData.length === 0) {
+    alert("Please add at least one student before importing.");
+    return false;
+  }
+
+  // Check if section is selected (required)
+  const selectedSection = document.querySelector(
+    'input[name="section"]:checked'
+  );
+  if (!selectedSection) {
+    alert(
+      "Please select a section before importing. Section selection is required."
+    );
+    return false;
+  }
+
+  return true;
+}
 
 function setupImportOptions() {
   const importOptionsToggle = document.getElementById("importOptionsToggle");
@@ -551,7 +690,7 @@ function getSummary() {
     const courseName = sectionCard
       .querySelector("p")
       .textContent.replace("Course: ", "");
-    const section_id = sectionCard.querySelector('input[name="section"]').value;
+    const section_id = selectedSectionRadio.value;
 
     const section = sectionsArray.find(
       (section) => section.section_id == section_id
@@ -566,8 +705,6 @@ function getSummary() {
     if (section) {
       sectionSelected = section;
     }
-  } else {
-    sectionSelected = null;
   }
 
   return {
@@ -590,25 +727,18 @@ function ImportNowStudents(summary) {
 function setupImportSummary() {
   const importBtn = document.getElementById("importBtn");
 
-  wizzard.nextBtn.addEventListener("click", () => {
-    updateImportSummary();
-  });
-
   importBtn.addEventListener("click", () => {
-    const summary = getSummary();
-
-    if (summary.students.length) {
-      ImportNowStudents(summary).then(() => {
-        window.location.reload();
-      });
-    } else {
-      alert("Please add students first");
+    if (!validateImportRequirements()) {
+      return;
     }
+
+    const summary = getSummary();
+    ImportNowStudents(summary).then(() => {
+      window.location.reload();
+    });
   });
 
-  tableBulkEntryGenerator.onStep(4, () => {
-    updateImportSummary();
-  });
+  updateImportSummary();
 }
 
 function updateImportSummary() {
@@ -618,15 +748,21 @@ function updateImportSummary() {
 
   // Update student count
   const studentData = tableBulkEntryGenerator.getData();
-  studentCount.textContent = studentData.length;
+  studentCount.textContent = studentData.length || "0";
 
   // Update subjects list
   subjectsList.innerHTML = "";
-  subjectsArray.forEach((subject) => {
+  if (subjectsArray.length === 0) {
     const li = document.createElement("li");
-    li.textContent = `${subject.name} (${subject.code})`;
+    li.textContent = "No subjects added (optional)";
     subjectsList.appendChild(li);
-  });
+  } else {
+    subjectsArray.forEach((subject) => {
+      const li = document.createElement("li");
+      li.textContent = `${subject.name} (${subject.code})`;
+      subjectsList.appendChild(li);
+    });
+  }
 
   // Update selected section
   const selectedSectionRadio = document.querySelector(
@@ -640,7 +776,7 @@ function updateImportSummary() {
       .textContent.replace("Course: ", "");
     selectedSection.textContent = `${sectionName} (${courseName})`;
   } else {
-    selectedSection.textContent = "None selected";
+    selectedSection.textContent = "None selected (required)";
   }
 }
 

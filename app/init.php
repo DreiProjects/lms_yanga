@@ -1,5 +1,7 @@
 <?php
 
+// Set timezone to UTC+08:00 (Philippines, Kuala Lumpur, Singapore)
+date_default_timezone_set('Asia/Manila');
 
 // ALL MODULES
 include_once "modules/Enumeration.php";

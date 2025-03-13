@@ -12,6 +12,10 @@ abstract class FormAbstract extends ModelDefaultFunctions
 
     public $title;
 
+    public $form_title;
+
+    public $form_description;
+
     public $description;
 
     public $form_type;
