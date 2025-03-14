@@ -27,4 +27,8 @@ class Exam extends ExamAbstract
         $this->form = $APPLICATION->FUNCTIONS->FORM_CONTROL->get($this->form_id, true);
         $this->subject = $APPLICATION->FUNCTIONS->SUBJECT_CONTROL->get($this->section_subject->subject_id, true);
     }
+    public function isDueDatePassed()
+    {
+        return strtotime($this->due_date) < time();
+    }
 }

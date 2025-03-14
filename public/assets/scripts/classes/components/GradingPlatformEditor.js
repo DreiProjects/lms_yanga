@@ -47,9 +47,9 @@ export default class GradingPlatformEditor {
 
     // Hide buttons for student users
     if (this.sessionType === 1) {
-      if (this.saveGradesBtn) this.saveGradesBtn.style.display = 'none';
-      if (this.discardGradesBtn) this.discardGradesBtn.style.display = 'none';
-      if (this.exportBtn) this.exportBtn.style.display = 'none';
+      if (this.saveGradesBtn) this.saveGradesBtn.style.display = "none";
+      if (this.discardGradesBtn) this.discardGradesBtn.style.display = "none";
+      if (this.exportBtn) this.exportBtn.style.display = "none";
     } else {
       // Add event listener if export button exists
       if (this.exportBtn) {
@@ -63,15 +63,15 @@ export default class GradingPlatformEditor {
   Load(section_subject_id) {
     this.sectionSubjectId = section_subject_id;
 
-    console.log(section_subject_id)
+    console.log(section_subject_id);
 
     SelectModelByFilter(
       JSON.stringify({ section_subject_id: section_subject_id }),
       "GRADING_PLATFORM_CONTROL"
     ).then((res) => {
-      console.log(res)
+      console.log(res);
 
-      if (res &&res[0]) {
+      if (res && res[0]) {
         this.LoadGradingPlatform(res[0]);
         this.initializeOriginalGrades(); // Initialize original grades after loading
         this.setUnsavedChanges(false); // Set initial state of save changesZ
@@ -110,7 +110,9 @@ export default class GradingPlatformEditor {
   reconstructTable(container, students) {
     // Filter students if user is a student
     if (this.sessionType === 1) {
-      students = students.filter(student => student.user_id === this.sessionId);
+      students = students.filter(
+        (student) => student.user_id === this.sessionId
+      );
     }
 
     const table = CreateElement({
@@ -129,7 +131,7 @@ export default class GradingPlatformEditor {
                   attr: {
                     rowspan: 2,
                     style: "text-align: left; cursor: pointer;",
-                    class: "student-name-header"
+                    class: "student-name-header",
                   },
                 }),
                 CreateElement({
@@ -150,7 +152,7 @@ export default class GradingPlatformEditor {
                   el: "TH",
                   attr: {
                     rowspan: 2,
-                    style: this.sessionType === 1 ? "display: none;" : ""
+                    style: this.sessionType === 1 ? "display: none;" : "",
                   },
                   child: CreateElement({
                     el: "BUTTON",
@@ -176,14 +178,14 @@ export default class GradingPlatformEditor {
               attr: {
                 "data-student": student.user_id,
                 class: "student-row",
-                style: "cursor: pointer;"
+                style: "cursor: pointer;",
               },
               childs: [
                 CreateElement({
                   el: "TD",
                   text: student.displayName,
                   attr: {
-                    style: "text-align: left;"
+                    style: "text-align: left;",
                   },
                 }),
                 CreateElement({
@@ -268,14 +270,14 @@ export default class GradingPlatformEditor {
 
     if (data) {
       this.highlightedStudents = JSON.parse(data.data);
-      
+
       // Update row highlighting based on selected students
-      this.table.querySelectorAll("tbody tr").forEach(row => {
+      this.table.querySelectorAll("tbody tr").forEach((row) => {
         const studentId = row.getAttribute("data-student");
         if (this.highlightedStudents.includes(studentId)) {
           row.classList.add("highlighted-student");
         } else {
-          row.classList.remove("highlighted-student"); 
+          row.classList.remove("highlighted-student");
         }
       });
 
@@ -387,28 +389,38 @@ export default class GradingPlatformEditor {
         .filter((student) => student.category_scores.length > 0),
     };
 
+    console.log("Saving grades data:", gradesData); // Debug log
+
     return new Promise((resolve, reject) => {
-      PostRequest("SaveGrades", { data: JSON.stringify(gradesData) }).then(
-        (res) => {
-          console.log(res);
+      PostRequest("SaveGrades", { data: JSON.stringify(gradesData) })
+        .then((res) => {
+          console.log("Save grades response:", res); // Debug log
           res = JSON.parse(res);
 
           if (res.code === 200) {
             NewNotification({
               type: "success",
-              message: "Grades have been saved successfully!"
+              message: "Grades have been saved successfully!",
             });
             this.updateCreatedObjects(res.body.created_objects);
             resolve(true);
           } else {
             NewNotification({
               type: "error",
-              message: "Failed to save grades. Please try again."
+              message:
+                res.message || "Failed to save grades. Please try again.",
             });
             resolve(false);
           }
-        }
-      );
+        })
+        .catch((error) => {
+          console.error("Error saving grades:", error); // Debug log
+          NewNotification({
+            type: "error",
+            message: "An error occurred while saving grades. Please try again.",
+          });
+          resolve(false);
+        });
     });
   }
 
@@ -489,14 +501,16 @@ export default class GradingPlatformEditor {
     const data = {
       grading_platform_id: this.grading_platform_id,
       data: JSON.stringify(this.selectedStudents),
-    }
+    };
 
-    AddRecord("grade_show_requests", { data: JSON.stringify(data) }).then((res) => {
-      NewNotification({
-        type: "success",
-        message: res.message
-      });
-    });
+    AddRecord("grade_show_requests", { data: JSON.stringify(data) }).then(
+      (res) => {
+        NewNotification({
+          type: "success",
+          message: res.message,
+        });
+      }
+    );
   }
 
   discardGrades() {
@@ -552,7 +566,7 @@ export default class GradingPlatformEditor {
     this.setUnsavedChanges(false);
     NewNotification({
       type: "info",
-      message: "All changes have been discarded."
+      message: "All changes have been discarded.",
     });
   }
 
@@ -809,7 +823,7 @@ export default class GradingPlatformEditor {
           }),
           cat == "Activity" ? "ACTIVITY_CONTROL" : "EXAM_CONTROL"
         ).then((res) => {
-          console.log(res)
+          console.log(res);
           const newData = res.map((item) => {
             return {
               value: cat == "Activity" ? item.activity_id : item.exam_id,
@@ -851,24 +865,58 @@ export default class GradingPlatformEditor {
   applyImportedData(data) {
     // Apply imported scores to the selected category and column
     data.data.forEach((studentScore) => {
+      // Initialize the complete student scores structure if it doesn't exist
       if (!this.studentScores[studentScore.student_id]) {
-        this.studentScores[studentScore.student_id] = {};
-      }
-      if (!this.studentScores[studentScore.student_id][data.category]) {
-        this.studentScores[studentScore.student_id][data.category] = {};
+        this.studentScores[studentScore.student_id] = {
+          scores: {},
+          weightedScores: {},
+          scoreIds: {},
+          status: {},
+          finalGrade: 0,
+          collegeGrade: 0,
+        };
       }
 
-      this.studentScores[studentScore.student_id][data.category][
+      // Initialize category structure if it doesn't exist
+      if (!this.studentScores[studentScore.student_id].scores[data.category]) {
+        this.studentScores[studentScore.student_id].scores[data.category] = {};
+      }
+      if (
+        !this.studentScores[studentScore.student_id].scoreIds[data.category]
+      ) {
+        this.studentScores[studentScore.student_id].scoreIds[data.category] =
+          {};
+      }
+
+      // Round score to nearest integer
+      const roundedScore = studentScore.score;
+
+      // Update the score in the data structure
+      this.studentScores[studentScore.student_id].scores[data.category][
         data.columnId
-      ] = studentScore.score;
+      ] = roundedScore;
 
-      // Update the cell in the table - Changed from input to span.grade-input
+      // Generate a new score ID if one doesn't exist
+      if (
+        !this.studentScores[studentScore.student_id].scoreIds[data.category][
+          data.columnId
+        ]
+      ) {
+        this.studentScores[studentScore.student_id].scoreIds[data.category][
+          data.columnId
+        ] = MakeID(10);
+      }
+
+      // Update the cell in the table
       const cell = this.table.querySelector(
         `span.grade-input[data-student="${studentScore.student_id}"][data-category="${data.category}"][data-column-id="${data.columnId}"]`
       );
       if (cell) {
-        // Use textContent instead of value for span elements
-        cell.textContent = studentScore.score;
+        cell.textContent = roundedScore;
+        cell.dataset.scoreId =
+          this.studentScores[studentScore.student_id].scoreIds[data.category][
+            data.columnId
+          ];
 
         // Update the status to mark as edited
         const scoreKey = `${studentScore.student_id}-${data.category}-${data.columnId}`;
@@ -880,7 +928,6 @@ export default class GradingPlatformEditor {
       }
     });
 
-    
     // Recalculate grades after importing
     const inputs = this.table.querySelectorAll(
       `span.grade-input[data-category="${data.category}"][data-column-id="${data.columnId}"]`
@@ -1274,7 +1321,7 @@ export default class GradingPlatformEditor {
     if (!category) {
       NewNotification({
         type: "error",
-        message: "Category not found."
+        message: "Category not found.",
       });
       return;
     }
@@ -1336,7 +1383,7 @@ export default class GradingPlatformEditor {
     this.setUnsavedChanges(true);
     NewNotification({
       type: "success",
-      message: `Category "${category.name}" has been removed.`
+      message: `Category "${category.name}" has been removed.`,
     });
   }
 
@@ -1409,12 +1456,11 @@ export default class GradingPlatformEditor {
       });
     }
 
-
     if (this.discardGradesBtn) {
       this.discardGradesBtn.addEventListener("click", () => {
         if (confirm("Are you sure you want to discard all changes?")) {
           this.discardGrades();
-      }
+        }
       });
     }
 
@@ -1441,14 +1487,16 @@ export default class GradingPlatformEditor {
     this.table.addEventListener("click", (e) => {
       if (e.target.classList.contains("student-name-header")) {
         const allRows = this.table.querySelectorAll("tbody tr");
-        const allSelected = Array.from(allRows).every(row => row.classList.contains("selected"));
-        
+        const allSelected = Array.from(allRows).every((row) =>
+          row.classList.contains("selected")
+        );
+
         if (allSelected) {
-          allRows.forEach(row => row.classList.remove("selected"));
+          allRows.forEach((row) => row.classList.remove("selected"));
           this.selectedStudents = [];
         } else {
           this.selectedStudents = [];
-          allRows.forEach(row => {
+          allRows.forEach((row) => {
             row.classList.add("selected");
             const studentId = row.getAttribute("data-student");
             this.selectedStudents.push(studentId);
@@ -1461,15 +1509,17 @@ export default class GradingPlatformEditor {
       const row = e.target.closest(".student-row");
       if (row) {
         const studentId = row.getAttribute("data-student");
-        
+
         if (row.classList.contains("selected")) {
           row.classList.remove("selected");
-          this.selectedStudents = this.selectedStudents.filter(id => id !== studentId);
+          this.selectedStudents = this.selectedStudents.filter(
+            (id) => id !== studentId
+          );
         } else {
           row.classList.add("selected");
           this.selectedStudents.push(studentId);
         }
-        
+
         this.updateShowButtonState(); // Update button state
       }
     });
@@ -1480,9 +1530,9 @@ export default class GradingPlatformEditor {
       this.showBtn.disabled = this.selectedStudents.length === 0;
       // Optional: Add visual feedback with CSS classes
       if (this.selectedStudents.length === 0) {
-        this.showBtn.classList.add('disabled');
+        this.showBtn.classList.add("disabled");
       } else {
-        this.showBtn.classList.remove('disabled');
+        this.showBtn.classList.remove("disabled");
       }
     }
   }

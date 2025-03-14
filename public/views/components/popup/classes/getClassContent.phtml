@@ -3,7 +3,7 @@ global $APPLICATION, $SESSION, $STUDENTS_IN_CLASSES_HEADER_BODY, $SUBJECTS_IN_CL
 
 $gradingControl = $APPLICATION->FUNCTIONS->GRADING_PLATFORM_CONTROL;
 
-$IS_ADIVSER =  filter_var($_POST['is_adviser'], FILTER_VALIDATE_BOOLEAN);
+$IS_ADIVSER = filter_var($_POST['is_adviser'], FILTER_VALIDATE_BOOLEAN);
 
 if (!isset($section)) {
     $id = $_POST['id'];
@@ -47,7 +47,7 @@ foreach ($SUBJECTS as $subject) {
     ], $RESOURCES[$subject->subject_name]);
 
     $ACTIVITIES[$subject->subject_name] = $APPLICATION->FUNCTIONS->ACTIVITY_CONTROL->filterRecords(['section_subject_id' => $subject->section_subject_id], true);
-    
+
     $EXAMS[$subject->subject_name] = $APPLICATION->FUNCTIONS->EXAM_CONTROL->filterRecords(['section_subject_id' => $subject->section_subject_id], true);
 }
 
@@ -55,7 +55,8 @@ foreach ($SUBJECTS as $subject) {
 
 ?>
 
-<div class="main-body-body" data-session_id="<?= $SESSION->user_id ?>" data-name="<?= $SESSION->displayName ?>" data-image="<?= $SESSION->getPhotoURL() ?>">
+<div class="main-body-body" data-session_id="<?= $SESSION->user_id ?>" data-name="<?= $SESSION->displayName ?>"
+    data-image="<?= $SESSION->getPhotoURL() ?>">
     <div class="data-table-content">
         <div class="main-table-container table-component">
             <div class="main-table-header">
@@ -66,623 +67,689 @@ foreach ($SUBJECTS as $subject) {
                         </div>
                     </div>
                     <div class="center">
-                       
+
                     </div>
                     <div class="right"></div>
                 </div>
             </div>
             <div class="main-table-body">
                 <div class="main">
-                <div class="tab-container">
-                    <ul class="tab-nav">
-                        <li class="tab-item active" data-tab="students"><?= $SESSION->user_type == 1 ? "CLASSMATES" : "STUDENTS" ?></li>
-                        <li class="tab-item" data-tab="subjects">SUBJECTS</li>
-                        <?php if (!$IS_ADIVSER): ?>
-                        <li class="tab-item" data-tab="resources">RESOURCES</li>
-                        <li class="tab-item" data-tab="activities">ACTIVITIES</li>
-                        <li class="tab-item" data-tab="exams">FORMS</li>
-                        <?php endif ?>
-                        <li class="tab-item" data-tab="notes">NOTES</li>
-                        <?php if (!$IS_ADIVSER): ?>
-                        <li class="tab-item" data-tab="grades">GRADES</li>
-                        <li class="tab-item" data-tab="attendance">ATTENDANCE</li>
-                        <?php endif ?>
+                    <div class="tab-container">
+                        <ul class="tab-nav">
+                            <li class="tab-item active" data-tab="students">
+                                <?= $SESSION->user_type == 1 ? "CLASSMATES" : "STUDENTS" ?></li>
+                            <li class="tab-item" data-tab="subjects">SUBJECTS</li>
+                            <?php if (!$IS_ADIVSER): ?>
+                            <li class="tab-item" data-tab="resources">RESOURCES</li>
+                            <li class="tab-item" data-tab="activities">ACTIVITIES</li>
+                            <li class="tab-item" data-tab="exams">FORMS</li>
+                            <?php endif ?>
+                            <li class="tab-item" data-tab="notes">NOTES</li>
+                            <?php if (!$IS_ADIVSER): ?>
+                            <li class="tab-item" data-tab="grades">GRADES</li>
+                            <li class="tab-item" data-tab="attendance">ATTENDANCE</li>
+                            <?php endif ?>
 
-                    </ul>
-                    <div class="tab-content">
-                        <div class="tab-pane active" id="students">
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane active" id="students">
 
-                            <?php if ($IS_ADIVSER): ?>
+                                <?php if ($IS_ADIVSER): ?>
                                 <div class="list-buttons">
-                                    <button class="btn-primary show-irregular-students" data-section_id="<?= $section->section_id ?>">
+                                    <button class="btn-primary show-irregular-students"
+                                        data-section_id="<?= $section->section_id ?>">
                                         <span>Irregular Students</span>
                                     </button>
                                 </div>
-                            <?php endif ?>
-                            
+                                <?php endif ?>
 
-                            <?= CreateTable([
-                                "content" => $STUDENTS_IN_CLASSES_HEADER_BODY,
-                                "data" => $RECORDS,
-                                "id" => "user_id",
-                                "checkbox" => true
-                            ]) ?>
-                        </div>
-                        <div class="tab-pane" id="subjects">
-                            <?= CreateTable([
-                                "content" => $SUBJECTS_IN_CLASSES_HEADER_BODY,
-                                "data" => $SUBJECTS,
-                                "id" => "section_subject_id",
-                                "checkbox" => true
-                            ]) ?>
-                        </div>
 
-                        <?php if (!$IS_ADIVSER): ?>
-                        <div class="tab-pane" id="resources">
-                            <div class="resources-container">
-                                <div class="resources-actions">
-                                    <?php if ($SESSION->user_type == 2): ?>
-                                        <button class="btn btn-primary upload-resource-btn" data-section_id="<?= $section->section_id ?>" data-professor_id="<?= $professor_id ?>">Upload Resource</button>
-                                    <?php endif; ?>
-                                </div>
-                                <div class="resources-content">
-                                    <div class="resources-menu">
-                                        <ul>
-                                            <?php foreach ($RESOURCES as $subject => $resources): ?>
-                                                <li class="subject-tab <?= $subject === array_key_first($RESOURCES) ? 'active' : '' ?>" data-subject="<?= $subject ?>"><?= $subject ?></li>
-                                            <?php endforeach; ?>
-                                        </ul>
+                                <?= CreateTable([
+                                    "content" => $STUDENTS_IN_CLASSES_HEADER_BODY,
+                                    "data" => $RECORDS,
+                                    "id" => "user_id",
+                                    "checkbox" => true
+                                ]) ?>
+                            </div>
+                            <div class="tab-pane" id="subjects">
+                                <?= CreateTable([
+                                    "content" => $SUBJECTS_IN_CLASSES_HEADER_BODY,
+                                    "data" => $SUBJECTS,
+                                    "id" => "section_subject_id",
+                                    "checkbox" => true
+                                ]) ?>
+                            </div>
+
+                            <?php if (!$IS_ADIVSER): ?>
+                            <div class="tab-pane" id="resources">
+                                <div class="resources-container">
+                                    <div class="resources-actions">
+                                        <?php if ($SESSION->user_type == 2): ?>
+                                        <button class="btn btn-primary upload-resource-btn"
+                                            data-section_id="<?= $section->section_id ?>"
+                                            data-professor_id="<?= $professor_id ?>">Upload Resource</button>
+                                        <?php endif; ?>
                                     </div>
-                                    <div class="resources-list">
-                                        <?php foreach ($RESOURCES as $subject => $subjectResources): ?>
-                                            <div class="subject-resources <?= $subject === array_key_first($RESOURCES) ? 'active' : '' ?>" data-subject="<?= $subject ?>">
+                                    <div class="resources-content">
+                                        <div class="resources-menu">
+                                            <ul>
+                                                <?php foreach ($RESOURCES as $subject => $resources): ?>
+                                                <li class="subject-tab <?= $subject === array_key_first($RESOURCES) ? 'active' : '' ?>"
+                                                    data-subject="<?= $subject ?>"><?= $subject ?></li>
+                                                <?php endforeach; ?>
+                                            </ul>
+                                        </div>
+                                        <div class="resources-list">
+                                            <?php foreach ($RESOURCES as $subject => $subjectResources): ?>
+                                            <div class="subject-resources <?= $subject === array_key_first($RESOURCES) ? 'active' : '' ?>"
+                                                data-subject="<?= $subject ?>">
                                                 <h3><?= $subject ?> Resources</h3>
                                                 <div class="accordion">
                                                     <?php foreach ($subjectResources as $index => $resource): ?>
-                                                        <div class="accordion-item <?= $index === 0 ? 'active' : '' ?>" data-id="<?= $resource['resources_group_id'] ?>" data-title="<?= $resource['title'] ?>">
-                                                            <div class="accordion-header">
-                                                                <h4><?= $resource['title'] ?></h4>
-                                                                <span class="accordion-icon">+</span>
+                                                    <div class="accordion-item <?= $index === 0 ? 'active' : '' ?>"
+                                                        data-id="<?= $resource['resources_group_id'] ?>"
+                                                        data-title="<?= $resource['title'] ?>">
+                                                        <div class="accordion-header">
+                                                            <h4><?= $resource['title'] ?></h4>
+                                                            <span class="accordion-icon">+</span>
+                                                        </div>
+                                                        <div class="accordion-content">
+                                                            <p><?= $resource['description'] ?></p>
+                                                            <small>Date:
+                                                                <?= date('l, F j, Y \a\t h:i:s A', strtotime($resource['date_created'])) ?></small>
+                                                            <div class="resource-actions">
+                                                                <div class="icon-button download-resource-group-btn"
+                                                                    title="Download">
+                                                                    <div class="icon">
+                                                                        <?= UseIcon("download-thin") ?>
+                                                                    </div>
+                                                                    <div class="text">
+                                                                        <span>Download Resource Group</span>
+                                                                    </div>
+                                                                </div>
                                                             </div>
-                                                            <div class="accordion-content">
-                                                                <p><?= $resource['description'] ?></p>
-                                                                <small>Date: <?= date('l, F j, Y \a\t h:i:s A', strtotime($resource['date_created'])) ?></small>
+                                                            <?php foreach ($resource['contents'] as $content): ?>
+                                                            <div class="resource-item"
+                                                                data-id="<?= $content['resources_id'] ?>"
+                                                                data-title="<?= $content['title'] ?>">
+                                                                <h5><?= $content['title'] ?></h5>
+                                                                <p><?= $content['description'] ?></p>
+                                                                <small>
+                                                                    <?= $content['file_name'] ?> |
+                                                                    <?= $content['file_size'] ?> |
+                                                                    Type: <?= $content['file_type'] ?> |
+                                                                    Date:
+                                                                    <?= date('l, F j, Y \a\t h:i:s A', strtotime($content['date_created'])) ?>
+                                                                </small>
                                                                 <div class="resource-actions">
-                                                                    <div class="icon-button download-resource-group-btn" title="Download">
+                                                                    <div class="icon-button download-resource-btn"
+                                                                        title="Download">
                                                                         <div class="icon">
                                                                             <?= UseIcon("download-thin") ?>
                                                                         </div>
                                                                         <div class="text">
-                                                                            <span>Download Resource Group</span>
+                                                                            <span>Download</span>
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                                <?php foreach ($resource['contents'] as $content): ?>
-                                                                    <div class="resource-item" data-id="<?= $content['resources_id'] ?>" data-title="<?= $content['title'] ?>">
-                                                                        <h5><?= $content['title'] ?></h5>
-                                                                        <p><?= $content['description'] ?></p>
-                                                                        <small>
-                                                                            <?= $content['file_name'] ?> | 
-                                                                            <?= $content['file_size'] ?> | 
-                                                                            Type: <?= $content['file_type'] ?> |
-                                                                            Date: <?= date('l, F j, Y \a\t h:i:s A', strtotime($content['date_created'])) ?>
-                                                                        </small>
-                                                                        <div class="resource-actions">
-                                                                            <div class="icon-button download-resource-btn" title="Download">
-                                                                                <div class="icon">
-                                                                                    <?= UseIcon("download-thin") ?>
-                                                                                </div>
-                                                                                <div class="text">
-                                                                                    <span>Download</span>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                <?php endforeach; ?>
                                                             </div>
+                                                            <?php endforeach; ?>
                                                         </div>
+                                                    </div>
                                                     <?php endforeach; ?>
                                                 </div>
                                             </div>
-                                        <?php endforeach; ?>
+                                            <?php endforeach; ?>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="tab-pane" id="activities">
-                            <div class="activities-container">
-                                <div class="activities-actions">
-                                    <?php if ($SESSION->user_type == 2): ?>
-                                        <button class="btn btn-primary add-activity-btn" data-section_id="<?= $section->section_id ?>" data-professor_id="<?= $professor_id ?>">Add Activity</button>
-                                    <?php endif; ?>
-                                </div>
-                                <div class="activities-content">
-                                    <div class="activities-menu">
-                                        <ul>
-                                            <?php foreach ($ACTIVITIES as $subject => $activities): ?>
-                                                <li class="subject-tab <?= $subject === array_key_first($ACTIVITIES) ? 'active' : '' ?>" data-subject="<?= $subject ?>"><?= $subject ?></li>
-                                            <?php endforeach; ?>
-                                        </ul>
+                            <div class="tab-pane" id="activities">
+                                <div class="activities-container">
+                                    <div class="activities-actions">
+                                        <?php if ($SESSION->user_type == 2): ?>
+                                        <button class="btn btn-primary add-activity-btn"
+                                            data-section_id="<?= $section->section_id ?>"
+                                            data-professor_id="<?= $professor_id ?>">Add Activity</button>
+                                        <?php endif; ?>
                                     </div>
-                                    <div class="activities-list">
-                                        <?php foreach ($ACTIVITIES as $subject => $subjectActivities): ?>
-                                            <div class="subject-activities <?= $subject === array_key_first($ACTIVITIES) ? 'active' : '' ?>" data-subject="<?= $subject ?>">
+                                    <div class="activities-content">
+                                        <div class="activities-menu">
+                                            <ul>
+                                                <?php foreach ($ACTIVITIES as $subject => $activities): ?>
+                                                <li class="subject-tab <?= $subject === array_key_first($ACTIVITIES) ? 'active' : '' ?>"
+                                                    data-subject="<?= $subject ?>"><?= $subject ?></li>
+                                                <?php endforeach; ?>
+                                            </ul>
+                                        </div>
+                                        <div class="activities-list">
+                                            <?php foreach ($ACTIVITIES as $subject => $subjectActivities): ?>
+                                            <div class="subject-activities <?= $subject === array_key_first($ACTIVITIES) ? 'active' : '' ?>"
+                                                data-subject="<?= $subject ?>">
                                                 <h3><?= $subject ?> Activities</h3>
-                                                <?php if(empty($subjectActivities)): ?>
-                                                    <div class="no-activities">
-                                                        <p>No activities found for this subject.</p>
-                                                    </div>
+                                                <?php if (empty($subjectActivities)): ?>
+                                                <div class="no-activities">
+                                                    <p>No activities found for this subject.</p>
+                                                </div>
                                                 <?php else: ?>
-                                                    <?php foreach ($subjectActivities as $activity): ?>
-                                                        <div class="activity-item" data-id="<?= $activity->activity_id ?>">
-                                                            <div class="activity-info">
-                                                                <h4><?= htmlspecialchars($activity->title) ?></h4>
-                                                                <p><?= htmlspecialchars($activity->description) ?></p>
-                                                                <small>
-                                                                    <?php if (!empty($activity->due_date) && strtotime($activity->due_date)): ?>
-                                                                        Due: <?= date('F j, Y \a\t h:i A', strtotime($activity->due_date)) ?> | 
-                                                                    <?php endif; ?>
-                                                                    Type: <?= ucwords(strtolower($activity->passing_type)) ?> |
-                                                                    Status: <span class="status-badge <?= strtolower($activity->activity_status) ?>"><?= $activity->activity_status ?></span>
-                                                                </small>
-                                                                <?php if ($SESSION->user_type == 2): ?>
-                                                                    <?php 
-                                                                        $total_students = count($RECORDS);
-                                                                        $complied_students = count($activity->complies);
-                                                                        $completion_percentage = $total_students > 0 ? ($complied_students / $total_students) * 100 : 0;
-                                                                    ?>
-                                                                    <div class="completion-bar">
-                                                                        <div class="progress" style="width: <?= $completion_percentage ?>%"></div>
-                                                                        <div class="completion-text">
-                                                                            <?= $complied_students ?> out of <?= $total_students ?> students completed (<?= number_format($completion_percentage, 1) ?>%)
-                                                                        </div>
-                                                                    </div>
-                                                                <?php endif; ?>
-                                                            </div>
-                                                            <div class="activity-actions">
-                                                                <div class="icon-button view-activity-btn" title="View" data-activity-id="<?= $activity->activity_id ?>">
-                                                                    <div class="icon">
-                                                                        <?= UseIcon("eye-thin") ?>
-                                                                    </div>
-                                                                    <div class="text">
-                                                                        <span>View</span>
-                                                                    </div>
-                                                                </div>
-
-                                                                <?php if ($SESSION->user_type == 1): ?>
-
-                                                                    <?php if (!$activity->isStudentComplied($SESSION->user_id)): ?>
-                                                                        <div class="icon-button comply-btn" title="Comply" data-activity-id="<?= $activity->activity_id ?>">
-                                                                            <div class="icon">
-                                                                                <?= UseIcon("check-thin") ?>
-                                                                            </div>
-                                                                            <div class="text">
-                                                                                <span>Comply</span>
-                                                                            </div>
-                                                                        </div>
-                                                                    <?php else: ?>
-                                                                        <?php 
-                                                                        $complied = $activity->getCompliedActivity($SESSION->user_id);
-                                                                        ?>
-                                                                        <div class="icon-button view-complied-btn" title="View Complied" data-id="<?= $complied['comply_id'] ?>">
-                                                                            <div class="icon">
-                                                                                <?= UseIcon("eye-thin") ?>
-                                                                            </div>
-                                                                            <div class="text">
-                                                                                <span>View Complied</span>
-                                                                            </div>
-                                                                        </div>
-                                                                    <?php endif; ?>
-
-                                                                    <?php elseif ($SESSION->user_type == 2): ?>
-                                                                        <div class="icon-button view-complied-activities-btn" title="View Complied" data-activity-id="<?= $activity->activity_id ?>">
-                                                                            <div class="icon">
-                                                                                <?= UseIcon("eye-thin") ?>
-                                                                            </div>
-                                                                            <div class="text">
-                                                                                <span>View Complied Activities</span>
-                                                                            </div>
-                                                                        </div>
-                                                                        
-                                                                <?php endif; ?>
+                                                <?php foreach ($subjectActivities as $activity): ?>
+                                                <div class="activity-item" data-id="<?= $activity->activity_id ?>">
+                                                    <div class="activity-info">
+                                                        <h4><?= htmlspecialchars($activity->title) ?></h4>
+                                                        <p><?= htmlspecialchars($activity->description) ?></p>
+                                                        <small>
+                                                            <?php if (!empty($activity->due_date) && strtotime($activity->due_date)): ?>
+                                                            Due:
+                                                            <?= date('F j, Y \a\t h:i A', strtotime($activity->due_date)) ?>
+                                                            |
+                                                            <?php endif; ?>
+                                                            Type: <?= ucwords(strtolower($activity->passing_type)) ?> |
+                                                            Status: <span
+                                                                class="status-badge <?= strtolower($activity->activity_status) ?>"><?= $activity->activity_status ?></span>
+                                                        </small>
+                                                        <?php if ($SESSION->user_type == 2): ?>
+                                                        <?php
+                                                                            $total_students = count($RECORDS);
+                                                                            $complied_students = count($activity->complies);
+                                                                            $completion_percentage = $total_students > 0 ? ($complied_students / $total_students) * 100 : 0;
+                                                                            ?>
+                                                        <div class="completion-bar">
+                                                            <div class="progress"
+                                                                style="width: <?= $completion_percentage ?>%"></div>
+                                                            <div class="completion-text">
+                                                                <?= $complied_students ?> out of <?= $total_students ?>
+                                                                students completed
+                                                                (<?= number_format($completion_percentage, 1) ?>%)
                                                             </div>
                                                         </div>
-                                                    <?php endforeach; ?>
-                                                <?php endif; ?>
-                                            </div>
-                                        <?php endforeach; ?>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="tab-pane" id="exams">
-                            <div class="exams-container">
-                                <div class="exams-actions">
-                                    <?php if ($SESSION->user_type == 2): ?>
-                                        <button class="btn btn-primary add-exam-btn" data-section_id="<?= $section->section_id ?>">Schedule Form</button>
-                                    <?php endif; ?>
-                                </div>
-                                <div class="exams-content">
-                                    <div class="exams-menu">
-                                        <ul>
-                                            <?php foreach ($EXAMS as $subject => $exams): ?>
-                                                <li class="subject-tab <?= $subject === array_key_first($EXAMS) ? 'active' : '' ?>" data-subject="<?= $subject ?>"><?= $subject ?></li>
-                                            <?php endforeach; ?>
-                                        </ul>
-                                    </div>
-                                    <div class="exams-list">
-                                        <?php foreach ($EXAMS as $subject => $subjectExams): ?>
-                                            <div class="subject-exams <?= $subject === array_key_first($EXAMS) ? 'active' : '' ?>" data-subject="<?= $subject ?>">
-                                                <h3><?= $subject ?> Exams</h3>
-                                                <?php foreach ($subjectExams as $exam): ?>
-                                                    <div class="exam-item" data-id="<?= $exam->exam_id ?>">
-                                                        <div class="exam-info">
-                                                            <h4><?= $exam->title ?></h4>
-                                                            <p><?= $exam->description ?></p>
-                                                            <small>
-                                                                Date: <?= $exam->date_start ?> | 
-                                                                Duration: <?= $exam->duration ?> |
-                                                                Status: <?= $exam->exam_status ?>
-                                                            </small>
-                                                        </div>
-                                                        <div class="exam-actions">
-                                                            <div class="icon-button view-exam-btn" title="View">
-                                                                <div class="icon">
-                                                                    <?= UseIcon("eye-thin") ?>
-                                                                </div>
-                                                                <div class="text">
-                                                                    <span>View</span>
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="icon-button view-student-forms-btn" title="View Student Forms" data-exam-id="<?= $exam->exam_id ?>">
-                                                                <div class="icon">
-                                                                    <?= UseIcon("eye-thin") ?>
-                                                                </div>
-                                                                <div class="text">
-                                                                    <span>View Student Forms</span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <?php if($SESSION->user_type == 1): ?>
-                                                            <?php if (!$exam->form->isStudentTakenExam($SESSION->user_id, $exam->exam_id)): ?>
-                                                                <div class="icon-button take-exam-btn" title="Take Exam" data-exam-id="<?= $exam->exam_id ?>">
-                                                                <div class="icon">
-                                                                    <?= UseIcon("check-thin") ?>
-                                                                </div>
-                                                                <div class="text">
-                                                                    <span>Take</span>
-                                                                </div>
-                                                                </div>  
-                                                            <?php else: ?>
-                                                                <div class="icon-button view-exam-btn" title="View Exam" data-exam-id="<?= $exam->exam_id ?>">
-                                                                    <div class="icon">
-                                                                        <?= UseIcon("check-thin") ?>
-                                                                    </div>
-                                                                    <div class="text">
-                                                                        <span>Already Taken</span>
-                                                                    </div>
-                                                                </div>
-                                                            <?php endif ?>
                                                         <?php endif; ?>
                                                     </div>
+                                                    <div class="activity-actions">
+                                                        <div class="icon-button view-activity-btn" title="View"
+                                                            data-activity-id="<?= $activity->activity_id ?>">
+                                                            <div class="icon">
+                                                                <?= UseIcon("eye-thin") ?>
+                                                            </div>
+                                                            <div class="text">
+                                                                <span>View</span>
+                                                            </div>
+                                                        </div>
+
+                                                        <?php if ($SESSION->user_type == 1): ?>
+
+                                                        <?php if (!$activity->isStudentComplied($SESSION->user_id)): ?>
+                                                        <div class="icon-button comply-btn" title="Comply"
+                                                            data-activity-id="<?= $activity->activity_id ?>">
+                                                            <div class="icon">
+                                                                <?= UseIcon("check-thin") ?>
+                                                            </div>
+                                                            <div class="text">
+                                                                <span>Comply</span>
+                                                            </div>
+                                                        </div>
+                                                        <?php else: ?>
+                                                        <?php
+                                                                                $complied = $activity->getCompliedActivity($SESSION->user_id);
+                                                                                ?>
+                                                        <div class="icon-button view-complied-btn" title="View Complied"
+                                                            data-id="<?= $complied['comply_id'] ?>">
+                                                            <div class="icon">
+                                                                <?= UseIcon("eye-thin") ?>
+                                                            </div>
+                                                            <div class="text">
+                                                                <span>View Complied</span>
+                                                            </div>
+                                                        </div>
+                                                        <?php endif; ?>
+
+                                                        <?php elseif ($SESSION->user_type == 2): ?>
+                                                        <div class="icon-button view-complied-activities-btn"
+                                                            title="View Complied"
+                                                            data-activity-id="<?= $activity->activity_id ?>">
+                                                            <div class="icon">
+                                                                <?= UseIcon("eye-thin") ?>
+                                                            </div>
+                                                            <div class="text">
+                                                                <span>View Complied Activities</span>
+                                                            </div>
+                                                        </div>
+
+                                                        <?php endif; ?>
+                                                    </div>
+                                                </div>
                                                 <?php endforeach; ?>
+                                                <?php endif; ?>
                                             </div>
-                                        <?php endforeach; ?>
+                                            <?php endforeach; ?>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <?php endif ?>
-                        <div class="tab-pane" id="notes">
-                            <div class="sticky-note-editor-container" data-user_id="<?= $SESSION->user_id ?>" data-section_id="<?= $section->section_id ?>" data-professor_id="<?= $professor_id ?>">
-                            </div>
-                        </div>
 
-                        <?php if (!$IS_ADIVSER): ?>
-
-                        <div class="tab-pane" id="grades">
-                            <div class="grades-container">
-                                <div class="grades-content">
-                                    <div class="grades-menu">
-                                        <ul>
-                                            <?php foreach($SUBJECTS as $index => $subject): ?>
-                                                <li class="<?= $index === 0 ? 'active' : '' ?>" data-subject="<?= $subject->subject_name ?>">
-                                                    <?= $subject->subject_name ?>
-                                                </li>
-                                            <?php endforeach; ?>
-                                        </ul>
+                            <div class="tab-pane" id="exams">
+                                <div class="exams-container">
+                                    <div class="exams-actions">
+                                        <?php if ($SESSION->user_type == 2): ?>
+                                        <button class="btn btn-primary add-exam-btn"
+                                            data-section_id="<?= $section->section_id ?>">Schedule Form</button>
+                                        <?php endif; ?>
                                     </div>
-                                    <div class="grades-list">
-                                        <?php foreach($SUBJECTS as $index => $subject): ?>
-                                            <?php 
-                                                $grading_platform = $gradingControl->getBy("section_subject_id", $subject->section_subject_id, false);
-
-                                                $is_student_selected = null;
-
-                                                if ($grading_platform) {
-                                                    $grading_platform = $gradingControl->getBy("section_subject_id", $subject->section_subject_id, true);
-                                                    $is_student_selected =  $grading_platform->isStudentSelected($SESSION->user_id);
-                                                }
-
-                                             ?>
-                                            <div class="subject-grades <?= $index === 0 ? 'active' : '' ?>" data-subject="<?= $subject->subject_name ?>">
-                                               <?php if($is_student_selected && $SESSION->user_type == 1 || $SESSION->user_type == 2): ?>
-                                                    <?php if($SESSION->user_type == 2): ?>
-                                                        <div class="grade-actions">
-                                                            <button class="btn btn-success save-grades" disabled>Save Grades</button>
-                                                            <button class="btn btn-danger discard-grades" disabled>Discard Changes</button>
-                                                            <button class="btn btn-primary export-grades">Export to Excel</button>
-                                                            <button class="btn btn-success show-grades">Show Grades to Students</button>
+                                    <div class="exams-content">
+                                        <div class="exams-menu">
+                                            <ul>
+                                                <?php foreach ($EXAMS as $subject => $exams): ?>
+                                                <li class="subject-tab <?= $subject === array_key_first($EXAMS) ? 'active' : '' ?>"
+                                                    data-subject="<?= $subject ?>"><?= $subject ?></li>
+                                                <?php endforeach; ?>
+                                            </ul>
+                                        </div>
+                                        <div class="exams-list">
+                                            <?php foreach ($EXAMS as $subject => $subjectExams): ?>
+                                            <div class="subject-exams <?= $subject === array_key_first($EXAMS) ? 'active' : '' ?>"
+                                                data-subject="<?= $subject ?>">
+                                                <h3><?= $subject ?> Exams</h3>
+                                                <?php foreach ($subjectExams as $exam): ?>
+                                                <div class="exam-item" data-id="<?= $exam->exam_id ?>">
+                                                    <div class="exam-info">
+                                                        <h4><?= $exam->title ?></h4>
+                                                        <p><?= $exam->description ?></p>
+                                                        <small>
+                                                            Date: <?= $exam->date_start ?> |
+                                                            Duration: <?= $exam->duration ?> |
+                                                            Status: <?= $exam->exam_status ?>
+                                                        </small>
+                                                    </div>
+                                                    <div class="exam-actions">
+                                                        <div class="icon-button view-exam-btn" title="View">
+                                                            <div class="icon">
+                                                                <?= UseIcon("eye-thin") ?>
+                                                            </div>
+                                                            <div class="text">
+                                                                <span>View</span>
+                                                            </div>
                                                         </div>
-                                                    <?php endif; ?>
-                                                    <div class="grading-platform-container" data-section-subject-id="<?= $subject->section_subject_id ?>">
+
+                                                        <div class="icon-button view-student-forms-btn"
+                                                            title="View Student Forms"
+                                                            data-exam-id="<?= $exam->exam_id ?>">
+                                                            <div class="icon">
+                                                                <?= UseIcon("eye-thin") ?>
+                                                            </div>
+                                                            <div class="text">
+                                                                <span>View Student Forms</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <?php if ($SESSION->user_type == 1): ?>
+                                                    <?php if (!$exam->form->isStudentTakenExam($SESSION->user_id, $exam->exam_id)): ?>
+                                                    <?php if (!$exam->isDueDatePassed()): ?>
+
+                                                    <div class="icon-button take-exam-btn" title="Take Exam"
+                                                        data-exam-id="<?= $exam->exam_id ?>">
+                                                        <div class="icon">
+                                                            <?= UseIcon("check-thin") ?>
+                                                        </div>
+                                                        <div class="text">
+                                                            <span>Take</span>
+                                                        </div>
                                                     </div>
                                                     <?php else: ?>
-                                                    <div class="empty-message">
-                                                        <div class="icon">
-                                                            <i class="fas fa-lock"></i>
-                                                        </div>
-                                                        <div class="message">
-                                                            <h3>Grades Not Available</h3>
-                                                            <p>Your grades have not been released yet. Please check back later.</p>
+                                                    <div class="icon-button view-exam-btn" title="View Exam"
+                                                        data-exam-id="<?= $exam->exam_id ?>">
+                                                        <div class="text">
+                                                            <span>Due Date Passed</span>
                                                         </div>
                                                     </div>
-                                               <?php endif; ?>
+                                                    <?php endif; ?>
+
+                                                    <?php else: ?>
+                                                    <div class="icon-button view-exam-btn" title="View Exam"
+                                                        data-exam-id="<?= $exam->exam_id ?>">
+                                                        <div class="icon">
+                                                            <?= UseIcon("check-thin") ?>
+                                                        </div>
+                                                        <div class="text">
+                                                            <span>Already Taken</span>
+                                                        </div>
+                                                    </div>
+                                                    <?php endif; ?>
+
+                                                    <?php endif; ?>
+                                                </div>
+                                                <?php endforeach; ?>
                                             </div>
-                                        <?php endforeach; ?>
+                                            <?php endforeach; ?>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-
-                    <div class="tab-pane" id="attendance">
-                        <div class="attendance-container">
-                            <div class="attendance-content">
-                                <div class="attendance-menu">
-                                    <ul>
-                                        <?php foreach($SUBJECTS as $index => $subject): ?>
-                                            <li class="subject-tab <?= $index === 0 ? 'active' : '' ?>" data-subject="<?= $subject->subject_name ?>">
-                                                <?= $subject->subject_name ?>
-                                            </li>
-                                        <?php endforeach; ?>
-                                    </ul>
-                                </div>
-                                <div class="attendance-list">
-                                    <?php foreach($SUBJECTS as $index => $subject): ?>
-                                       
-                                        <div class="attendance-table-container subject-attendance <?= $index === 0 ? 'active' : '' ?>" data-subject="<?= $subject->subject_name ?>" data-subject-id="<?= $subject->section_subject_id ?>">
-                                        <div class="pickers-container">
-                                            <div class="pickers">
-                                                <div class="month-picker">
-                                                    <button class="btn btn-icon prev-month">
-                                                        <
-                                                    </button>
-                                                    <select id="monthSelect">
-                                                        <?php for($m = 1; $m <= 12; $m++): ?>
-                                                            <option value="<?= $m ?>" <?= $m == date('n') ? 'selected' : '' ?>>
-                                                                <?= date('F', mktime(0, 0, 0, $m, 1)) ?>
-                                                            </option>
-                                                        <?php endfor; ?>
-                                                    </select>
-                                                    <button class="btn btn-icon next-month">
-                                                        >
-                                                    </button>
-                                                </div>
-                                                <div class="year-picker">
-                                                    <button class="btn btn-icon prev-year">
-                                                        <<
-                                                    </button>
-                                                    <select id="yearSelect">
-                                                        <?php for($y = date('Y') - 2; $y <= date('Y') + 2; $y++): ?>
-                                                            <option value="<?= $y ?>" <?= $y == date('Y') ? 'selected' : '' ?>>
-                                                                <?= $y ?>
-                                                            </option>
-                                                        <?php endfor; ?>
-                                                    </select>
-                                                    <button class="btn btn-icon next-year">
-                                                        >>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>    
-                                        <div class="main-content">
-                                                <div id="attendanceTableContainer" data-section-subject-id="<?= $subject->section_subject_id ?>"></div>
-                                            </div>
-                                        </div>
-                                    <?php endforeach; ?>
+                            <?php endif ?>
+                            <div class="tab-pane" id="notes">
+                                <div class="sticky-note-editor-container" data-user_id="<?= $SESSION->user_id ?>"
+                                    data-section_id="<?= $section->section_id ?>"
+                                    data-professor_id="<?= $professor_id ?>">
                                 </div>
                             </div>
+
+                            <?php if (!$IS_ADIVSER): ?>
+
+                            <div class="tab-pane" id="grades">
+                                <div class="grades-container">
+                                    <div class="grades-content">
+                                        <div class="grades-menu">
+                                            <ul>
+                                                <?php foreach ($SUBJECTS as $index => $subject): ?>
+                                                <li class="<?= $index === 0 ? 'active' : '' ?>"
+                                                    data-subject="<?= $subject->subject_name ?>">
+                                                    <?= $subject->subject_name ?>
+                                                </li>
+                                                <?php endforeach; ?>
+                                            </ul>
+                                        </div>
+                                        <div class="grades-list">
+                                            <?php foreach ($SUBJECTS as $index => $subject): ?>
+                                            <?php
+                                                    $grading_platform = $gradingControl->getBy("section_subject_id", $subject->section_subject_id, false);
+
+                                                    $is_student_selected = null;
+
+                                                    if ($grading_platform) {
+                                                        $grading_platform = $gradingControl->getBy("section_subject_id", $subject->section_subject_id, true);
+                                                        $is_student_selected = $grading_platform->isStudentSelected($SESSION->user_id);
+                                                    }
+
+                                                    ?>
+                                            <div class="subject-grades <?= $index === 0 ? 'active' : '' ?>"
+                                                data-subject="<?= $subject->subject_name ?>">
+                                                <?php if ($is_student_selected && $SESSION->user_type == 1 || $SESSION->user_type == 2): ?>
+                                                <?php if ($SESSION->user_type == 2): ?>
+                                                <div class="grade-actions">
+                                                    <button class="btn btn-success save-grades" disabled>Save
+                                                        Grades</button>
+                                                    <button class="btn btn-danger discard-grades" disabled>Discard
+                                                        Changes</button>
+                                                    <button class="btn btn-primary export-grades">Export to
+                                                        Excel</button>
+                                                    <button class="btn btn-success show-grades">Show Grades to
+                                                        Students</button>
+                                                </div>
+                                                <?php endif; ?>
+                                                <div class="grading-platform-container"
+                                                    data-section-subject-id="<?= $subject->section_subject_id ?>">
+                                                </div>
+                                                <?php else: ?>
+                                                <div class="empty-message">
+                                                    <div class="icon">
+                                                        <i class="fas fa-lock"></i>
+                                                    </div>
+                                                    <div class="message">
+                                                        <h3>Grades Not Available</h3>
+                                                        <p>Your grades have not been released yet. Please check back
+                                                            later.</p>
+                                                    </div>
+                                                </div>
+                                                <?php endif; ?>
+                                            </div>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane" id="attendance">
+                                <div class="attendance-container">
+                                    <div class="attendance-content">
+                                        <div class="attendance-menu">
+                                            <ul>
+                                                <?php foreach ($SUBJECTS as $index => $subject): ?>
+                                                <li class="subject-tab <?= $index === 0 ? 'active' : '' ?>"
+                                                    data-subject="<?= $subject->subject_name ?>">
+                                                    <?= $subject->subject_name ?>
+                                                </li>
+                                                <?php endforeach; ?>
+                                            </ul>
+                                        </div>
+                                        <div class="attendance-list">
+                                            <?php foreach ($SUBJECTS as $index => $subject): ?>
+
+                                            <div class="attendance-table-container subject-attendance <?= $index === 0 ? 'active' : '' ?>"
+                                                data-subject="<?= $subject->subject_name ?>"
+                                                data-subject-id="<?= $subject->section_subject_id ?>">
+                                                <div class="pickers-container">
+                                                    <div class="pickers">
+                                                        <div class="month-picker">
+                                                            <button class="btn btn-icon prev-month">
+                                                                < </button>
+                                                                    <select id="monthSelect">
+                                                                        <?php for ($m = 1; $m <= 12; $m++): ?>
+                                                                        <option value="<?= $m ?>"
+                                                                            <?= $m == date('n') ? 'selected' : '' ?>>
+                                                                            <?= date('F', mktime(0, 0, 0, $m, 1)) ?>
+                                                                        </option>
+                                                                        <?php endfor; ?>
+                                                                    </select>
+                                                                    <button class="btn btn-icon next-month">
+                                                                        >
+                                                                    </button>
+                                                        </div>
+                                                        <div class="year-picker">
+                                                            <button class="btn btn-icon prev-year">
+                                                                << </button>
+                                                                    <select id="yearSelect">
+                                                                        <?php for ($y = date('Y') - 2; $y <= date('Y') + 2; $y++): ?>
+                                                                        <option value="<?= $y ?>"
+                                                                            <?= $y == date('Y') ? 'selected' : '' ?>>
+                                                                            <?= $y ?>
+                                                                        </option>
+                                                                        <?php endfor; ?>
+                                                                    </select>
+                                                                    <button class="btn btn-icon next-year">
+                                                                        >>
+                                                                    </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="main-content">
+                                                    <div id="attendanceTableContainer"
+                                                        data-section-subject-id="<?= $subject->section_subject_id ?>">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <?php endif ?>
+
                         </div>
                     </div>
-                    <?php endif ?>
-
-                </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-<style>
+    <style>
     .pickers-container {
         padding: 10px;
         display: flex;
         justify-content: flex-start;
     }
-.attendance-container {
-padding: 20px;
-overflow-x: auto;
-}
 
-.attendance-controls {
-display: flex;
-gap: 20px;
-margin-bottom: 20px;
-justify-content: space-between;
-align-items: center;
-}
+    .attendance-container {
+        padding: 20px;
+        overflow-x: auto;
+    }
 
-.attendance-actions {
-display: flex;
-gap: 10px;
-}
+    .attendance-controls {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 20px;
+        justify-content: space-between;
+        align-items: center;
+    }
 
-.attendance-content {
-    display: flex;
-    gap: 20px;
-    overflow-x: auto;
-}
+    .attendance-actions {
+        display: flex;
+        gap: 10px;
+    }
 
-.pickers {
-display: flex;
-gap: 10px;
-}
+    .attendance-content {
+        display: flex;
+        gap: 20px;
+        overflow-x: auto;
+    }
 
-.month-picker,
-.year-picker {
-display: flex;
-align-items: center;
-gap: 10px;
-}
+    .pickers {
+        display: flex;
+        gap: 10px;
+    }
 
-.btn-icon {
-width: 32px;
-height: 32px;
-border-radius: 50%;
-border: 1px solid #e2e8f0;
-background: white;
-cursor: pointer;
-display: flex;
-align-items: center;
-justify-content: center;
-transition: all 0.2s;
-}
+    .month-picker,
+    .year-picker {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
 
-.btn-icon:hover {
-background: #f1f5f9;
-}
+    .btn-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: 1px solid #e2e8f0;
+        background: white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
 
-select {
-padding: 8px 12px;
-border-radius: 6px;
-border: 1px solid #e2e8f0;
-background: white;
-min-width: 120px;
-}
+    .btn-icon:hover {
+        background: #f1f5f9;
+    }
 
-.attendance-table {
-width: 100%;
-border-collapse: collapse;
-background: white;
-box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-}
+    select {
+        padding: 8px 12px;
+        border-radius: 6px;
+        border: 1px solid #e2e8f0;
+        background: white;
+        min-width: 120px;
+    }
 
-.attendance-table th,
-.attendance-table td {
-padding: 12px;
-text-align: center;
-border: 1px solid #e2e8f0;
-}
+    .attendance-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
 
-.student-name-header {
-position: sticky;
-left: 0;
-background: #f8fafc;
-z-index: 10;
-min-width: 200px;
-}
+    .attendance-table th,
+    .attendance-table td {
+        padding: 12px;
+        text-align: center;
+        border: 1px solid #e2e8f0;
+    }
 
-.student-row.selected {
-background-color: #2563eb !important; /* Darker blue background */
-color: white; /* White text for better contrast */
-}
+    .student-name-header {
+        position: sticky;
+        left: 0;
+        background: #f8fafc;
+        z-index: 10;
+        min-width: 200px;
+    }
 
-.student-row.selected:hover {
-background-color: #1d4ed8 !important; /* Even darker blue on hover */
-color: white;
-}
+    .student-row.selected {
+        background-color: #2563eb !important;
+        /* Darker blue background */
+        color: white;
+        /* White text for better contrast */
+    }
 
-.student-row.highlighted-student {
-background-color: #e0f2fe !important;
-/* box-shadow: inset 0 0 0 2px #0ea5e9; */
-}
+    .student-row.selected:hover {
+        background-color: #1d4ed8 !important;
+        /* Even darker blue on hover */
+        color: white;
+    }
 
-.student-row {
-transition: background-color 0.2s ease;
-}
+    .student-row.highlighted-student {
+        background-color: #e0f2fe !important;
+        /* box-shadow: inset 0 0 0 2px #0ea5e9; */
+    }
 
-.student-name-header:hover {
-background-color: #f5f5f5;
-}
+    .student-row {
+        transition: background-color 0.2s ease;
+    }
 
-.student-name {
-position: sticky;
-left: 0;
-background: white;
-font-weight: 500;
-text-align: left;
-}
+    .student-name-header:hover {
+        background-color: #f5f5f5;
+    }
 
-.date-header {
-background: #f8fafc;
-font-weight: 600;
-min-width: 40px;
-}
+    .student-name {
+        position: sticky;
+        left: 0;
+        background: white;
+        font-weight: 500;
+        text-align: left;
+    }
 
-.attendance-cell {
-cursor: pointer;
-transition: all 0.2s;
-}
+    .date-header {
+        background: #f8fafc;
+        font-weight: 600;
+        min-width: 40px;
+    }
 
-.attendance-cell:hover {
-background-color: #f1f5f9;
-}
+    .attendance-cell {
+        cursor: pointer;
+        transition: all 0.2s;
+    }
 
-.attendance-cell.selected {
-background-color: #e0f2fe;
-box-shadow: inset 0 0 0 2px #0ea5e9;
-}
+    .attendance-cell:hover {
+        background-color: #f1f5f9;
+    }
 
-.attendance-cell.present {
-background-color: #dcfce7;
-}
+    .attendance-cell.selected {
+        background-color: #e0f2fe;
+        box-shadow: inset 0 0 0 2px #0ea5e9;
+    }
 
-.attendance-cell.absent {
-background-color: #fee2e2;
-}
+    .attendance-cell.present {
+        background-color: #dcfce7;
+    }
 
-.attendance-cell.late {
-background-color: #fef9c3;
-}
+    .attendance-cell.absent {
+        background-color: #fee2e2;
+    }
 
-.attendance-cell svg {
-width: 16px;
-height: 16px;
-}
+    .attendance-cell.late {
+        background-color: #fef9c3;
+    }
 
-/* Custom scrollbar */
-.attendance-container::-webkit-scrollbar {
-height: 8px;
-width: 8px;
-}
+    .attendance-cell svg {
+        width: 16px;
+        height: 16px;
+    }
 
-.attendance-container::-webkit-scrollbar-track {
-background: #f1f1f1;
-}
+    /* Custom scrollbar */
+    .attendance-container::-webkit-scrollbar {
+        height: 8px;
+        width: 8px;
+    }
 
-.attendance-container::-webkit-scrollbar-thumb {
-background: #cbd5e1;
-border-radius: 4px;
-}
+    .attendance-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
 
-.attendance-container::-webkit-scrollbar-thumb:hover {
-background: #94a3b8;
-}
-</style>
-<style>
+    .attendance-container::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 4px;
+    }
 
+    .attendance-container::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+    </style>
+    <style>
     .completion-bar {
         width: 100%;
         height: 8px;
@@ -706,6 +773,7 @@ background: #94a3b8;
     .completion-bar.danger .progress {
         background-color: #dc3545;
     }
+
     .grading-platform-container {
         width: 100%;
         overflow-x: auto;
@@ -757,11 +825,12 @@ background: #94a3b8;
         opacity: 0.6;
         cursor: not-allowed;
     }
+
     .grades-container {
         padding: 20px;
         background-color: #f9f9f9;
         border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .grades-content {
@@ -770,11 +839,12 @@ background: #94a3b8;
         overflow-x: auto;
     }
 
-    .grades-menu, .attendance-menu {
+    .grades-menu,
+    .attendance-menu {
         width: 200px !important;
         background: #fff;
         border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         min-width: 200px;
     }
 
@@ -805,10 +875,11 @@ background: #94a3b8;
         font-weight: 500;
     }
 
-    .grades-list, .attendance-table-container {
+    .grades-list,
+    .attendance-table-container {
         flex: 1;
         overflow-x: auto;
-        width: 100% !important; 
+        width: 100% !important;
     }
 
     .subject-grades {
@@ -816,7 +887,7 @@ background: #94a3b8;
         background: #fff;
         padding: 20px;
         border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     }
 
     .subject-grades.active {
@@ -827,6 +898,7 @@ background: #94a3b8;
         overflow-x: auto;
         margin-bottom: 20px;
     }
+
     .grading-table {
         width: 100%;
         border-collapse: separate;
@@ -834,20 +906,25 @@ background: #94a3b8;
         background-color: #fff;
         border-radius: 8px;
     }
-    .grading-table th, .grading-table td {
+
+    .grading-table th,
+    .grading-table td {
         border: 1px solid #e0e0e0;
         padding: 12px;
         text-align: center;
     }
+
     .grading-table th {
         background-color: #f2f2f2;
         font-weight: bold;
         text-transform: uppercase;
         font-size: 0.9em;
     }
+
     .grading-table tr:nth-child(even) {
         background-color: #f8f8f8;
     }
+
     .grade-input {
         display: inline-block;
         width: 40px;
@@ -857,10 +934,11 @@ background: #94a3b8;
         padding: 6px;
         transition: border-color 0.3s;
     }
+
     .grade-input:focus {
         border-color: #007bff;
         outline: none;
-        box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
     }
 
     .grade-input.view-only {
@@ -868,22 +946,26 @@ background: #94a3b8;
         pointer-events: none;
         cursor: not-allowed;
     }
-    
-    .ws, .final-grade, .college-grade {
+
+    .ws,
+    .final-grade,
+    .college-grade {
         font-weight: bold;
         background-color: #e9ecef;
     }
+
     .score-header {
         cursor: pointer;
         position: relative;
     }
+
     .floating-container {
         position: absolute;
         background-color: white;
         border: none;
         padding: 20px;
         border-radius: 8px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
         z-index: 1000;
         min-width: 250px;
         animation: fadeIn 0.2s ease-in-out;
@@ -891,8 +973,15 @@ background: #94a3b8;
 
     /* Add fade-in animation */
     @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(-10px); }
-        to { opacity: 1; transform: translateY(0); }
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     .floating-container input {
@@ -907,7 +996,7 @@ background: #94a3b8;
 
     .floating-container input:focus {
         border-color: #007bff;
-        box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
         outline: none;
     }
 
@@ -969,7 +1058,10 @@ background: #94a3b8;
         margin: 12px 0;
     }
 
-    .add-column, .remove-column, .edit-header, .add-category {
+    .add-column,
+    .remove-column,
+    .edit-header,
+    .add-category {
         background: none;
         border: none;
         cursor: pointer;
@@ -977,14 +1069,19 @@ background: #94a3b8;
         padding: 0 5px;
     }
 
-    .add-column svg, .remove-column svg, .edit-header svg, .add-category svg {
+    .add-column svg,
+    .remove-column svg,
+    .edit-header svg,
+    .add-category svg {
         width: 16px;
         height: 16px;
     }
 
-    .add-column, .add-category {
+    .add-column,
+    .add-category {
         color: green;
     }
+
     .remove-column {
         color: red;
         position: absolute;
@@ -992,16 +1089,20 @@ background: #94a3b8;
         right: 2px;
         display: none;
     }
+
     .score-header:hover .remove-column {
         display: block;
     }
+
     .edit-header {
         color: #007bff;
         margin-left: 5px;
     }
+
     .category-header {
         position: relative;
     }
+
     .failed-grade {
         color: #F29B9B;
     }
@@ -1038,673 +1139,706 @@ background: #94a3b8;
         width: 20px;
         height: 20px;
     }
-</style>
-<style>
-.tab-container {
-    width: 100%;
-    margin-top: 20px;
-    display: block !important;
-}
-
-.tab-nav {
-    display: flex;
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-    background-color: #f1f1f1;
-    border-bottom: 1px solid #ccc;
-}
-
-.tab-item {
-    padding: 10px 20px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.tab-item:hover {
-    background-color: #ddd;
-}
-
-.tab-item.active {
-    background-color: #fff;
-    border-bottom: 2px solid #007bff;
-}
-
-.tab-content {
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-top: none;
-}
-
-.tab-pane {
-    display: none;
-}
-
-.tab-pane.active {
-    display: block;
-}
-
-.grades-container {
-    display: flex;
-    gap: 20px;
-}
-
-.student-list {
-    flex: 1;
-    border-right: 1px solid #ddd;
-    padding-right: 20px;
-}
-
-.grade-details {
-    flex: 2;
-}
-
-#student-list {
-    list-style-type: none;
-    padding: 0;
-}
-
-.student-item {
-    padding: 10px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.student-item:hover {
-    background-color: #f0f0f0;
-}
-
-.student-item.active {
-    background-color: #007bff;
-    color: white;
-}
-
-.grade-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.grade-table th, .grade-table td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
-}
-
-.grade-table th {
-    background-color: #f2f2f2;
-    font-weight: bold;
-}
-
-.grade-table tr:nth-child(even) {
-    background-color: #f9f9f9;
-}
-
-.grade-table tr:hover {
-    background-color: #f5f5f5;
-}
-
-.resources-container,
-.activities-container,
-.exams-container,
-.notes-container {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.resources-actions,
-.activities-actions,
-.exams-actions,
-.notes-actions {
-    display: flex;
-    justify-content: flex-start;
-    gap: 10px;
-    padding: 10px;
-}
-
-.resources-content,
-.activities-content,
-.exams-content {
-    display: flex;
-    gap: 20px;
-}
-
-.resources-menu,
-.activities-menu,
-.exams-menu{
-    width: 200px !important;
-    border-right: 1px solid #ddd;
-}
-
-.attendance-menu {
-    width: 300px !important;
-}
-
-.resources-menu ul,
-.activities-menu ul,
-.exams-menu ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-}
-
-.resources-menu li,
-.activities-menu li,
-.exams-menu li {
-    padding: 10px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.resources-menu li:hover,
-.activities-menu li:hover,
-.exams-menu li:hover,
-.attendance-menu li:hover {
-    background-color: #f0f0f0;
-}
-
-.resources-menu li.active,
-.activities-menu li.active,
-.exams-menu li.active {
-    background-color: #007bff;
-    color: white;
-}
-
-.attendance-menu li.active {
-    background-color: #007bff;
-    color: white;
-}
-
-.resources-list,
-.activities-list,
-.exams-list {
-    flex-grow: 1;
-}
-
-.subject-resources,
-.subject-activities,
-.subject-exams,
-.subject-attendance {
-    display: none;
-}
-
-.subject-resources.active,
-.subject-activities.active,
-.subject-exams.active,
-.subject-attendance.active {
-    display: block;
-}
-
-.activities-list,
-.exams-list,
-.attendance-list {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.activity-item,
-.exam-item,
-.attendance-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    background-color: #fff;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    margin-bottom: 10px;
-    margin-top: 10px;
-}
-
-.activity-item:last-child,
-.exam-item:last-child {
-    border-bottom: 1px solid #ddd;
-}
-
-.activity-info,
-.exam-info {
-    flex-grow: 1;
-}
-
-.activity-info h4,
-.exam-info h4 {
-    margin: 0 0 10px 0;
-    color: #333;
-}
-
-.activity-info p,
-.exam-info p {
-    margin: 0 0 10px 0;
-    color: #666;
-}
-
-.activity-info small,
-.exam-info small {
-    color: #888;
-    font-size: 0.85em;
-}
-
-.activity-actions,
-.exam-actions {
-    display: flex;
-    gap: 10px;
-}
-
-.btn-circle {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #f8f9fa;
-    border: 1px solid #ced4da;
-    transition: all 0.3s ease;
-}
-
-.btn-circle:hover {
-    background-color: #e9ecef;
-}
-
-.btn-circle svg {
-    width: 18px;
-    height: 18px;
-    fill: #6c757d;
-}
-
-.notes-board {
-    width: 100%;
-    height: 600px;
-    background-color: #f0f0f0;
-    background-image: 
-        linear-gradient(rgba(255,255,255,.2) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,.2) 1px, transparent 1px);
-    background-size: 20px 20px;
-    position: relative;
-    overflow: hidden;
-    border-radius: 10px;
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
-}
-
-.sticky-note {
-    min-width: 150px;
-    min-height: 150px;
-    position: absolute;
-    padding: 15px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.08);
-    cursor: move;
-    overflow: hidden;
-    border-radius: 2px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    user-select: none;
-}
-
-.sticky-note:hover {
-    transform: scale(1.02);
-    box-shadow: 0 6px 8px rgba(0,0,0,0.15), 0 3px 6px rgba(0,0,0,0.1);
-}
-
-.sticky-note textarea {
-    width: 100%;
-    height: calc(100% - 60px);
-    border: none;
-    background: transparent;
-    resize: none;
-    font-family: 'Handlee', cursive;
-    font-size: 16px;
-    line-height: 1.5;
-}
-
-.note-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-}
-
-.creator-info {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.creator-image {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
-.creator-name {
-    font-size: 14px;
-    font-weight: bold;
-    color: #333;
-}
-
-.note-actions {
-    display: flex;
-    gap: 5px;
-}
-
-.note-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
-    color: rgba(0,0,0,0.5);
-    transition: color 0.3s ease;
-}
-
-.note-btn:hover {
-    color: rgba(0,0,0,0.8);
-}
-
-.color-picker {
-    display: flex;
-    justify-content: space-between;
-}
-
-.color-option {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: transform 0.2s ease;
-}
-
-.color-option:hover {
-    transform: scale(1.2);
-}
-
-.custom-color-picker {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: transform 0.2s ease;
-    background: linear-gradient(to right, red, yellow, green, blue, indigo, violet);
-    position: relative;
-    overflow: hidden;
-}
-
-.custom-color-picker:hover {
-    transform: scale(1.2);
-}
-
-.custom-color-picker input[type="color"] {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    cursor: pointer;
-}
-
-.locked {
-    cursor: default;
-}
-
-.locked::after {
-    content: '🔒';
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    font-size: 16px;
-}
-
-.resize-handle {
-    width: 20px;
-    height: 20px;
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    cursor: se-resize;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.resize-handle::after {
-    content: '↘️';
-    font-size: 14px;
-    color: white;
-}
-
-.rotate-handle {
-    width: 20px;
-    height: 20px;
-    position: absolute;
-    right: 0;
-    top: 0;
-    /* cursor: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAABNklEQVR4nO2XMU7DQBBF3xIJiYtwAQQNZ6DkBFBzAEQRzkDFAWgoOQGIlpIDQEELHRUUkVKkiQRCymejkSxFsbOJ7V3TrPSkkWb+/J3dlVYLwzBWC3AB3AFvQJVpb8A1cL4ueBt4XgN41b4BnSbwHnBfA3Dh3oFuKnxYE7hwQ1L2vSn4K3DqrR0B4yXhEyA3+A7wkeAMvPUeMImAT4AhsGXwUyBPcN6BnrfeS4RPgRGwbfATIE9wZmY/8NY7EfBHYA/YNPgxkCc4U7MfeuudCPgjcABsGPwIyBOcmdmPvPUk+BNwCKwb/BDIjXNu9mNvvRsJfwGOgDWD9w3u7Mfs5956PxL+ChwDHYMfALlxLsx+4q0PIuFvwCmwavDY/7wJfGHwdZqGYRjGf+EbNrQO7N+PuWoAAAAASUVORK5CYII=') 10 10, auto; */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.rotate-handle::after {
-    content: '🔄';
-    font-size: 14px;
-    color: rgba(0, 0, 0, 0.5);
-}
-
-@keyframes shake {
-    0% { transform: translate(1px, 1px) rotate(0deg); }
-    10% { transform: translate(-1px, -2px) rotate(-1deg); }
-    20% { transform: translate(-3px, 0px) rotate(1deg); }
-    30% { transform: translate(3px, 2px) rotate(0deg); }
-    40% { transform: translate(1px, -1px) rotate(1deg); }
-    50% { transform: translate(-1px, 2px) rotate(-1deg); }
-    60% { transform: translate(-3px, 1px) rotate(0deg); }
-    70% { transform: translate(3px, 1px) rotate(-1deg); }
-    80% { transform: translate(-1px, -1px) rotate(1deg); }
-    90% { transform: translate(1px, 2px) rotate(0deg); }
-    100% { transform: translate(1px, -2px) rotate(-1deg); }
-}
-
-.shake {
-    animation: shake 0.5s;
-    animation-iteration-count: 1;
-}
-
-.btn {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s ease;
-}
-
-.btn-primary {
-    background-color: #007bff;
-    color: white;
-}
-
-.btn-primary:hover {
-    background-color: #0056b3;
-}
-
-.btn-success {
-    background-color: #28a745;
-    color: white;
-}
-
-.btn-success:hover {
-    background-color: #218838;
-}
-
-.btn-danger {
-    background-color: #dc3545;
-    color: white;
-}
-
-.btn-danger:hover {
-    background-color: #c82333;
-}
-
-.btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-.accordion {
-    width: 100%;
-}
-
-.accordion-item {
-    border: 1px solid #ddd;
-    margin-bottom: 5px;
-}
-
-.accordion-header {
-    background-color: #f5f5f5;
-    padding: 10px;
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.accordion-header h4 {
-    margin: 0;
-}
-
-.accordion-icon {
-    font-size: 18px;
-    transition: transform 0.3s ease;
-}
-
-.accordion-content {
-    padding: 10px;
-    display: none;
-}
-
-.accordion-item.active .accordion-icon {
-    transform: rotate(45deg);
-}
-
-.accordion-item.active .accordion-content {
-    display: block;
-}
-
-.resource-item {
-    border: 1px solid #e0e0e0;
-    padding: 10px;
-    margin-top: 10px;
-    border-radius: 5px;
-}
-
-.resource-item h5 {
-    margin-top: 0;
-    margin-bottom: 5px;
-}
-
-.resource-item p {
-    margin-bottom: 5px;
-}
-
-.resource-item small {
-    display: block;
-    margin-bottom: 5px;
-    color: #666;
-}
-
-.resource-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 5px;
-}
-
-/* New styles for the options tab */
-.options-container {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-.option-group {
-    margin-bottom: 30px;
-}
-
-.option-group h4 {
-    margin-bottom: 15px;
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 5px;
-}
-
-.option-item {
-    margin-bottom: 15px;
-}
-
-.option-item label {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-}
-
-.option-item input[type="checkbox"] {
-    margin-right: 10px;
-}
-
-.option-item select,
-.option-item input[type="range"] {
-    width: 100%;
-    padding: 5px;
-    margin-top: 5px;
-}
-
-.option-actions {
-    display: flex;
-    justify-content: flex-start;
-    gap: 10px;
-    margin-top: 20px;
-}
-
-.btn-secondary {
-    background-color: #6c757d;
-    color: white;
-}
-
-.btn-secondary:hover {
-    background-color: #5a6268;
-}
-
-.attendance-menu {
-    width: 200px;
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.attendance-menu ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.attendance-menu li {
-    padding: 12px 15px;
-    cursor: pointer;
-    border-bottom: 1px solid #eee;
-    transition: all 0.3s ease;
-}
-
-.attendance-menu li:last-child {
-    border-bottom: none;
-}
-
-.attendance-menu li:hover {
-    background-color: #f8f9fa;
-}
-
-.attendance-menu li.active {
-    background-color: #007bff;
-    color: #fff;
-    font-weight: 500;
-}
-</style>
+    </style>
+    <style>
+    .tab-container {
+        width: 100%;
+        margin-top: 20px;
+        display: block !important;
+    }
+
+    .tab-nav {
+        display: flex;
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+        background-color: #f1f1f1;
+        border-bottom: 1px solid #ccc;
+    }
+
+    .tab-item {
+        padding: 10px 20px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .tab-item:hover {
+        background-color: #ddd;
+    }
+
+    .tab-item.active {
+        background-color: #fff;
+        border-bottom: 2px solid #007bff;
+    }
+
+    .tab-content {
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-top: none;
+    }
+
+    .tab-pane {
+        display: none;
+    }
+
+    .tab-pane.active {
+        display: block;
+    }
+
+    .grades-container {
+        display: flex;
+        gap: 20px;
+    }
+
+    .student-list {
+        flex: 1;
+        border-right: 1px solid #ddd;
+        padding-right: 20px;
+    }
+
+    .grade-details {
+        flex: 2;
+    }
+
+    #student-list {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    .student-item {
+        padding: 10px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .student-item:hover {
+        background-color: #f0f0f0;
+    }
+
+    .student-item.active {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .grade-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .grade-table th,
+    .grade-table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+
+    .grade-table th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+    }
+
+    .grade-table tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    .grade-table tr:hover {
+        background-color: #f5f5f5;
+    }
+
+    .resources-container,
+    .activities-container,
+    .exams-container,
+    .notes-container {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .resources-actions,
+    .activities-actions,
+    .exams-actions,
+    .notes-actions {
+        display: flex;
+        justify-content: flex-start;
+        gap: 10px;
+        padding: 10px;
+    }
+
+    .resources-content,
+    .activities-content,
+    .exams-content {
+        display: flex;
+        gap: 20px;
+    }
+
+    .resources-menu,
+    .activities-menu,
+    .exams-menu {
+        width: 200px !important;
+        border-right: 1px solid #ddd;
+    }
+
+    .attendance-menu {
+        width: 300px !important;
+    }
+
+    .resources-menu ul,
+    .activities-menu ul,
+    .exams-menu ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .resources-menu li,
+    .activities-menu li,
+    .exams-menu li {
+        padding: 10px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .resources-menu li:hover,
+    .activities-menu li:hover,
+    .exams-menu li:hover,
+    .attendance-menu li:hover {
+        background-color: #f0f0f0;
+    }
+
+    .resources-menu li.active,
+    .activities-menu li.active,
+    .exams-menu li.active {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .attendance-menu li.active {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .resources-list,
+    .activities-list,
+    .exams-list {
+        flex-grow: 1;
+    }
+
+    .subject-resources,
+    .subject-activities,
+    .subject-exams,
+    .subject-attendance {
+        display: none;
+    }
+
+    .subject-resources.active,
+    .subject-activities.active,
+    .subject-exams.active,
+    .subject-attendance.active {
+        display: block;
+    }
+
+    .activities-list,
+    .exams-list,
+    .attendance-list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .activity-item,
+    .exam-item,
+    .attendance-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: #fff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin-bottom: 10px;
+        margin-top: 10px;
+    }
+
+    .activity-item:last-child,
+    .exam-item:last-child {
+        border-bottom: 1px solid #ddd;
+    }
+
+    .activity-info,
+    .exam-info {
+        flex-grow: 1;
+    }
+
+    .activity-info h4,
+    .exam-info h4 {
+        margin: 0 0 10px 0;
+        color: #333;
+    }
+
+    .activity-info p,
+    .exam-info p {
+        margin: 0 0 10px 0;
+        color: #666;
+    }
+
+    .activity-info small,
+    .exam-info small {
+        color: #888;
+        font-size: 0.85em;
+    }
+
+    .activity-actions,
+    .exam-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn-circle {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f8f9fa;
+        border: 1px solid #ced4da;
+        transition: all 0.3s ease;
+    }
+
+    .btn-circle:hover {
+        background-color: #e9ecef;
+    }
+
+    .btn-circle svg {
+        width: 18px;
+        height: 18px;
+        fill: #6c757d;
+    }
+
+    .notes-board {
+        width: 100%;
+        height: 600px;
+        background-color: #f0f0f0;
+        background-image:
+            linear-gradient(rgba(255, 255, 255, .2) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, .2) 1px, transparent 1px);
+        background-size: 20px 20px;
+        position: relative;
+        overflow: hidden;
+        border-radius: 10px;
+        box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .sticky-note {
+        min-width: 150px;
+        min-height: 150px;
+        position: absolute;
+        padding: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+        cursor: move;
+        overflow: hidden;
+        border-radius: 2px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        user-select: none;
+    }
+
+    .sticky-note:hover {
+        transform: scale(1.02);
+        box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15), 0 3px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .sticky-note textarea {
+        width: 100%;
+        height: calc(100% - 60px);
+        border: none;
+        background: transparent;
+        resize: none;
+        font-family: 'Handlee', cursive;
+        font-size: 16px;
+        line-height: 1.5;
+    }
+
+    .note-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .creator-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .creator-image {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .creator-name {
+        font-size: 14px;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .note-actions {
+        display: flex;
+        gap: 5px;
+    }
+
+    .note-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+        color: rgba(0, 0, 0, 0.5);
+        transition: color 0.3s ease;
+    }
+
+    .note-btn:hover {
+        color: rgba(0, 0, 0, 0.8);
+    }
+
+    .color-picker {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .color-option {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+    }
+
+    .color-option:hover {
+        transform: scale(1.2);
+    }
+
+    .custom-color-picker {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+        background: linear-gradient(to right, red, yellow, green, blue, indigo, violet);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .custom-color-picker:hover {
+        transform: scale(1.2);
+    }
+
+    .custom-color-picker input[type="color"] {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    .locked {
+        cursor: default;
+    }
+
+    .locked::after {
+        content: '🔒';
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        font-size: 16px;
+    }
+
+    .resize-handle {
+        width: 20px;
+        height: 20px;
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        cursor: se-resize;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .resize-handle::after {
+        content: '↘️';
+        font-size: 14px;
+        color: white;
+    }
+
+    .rotate-handle {
+        width: 20px;
+        height: 20px;
+        position: absolute;
+        right: 0;
+        top: 0;
+        /* cursor: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAABNklEQVR4nO2XMU7DQBBF3xIJiYtwAQQNZ6DkBFBzAEQRzkDFAWgoOQGIlpIDQEELHRUUkVKkiQRCymejkSxFsbOJ7V3TrPSkkWb+/J3dlVYLwzBWC3AB3AFvQJVpb8A1cL4ueBt4XgN41b4BnSbwHnBfA3Dh3oFuKnxYE7hwQ1L2vSn4K3DqrR0B4yXhEyA3+A7wkeAMvPUeMImAT4AhsGXwUyBPcN6BnrfeS4RPgRGwbfATIE9wZmY/8NY7EfBHYA/YNPgxkCc4U7MfeuudCPgjcABsGPwIyBOcmdmPvPUk+BNwCKwb/BDIjXNu9mNvvRsJfwGOgDWD9w3u7Mfs5956PxL+ChwDHYMfALlxLsx+4q0PIuFvwCmwavDY/7wJfGHwdZqGYRjGf+EbNrQO7N+PuWoAAAAASUVORK5CYII=') 10 10, auto; */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .rotate-handle::after {
+        content: '🔄';
+        font-size: 14px;
+        color: rgba(0, 0, 0, 0.5);
+    }
+
+    @keyframes shake {
+        0% {
+            transform: translate(1px, 1px) rotate(0deg);
+        }
+
+        10% {
+            transform: translate(-1px, -2px) rotate(-1deg);
+        }
+
+        20% {
+            transform: translate(-3px, 0px) rotate(1deg);
+        }
+
+        30% {
+            transform: translate(3px, 2px) rotate(0deg);
+        }
+
+        40% {
+            transform: translate(1px, -1px) rotate(1deg);
+        }
+
+        50% {
+            transform: translate(-1px, 2px) rotate(-1deg);
+        }
+
+        60% {
+            transform: translate(-3px, 1px) rotate(0deg);
+        }
+
+        70% {
+            transform: translate(3px, 1px) rotate(-1deg);
+        }
+
+        80% {
+            transform: translate(-1px, -1px) rotate(1deg);
+        }
+
+        90% {
+            transform: translate(1px, 2px) rotate(0deg);
+        }
+
+        100% {
+            transform: translate(1px, -2px) rotate(-1deg);
+        }
+    }
+
+    .shake {
+        animation: shake 0.5s;
+        animation-iteration-count: 1;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .btn-success:hover {
+        background-color: #218838;
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background-color: #c82333;
+    }
+
+    .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .accordion {
+        width: 100%;
+    }
+
+    .accordion-item {
+        border: 1px solid #ddd;
+        margin-bottom: 5px;
+    }
+
+    .accordion-header {
+        background-color: #f5f5f5;
+        padding: 10px;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .accordion-header h4 {
+        margin: 0;
+    }
+
+    .accordion-icon {
+        font-size: 18px;
+        transition: transform 0.3s ease;
+    }
+
+    .accordion-content {
+        padding: 10px;
+        display: none;
+    }
+
+    .accordion-item.active .accordion-icon {
+        transform: rotate(45deg);
+    }
+
+    .accordion-item.active .accordion-content {
+        display: block;
+    }
+
+    .resource-item {
+        border: 1px solid #e0e0e0;
+        padding: 10px;
+        margin-top: 10px;
+        border-radius: 5px;
+    }
+
+    .resource-item h5 {
+        margin-top: 0;
+        margin-bottom: 5px;
+    }
+
+    .resource-item p {
+        margin-bottom: 5px;
+    }
+
+    .resource-item small {
+        display: block;
+        margin-bottom: 5px;
+        color: #666;
+    }
+
+    .resource-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 5px;
+    }
+
+    /* New styles for the options tab */
+    .options-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .option-group {
+        margin-bottom: 30px;
+    }
+
+    .option-group h4 {
+        margin-bottom: 15px;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 5px;
+    }
+
+    .option-item {
+        margin-bottom: 15px;
+    }
+
+    .option-item label {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+    }
+
+    .option-item input[type="checkbox"] {
+        margin-right: 10px;
+    }
+
+    .option-item select,
+    .option-item input[type="range"] {
+        width: 100%;
+        padding: 5px;
+        margin-top: 5px;
+    }
+
+    .option-actions {
+        display: flex;
+        justify-content: flex-start;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background-color: #5a6268;
+    }
+
+    .attendance-menu {
+        width: 200px;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .attendance-menu ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .attendance-menu li {
+        padding: 12px 15px;
+        cursor: pointer;
+        border-bottom: 1px solid #eee;
+        transition: all 0.3s ease;
+    }
+
+    .attendance-menu li:last-child {
+        border-bottom: none;
+    }
+
+    .attendance-menu li:hover {
+        background-color: #f8f9fa;
+    }
+
+    .attendance-menu li.active {
+        background-color: #007bff;
+        color: #fff;
+        font-weight: 500;
+    }
+    </style>
