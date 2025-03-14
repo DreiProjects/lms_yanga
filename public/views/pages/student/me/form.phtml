@@ -12,7 +12,7 @@ $uuid = $this->param3;
 $main_form = null;
 $record = null;
 $alreadyTaken = false;
-
+    
 $record = $APPLICATION->FUNCTIONS->EXAM_CONTROL->get($id, true);
 $main_form = $APPLICATION->FUNCTIONS->FORM_CONTROL->get($record->form_id, true);
 

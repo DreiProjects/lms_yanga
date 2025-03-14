@@ -28,8 +28,8 @@ $USER_HEADER_BODY = [
 ];
 
 $STUDENT_IN_SECTION_HEADER_BODY = [
-    "header" => ["No","Student No","Student ID","Name"],
-    "body" => ["no","student_no", "student_id","displayName"]
+    "header" => ["No","Student No","Name"],
+    "body" => ["no","student_no", "displayName"]
 ];
 
 $COURSE_HEADER_BODY = [

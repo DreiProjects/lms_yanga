@@ -10,11 +10,11 @@ class Connection
 
     protected $HOST = "localhost";
 
-    protected $DATABASE = "u141346348_lms_database";
+    protected $DATABASE = "lms_db";
 
-    protected $USERNAME = "u141346348_lms_new_user";
+    protected $USERNAME = "root";
 
-    protected $PASSWORD = 'Dm[$Mj^GkWL7';
+    protected $PASSWORD = '';
 
     protected $PORT = "3306";
 
