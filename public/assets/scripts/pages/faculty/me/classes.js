@@ -186,11 +186,168 @@ function NewExamForm(section_id) {
 }
 
 function TakeExam(exam_id) {
-  // Generate a random UUID for the exam session
-  const uuid = crypto.randomUUID();
+  // Get the exam item element to access due date
+  const examItem = document.querySelector(`.exam-item[data-id="${exam_id}"]`);
+  if (!examItem) return;
 
-  // Open exam in new tab
-  window.location.replace(`form/exam/${exam_id}/${uuid}`);
+  // Extract due date from the exam item
+  const examInfoText = examItem.querySelector(".exam-info small").textContent;
+  const dueDateMatch = examInfoText.match(/Due: ([^|]+)/);
+
+  // If no due date is found, proceed with taking the exam
+  if (!dueDateMatch || !dueDateMatch[1] || dueDateMatch[1].trim() === "") {
+    // Generate a random UUID for the exam session
+    const uuid = crypto.randomUUID();
+
+    // Open exam in new tab
+    window.location.replace(`form/exam/${exam_id}/${uuid}`);
+    return;
+  }
+
+  const dueDateStr = dueDateMatch[1].trim();
+
+  // Check if due date is valid
+  const dueDate = new Date(dueDateStr);
+  if (isNaN(dueDate.getTime())) {
+    // If due date is invalid, proceed with taking the exam
+    const uuid = crypto.randomUUID();
+    window.location.replace(`form/exam/${exam_id}/${uuid}`);
+    return;
+  }
+
+  const now = new Date();
+
+  // Check if due date has already passed
+  if (now > dueDate) {
+    alert("This exam's due date has passed. You can no longer take this exam.");
+    return;
+  }
+
+  // Calculate time remaining until due date
+  const timeRemaining = dueDate - now;
+
+  // If less than 5 minutes remaining, show countdown timer
+  if (timeRemaining < 300000) {
+    // 5 minutes in milliseconds
+    const timerModal = document.createElement("div");
+    timerModal.className = "exam-timer-modal";
+
+    const timerContent = document.createElement("div");
+    timerContent.className = "exam-timer-content";
+
+    const timerTitle = document.createElement("h3");
+    timerTitle.textContent = "Exam Due Soon";
+
+    const timerText = document.createElement("p");
+    timerText.className = "timer-text";
+
+    const timerButton = document.createElement("button");
+    timerButton.className = "timer-button";
+    timerButton.textContent = "Take Exam Now";
+
+    timerContent.appendChild(timerTitle);
+    timerContent.appendChild(timerText);
+    timerContent.appendChild(timerButton);
+    timerModal.appendChild(timerContent);
+
+    document.body.appendChild(timerModal);
+
+    // Start countdown timer
+    let secondsRemaining = Math.floor(timeRemaining / 1000);
+
+    const updateTimer = () => {
+      const minutes = Math.floor(secondsRemaining / 60);
+      const seconds = secondsRemaining % 60;
+      timerText.textContent = `Time remaining: ${minutes}:${
+        seconds < 10 ? "0" : ""
+      }${seconds}`;
+
+      if (secondsRemaining <= 0) {
+        clearInterval(timerInterval);
+        timerText.textContent = "Exam due time has passed!";
+        timerButton.disabled = true;
+        timerButton.textContent = "No Longer Available";
+
+        // Auto-close after 3 seconds
+        setTimeout(() => {
+          document.body.removeChild(timerModal);
+        }, 3000);
+      }
+
+      secondsRemaining--;
+    };
+
+    updateTimer(); // Initial update
+    const timerInterval = setInterval(updateTimer, 1000);
+
+    // Handle take exam button click
+    timerButton.addEventListener("click", () => {
+      clearInterval(timerInterval);
+      document.body.removeChild(timerModal);
+
+      // Generate a random UUID for the exam session
+      const uuid = crypto.randomUUID();
+
+      // Open exam in new tab
+      window.location.replace(`form/exam/${exam_id}/${uuid}`);
+    });
+
+    // Add styles for the timer modal
+    const style = document.createElement("style");
+    style.textContent = `
+      .exam-timer-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+      }
+      
+      .exam-timer-content {
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+        max-width: 400px;
+        width: 100%;
+      }
+      
+      .timer-text {
+        font-size: 24px;
+        margin: 20px 0;
+        color: #dc3545;
+        font-weight: bold;
+      }
+      
+      .timer-button {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      
+      .timer-button:disabled {
+        background-color: #6c757d;
+        cursor: not-allowed;
+      }
+    `;
+
+    document.head.appendChild(style);
+  } else {
+    // Generate a random UUID for the exam session
+    const uuid = crypto.randomUUID();
+
+    // Open exam in new tab
+    window.location.replace(`form/exam/${exam_id}/${uuid}`);
+  }
 }
 
 // Handle exam functionality
@@ -223,6 +380,115 @@ function Exams() {
       NewExam(addExamBtn.dataset.section_id);
     });
   }
+
+  // Add timer display for exams
+  function updateExamTimers() {
+    if (examItems) {
+      examItems.forEach((item) => {
+        const examInfoText = item.querySelector(".exam-info small").textContent;
+        const dueDateMatch = examInfoText.match(/Due: ([^|]+)/);
+
+        // Skip exams without a due date
+        if (
+          !dueDateMatch ||
+          !dueDateMatch[1] ||
+          dueDateMatch[1].trim() === ""
+        ) {
+          return;
+        }
+
+        const dueDateStr = dueDateMatch[1].trim();
+        const dueDate = new Date(dueDateStr);
+
+        // Skip if due date is invalid
+        if (isNaN(dueDate.getTime())) {
+          return;
+        }
+
+        const now = new Date();
+
+        // Calculate time remaining until due date
+        const timeRemaining = dueDate - now;
+
+        // If due date has passed, disable the take exam button
+        if (timeRemaining <= 0) {
+          const takeExamBtn = item.querySelector(".take-exam-btn");
+          if (takeExamBtn) {
+            takeExamBtn.classList.add("disabled");
+            takeExamBtn.title = "Exam due date has passed";
+            takeExamBtn.querySelector(".text span").textContent = "Past Due";
+
+            // Remove the click event listener
+            takeExamBtn.replaceWith(takeExamBtn.cloneNode(true));
+          }
+        }
+        // If less than 1 hour remaining, show countdown timer
+        else if (timeRemaining < 3600000) {
+          // 1 hour in milliseconds
+          // Check if timer already exists
+          let timerElement = item.querySelector(".exam-timer");
+
+          if (!timerElement) {
+            // Create timer element
+            timerElement = document.createElement("div");
+            timerElement.className = "exam-timer";
+            item.querySelector(".exam-info").appendChild(timerElement);
+
+            // Add timer styles if not already added
+            if (!document.getElementById("exam-timer-styles")) {
+              const timerStyles = document.createElement("style");
+              timerStyles.id = "exam-timer-styles";
+              timerStyles.textContent = `
+                .exam-timer {
+                  margin-top: 8px;
+                  padding: 5px 10px;
+                  background-color: #fff3cd;
+                  border-radius: 4px;
+                  font-weight: bold;
+                  color: #856404;
+                  display: inline-block;
+                }
+                
+                .exam-timer.urgent {
+                  background-color: #f8d7da;
+                  color: #721c24;
+                }
+                
+                .icon-button.disabled {
+                  opacity: 0.5;
+                  cursor: not-allowed;
+                  pointer-events: none;
+                }
+              `;
+              document.head.appendChild(timerStyles);
+            }
+          }
+
+          // Update timer text
+          const minutes = Math.floor(timeRemaining / 60000);
+          const seconds = Math.floor((timeRemaining % 60000) / 1000);
+
+          timerElement.textContent = `Due in: ${minutes}m ${seconds}s`;
+
+          // Add urgent class if less than 5 minutes remaining
+          if (timeRemaining < 300000) {
+            timerElement.classList.add("urgent");
+          }
+        }
+      });
+    }
+  }
+
+  // Initial update
+  updateExamTimers();
+
+  // Update timers every second
+  const timerInterval = setInterval(updateExamTimers, 1000);
+
+  // Clean up interval when navigating away
+  window.addEventListener("beforeunload", () => {
+    clearInterval(timerInterval);
+  });
 
   if (examItems) {
     examItems.forEach((item) => {
