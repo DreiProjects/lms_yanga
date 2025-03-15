@@ -3,7 +3,7 @@ global $APPLICATION, $SESSION, $STUDENTS_IN_CLASSES_HEADER_BODY, $SUBJECTS_IN_CL
 
 $gradingControl = $APPLICATION->FUNCTIONS->GRADING_PLATFORM_CONTROL;
 
-$IS_ADIVSER =  filter_var($_POST['is_adviser'], FILTER_VALIDATE_BOOLEAN);
+$IS_ADIVSER = filter_var($_POST['is_adviser'], FILTER_VALIDATE_BOOLEAN);
 
 if (!isset($section)) {
     $id = $_POST['id'];
@@ -47,7 +47,7 @@ foreach ($SUBJECTS as $subject) {
     ], $RESOURCES[$subject->subject_name]);
 
     $ACTIVITIES[$subject->subject_name] = $APPLICATION->FUNCTIONS->ACTIVITY_CONTROL->filterRecords(['section_subject_id' => $subject->section_subject_id], true);
-    
+
     $EXAMS[$subject->subject_name] = $APPLICATION->FUNCTIONS->EXAM_CONTROL->filterRecords(['section_subject_id' => $subject->section_subject_id], true);
 }
 
@@ -77,7 +77,8 @@ foreach ($SUBJECTS as $subject) {
                     <div class="tab-container">
                         <ul class="tab-nav">
                             <li class="tab-item active" data-tab="students">
-                                <?= $SESSION->user_type == 1 ? "CLASSMATES" : "STUDENTS" ?></li>
+                                <?= $SESSION->user_type == 1 ? "CLASSMATES" : "STUDENTS" ?>
+                            </li>
                             <li class="tab-item" data-tab="subjects">SUBJECTS</li>
                             <?php if (!$IS_ADIVSER): ?>
                             <li class="tab-item" data-tab="resources">RESOURCES</li>
@@ -105,19 +106,19 @@ foreach ($SUBJECTS as $subject) {
 
 
                                 <?= CreateTable([
-                                "content" => $STUDENTS_IN_CLASSES_HEADER_BODY,
-                                "data" => $RECORDS,
-                                "id" => "user_id",
-                                "checkbox" => true
-                            ]) ?>
+                                    "content" => $STUDENTS_IN_CLASSES_HEADER_BODY,
+                                    "data" => $RECORDS,
+                                    "id" => "user_id",
+                                    "checkbox" => true
+                                ]) ?>
                             </div>
                             <div class="tab-pane" id="subjects">
                                 <?= CreateTable([
-                                "content" => $SUBJECTS_IN_CLASSES_HEADER_BODY,
-                                "data" => $SUBJECTS,
-                                "id" => "section_subject_id",
-                                "checkbox" => true
-                            ]) ?>
+                                    "content" => $SUBJECTS_IN_CLASSES_HEADER_BODY,
+                                    "data" => $SUBJECTS,
+                                    "id" => "section_subject_id",
+                                    "checkbox" => true
+                                ]) ?>
                             </div>
 
                             <?php if (!$IS_ADIVSER): ?>
@@ -228,27 +229,27 @@ foreach ($SUBJECTS as $subject) {
                                             <div class="subject-activities <?= $subject === array_key_first($ACTIVITIES) ? 'active' : '' ?>"
                                                 data-subject="<?= $subject ?>">
                                                 <h3><?= $subject ?> Activities</h3>
-                                                <?php if(empty($subjectActivities)): ?>
+                                                <?php if (empty($subjectActivities)): ?>
                                                 <div class="no-activities">
                                                     <p>No activities found for this subject.</p>
                                                 </div>
                                                 <?php else: ?>
                                                 <?php foreach ($subjectActivities as $activity): ?>
-                                                <?php 
-                        // Check if due date has passed
-                        $is_due_passed = !empty($activity->due_date) && 
-                                        strtotime($activity->due_date) && 
-                                        strtotime($activity->due_date) < time();
-                        
-                        // If due date passed but status is still "On Going", update it to "Closed"
-                        $display_status = $activity->activity_status;
-                        if ($is_due_passed && strtolower($activity->activity_status) == 'on going') {
-                            $display_status = "Closed";
-                            // You might want to also update this in the database
-                            // Uncomment and implement this function in your Activity class
-                            // $activity->updateStatus("Closed");
-                        }
-                    ?>
+                                                <?php
+                                                                // Check if due date has passed
+                                                                $is_due_passed = !empty($activity->due_date) &&
+                                                                    strtotime($activity->due_date) &&
+                                                                    strtotime($activity->due_date) < time();
+
+                                                                // If due date passed but status is still "On Going", update it to "Closed"
+                                                                $display_status = $activity->activity_status;
+                                                                if ($is_due_passed && strtolower($activity->activity_status) == 'on going') {
+                                                                    $display_status = "Closed";
+                                                                    // You might want to also update this in the database
+                                                                    // Uncomment and implement this function in your Activity class
+                                                                    // $activity->updateStatus("Closed");
+                                                                }
+                                                                ?>
                                                 <div class="activity-item" data-id="<?= $activity->activity_id ?>">
                                                     <div class="activity-info">
                                                         <h4><?= htmlspecialchars($activity->title) ?></h4>
@@ -264,11 +265,11 @@ foreach ($SUBJECTS as $subject) {
                                                                 class="status-badge <?= strtolower($display_status) ?>"><?= $display_status ?></span>
                                                         </small>
                                                         <?php if ($SESSION->user_type == 2): ?>
-                                                        <?php 
-                                    $total_students = count($RECORDS);
-                                    $complied_students = count($activity->complies);
-                                    $completion_percentage = $total_students > 0 ? ($complied_students / $total_students) * 100 : 0;
-                                ?>
+                                                        <?php
+                                                                            $total_students = count($RECORDS);
+                                                                            $complied_students = count($activity->complies);
+                                                                            $completion_percentage = $total_students > 0 ? ($complied_students / $total_students) * 100 : 0;
+                                                                            ?>
                                                         <div class="completion-bar">
                                                             <div class="progress"
                                                                 style="width: <?= $completion_percentage ?>%"></div>
@@ -304,9 +305,9 @@ foreach ($SUBJECTS as $subject) {
                                                             </div>
                                                         </div>
                                                         <?php elseif ($activity->isStudentComplied($SESSION->user_id)): ?>
-                                                        <?php 
-                                    $complied = $activity->getCompliedActivity($SESSION->user_id);
-                                    ?>
+                                                        <?php
+                                                                                $complied = $activity->getCompliedActivity($SESSION->user_id);
+                                                                                ?>
                                                         <div class="icon-button view-complied-btn" title="View Complied"
                                                             data-id="<?= $complied['comply_id'] ?>">
                                                             <div class="icon">
@@ -380,6 +381,7 @@ foreach ($SUBJECTS as $subject) {
                                                         <p><?= $exam->description ?></p>
                                                         <small>
                                                             Date: <?= $exam->date_start ?> |
+                                                            Due: <?= $exam->due_date ?> |
                                                             Duration: <?= $exam->duration ?> |
                                                             Status: <?= $exam->exam_status ?>
                                                         </small>
@@ -405,7 +407,7 @@ foreach ($SUBJECTS as $subject) {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <?php if($SESSION->user_type == 1): ?>
+                                                    <?php if ($SESSION->user_type == 1): ?>
                                                     <?php if (!$exam->form->isStudentTakenExam($SESSION->user_id, $exam->exam_id)): ?>
                                                     <div class="icon-button take-exam-btn" title="Take Exam"
                                                         data-exam-id="<?= $exam->exam_id ?>">
@@ -451,7 +453,7 @@ foreach ($SUBJECTS as $subject) {
                                     <div class="grades-content">
                                         <div class="grades-menu">
                                             <ul>
-                                                <?php foreach($SUBJECTS as $index => $subject): ?>
+                                                <?php foreach ($SUBJECTS as $index => $subject): ?>
                                                 <li class="<?= $index === 0 ? 'active' : '' ?>"
                                                     data-subject="<?= $subject->subject_name ?>">
                                                     <?= $subject->subject_name ?>
@@ -460,22 +462,22 @@ foreach ($SUBJECTS as $subject) {
                                             </ul>
                                         </div>
                                         <div class="grades-list">
-                                            <?php foreach($SUBJECTS as $index => $subject): ?>
-                                            <?php 
-                                                $grading_platform = $gradingControl->getBy("section_subject_id", $subject->section_subject_id, false);
+                                            <?php foreach ($SUBJECTS as $index => $subject): ?>
+                                            <?php
+                                                    $grading_platform = $gradingControl->getBy("section_subject_id", $subject->section_subject_id, false);
 
-                                                $is_student_selected = null;
+                                                    $is_student_selected = null;
 
-                                                if ($grading_platform) {
-                                                    $grading_platform = $gradingControl->getBy("section_subject_id", $subject->section_subject_id, true);
-                                                    $is_student_selected =  $grading_platform->isStudentSelected($SESSION->user_id);
-                                                }
+                                                    if ($grading_platform) {
+                                                        $grading_platform = $gradingControl->getBy("section_subject_id", $subject->section_subject_id, true);
+                                                        $is_student_selected = $grading_platform->isStudentSelected($SESSION->user_id);
+                                                    }
 
-                                             ?>
+                                                    ?>
                                             <div class="subject-grades <?= $index === 0 ? 'active' : '' ?>"
                                                 data-subject="<?= $subject->subject_name ?>">
-                                                <?php if($is_student_selected && $SESSION->user_type == 1 || $SESSION->user_type == 2): ?>
-                                                <?php if($SESSION->user_type == 2): ?>
+                                                <?php if ($is_student_selected && $SESSION->user_type == 1 || $SESSION->user_type == 2): ?>
+                                                <?php if ($SESSION->user_type == 2): ?>
                                                 <div class="grade-actions">
                                                     <button class="btn btn-success save-grades" disabled>Save
                                                         Grades</button>
@@ -514,7 +516,7 @@ foreach ($SUBJECTS as $subject) {
                                     <div class="attendance-content">
                                         <div class="attendance-menu">
                                             <ul>
-                                                <?php foreach($SUBJECTS as $index => $subject): ?>
+                                                <?php foreach ($SUBJECTS as $index => $subject): ?>
                                                 <li class="subject-tab <?= $index === 0 ? 'active' : '' ?>"
                                                     data-subject="<?= $subject->subject_name ?>">
                                                     <?= $subject->subject_name ?>
@@ -523,7 +525,7 @@ foreach ($SUBJECTS as $subject) {
                                             </ul>
                                         </div>
                                         <div class="attendance-list">
-                                            <?php foreach($SUBJECTS as $index => $subject): ?>
+                                            <?php foreach ($SUBJECTS as $index => $subject): ?>
 
                                             <div class="attendance-table-container subject-attendance <?= $index === 0 ? 'active' : '' ?>"
                                                 data-subject="<?= $subject->subject_name ?>"
@@ -534,7 +536,7 @@ foreach ($SUBJECTS as $subject) {
                                                             <button class="btn btn-icon prev-month">
                                                                 < </button>
                                                                     <select id="monthSelect">
-                                                                        <?php for($m = 1; $m <= 12; $m++): ?>
+                                                                        <?php for ($m = 1; $m <= 12; $m++): ?>
                                                                         <option value="<?= $m ?>"
                                                                             <?= $m == date('n') ? 'selected' : '' ?>>
                                                                             <?= date('F', mktime(0, 0, 0, $m, 1)) ?>
@@ -549,7 +551,7 @@ foreach ($SUBJECTS as $subject) {
                                                             <button class="btn btn-icon prev-year">
                                                                 << </button>
                                                                     <select id="yearSelect">
-                                                                        <?php for($y = date('Y') - 2; $y <= date('Y') + 2; $y++): ?>
+                                                                        <?php for ($y = date('Y') - 2; $y <= date('Y') + 2; $y++): ?>
                                                                         <option value="<?= $y ?>"
                                                                             <?= $y == date('Y') ? 'selected' : '' ?>>
                                                                             <?= $y ?>
