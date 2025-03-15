@@ -161,16 +161,16 @@ $SECTIONS = $sectionControl->getAllRecords(true);
                                 <div class="section-cards-container" id="sectionCardsContainer">
                                     <!-- Section cards will be dynamically added here -->
                                     <?php foreach ($SECTIONS as $SECTION): ?>
-                                        <div class="section-card">
-                                            <input type="radio" name="section" id="section-<?= $SECTION->section_id; ?>"
-                                                value="<?= $SECTION->section_id; ?>">
-                                            <label for="section-<?= $SECTION->section_id; ?>">
-                                                <h4><?= $SECTION->section_name; ?></h4>
-                                                <p>Course: <?= $SECTION->course->course_name; ?></p>
-                                                <p>Students: <span
-                                                        class="student-count"><?= count($SECTION->students); ?></span></p>
-                                            </label>
-                                        </div>
+                                            <div class="section-card">
+                                                <input type="radio" name="section" id="section-<?= $SECTION->section_id; ?>"
+                                                    value="<?= $SECTION->section_id; ?>">
+                                                <label for="section-<?= $SECTION->section_id; ?>">
+                                                    <h4><?= $SECTION->section_name; ?></h4>
+                                                    <p>Course: <?= $SECTION->course->course_name; ?></p>
+                                                    <p>Students: <span
+                                                            class="student-count"><?= count($SECTION->students); ?></span></p>
+                                                </label>
+                                            </div>
                                     <?php endforeach; ?>
                                 </div>
                                 <button id="addSectionBtn" class="btn-add-section">+ Add New Section</button>

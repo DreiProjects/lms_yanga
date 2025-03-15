@@ -44,71 +44,71 @@ global $SESSION;
 </div>
 
 <style>
-.profile-container-link {
-    position: relative;
-    cursor: pointer;
-}
+    .profile-container-link {
+        position: relative;
+        cursor: pointer;
+    }
 
-.user-menu {
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    padding: 0.5rem 0;
-    min-width: 200px;
-    display: none;
-    position: absolute;
-    top: 100%;
-    right: 0;
-    margin-top: 0.5rem;
-    z-index: 1000;
-}
+    .user-menu {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        padding: 0.5rem 0;
+        min-width: 200px;
+        display: none;
+        position: absolute;
+        top: 100%;
+        right: 0;
+        margin-top: 0.5rem;
+        z-index: 1000;
+    }
 
-.user-menu.show {
-    display: block;
-}
+    .user-menu.show {
+        display: block;
+    }
 
-.menu-item {
-    display: flex;
-    align-items: center;
-    padding: 0.75rem 1rem;
-    color: #374151;
-    text-decoration: none;
-    transition: background-color 0.2s;
-    cursor: pointer;
-}
+    .menu-item {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        color: #374151;
+        text-decoration: none;
+        transition: background-color 0.2s;
+        cursor: pointer;
+    }
 
-.menu-item:hover {
-    background-color: #F3F4F6;
-}
+    .menu-item:hover {
+        background-color: #F3F4F6;
+    }
 
-.menu-item i {
-    width: 20px;
-    height: 20px;
-    margin-right: 0.75rem;
-    color: #6B7280;
-}
+    .menu-item i {
+        width: 20px;
+        height: 20px;
+        margin-right: 0.75rem;
+        color: #6B7280;
+    }
 
-.menu-item span {
-    font-size: 0.875rem;
-}
+    .menu-item span {
+        font-size: 0.875rem;
+    }
 
-.profile-container-link.active .user-menu {
-    display: block;
-}
+    .profile-container-link.active .user-menu {
+        display: block;
+    }
 </style>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize Feather icons
-    feather.replace();
+    document.addEventListener('DOMContentLoaded', function () {
+        // Initialize Feather icons
+        feather.replace();
 
-    // Handle menu item clicks
-    const menuItems = document.querySelectorAll('.user-menu .menu-item');
-    menuItems.forEach(item => {
-        item.addEventListener('click', function(e) {
-            // Allow the default link behavior
-            e.stopPropagation();
+        // Handle menu item clicks
+        const menuItems = document.querySelectorAll('.user-menu .menu-item');
+        menuItems.forEach(item => {
+            item.addEventListener('click', function (e) {
+                // Allow the default link behavior
+                e.stopPropagation();
+            });
         });
     });
-});
 </script>

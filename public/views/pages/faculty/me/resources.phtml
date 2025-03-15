@@ -6,14 +6,14 @@ $professor = $SESSION->getAsProfessor();
 
 $classes = $professor->getClasses();
 
-$all = array_reduce($classes, function($store, $sectionSubject) {
+$all = array_reduce($classes, function ($store, $sectionSubject) {
     if (!isset($store[$sectionSubject->section_id])) {
         $store[$sectionSubject->section_id] = $sectionSubject;
     }
     return $store;
 }, []);
 
-$menuItems = array_map(function($sectionSubject) use ($professor) {
+$menuItems = array_map(function ($sectionSubject) use ($professor) {
     $section = $sectionSubject->getSection();
     $subjects = $section->getSubjectForProfessor($professor->professor_id);
 
@@ -22,7 +22,7 @@ $menuItems = array_map(function($sectionSubject) use ($professor) {
         'label' => $section->section_name,
         'icon' => 'folder',
         'tag' => 'section',
-        'submenu' => array_map(function($subject) use ($section) {
+        'submenu' => array_map(function ($subject) use ($section) {
             return [
                 'id' => $subject->subject->subject_id,
                 'label' => $subject->subject->subject_name,
@@ -42,7 +42,7 @@ array_push($menuItems, [
 ]);
 
 $forms = $APPLICATION->FUNCTIONS->FORM_CONTROL->filterRecords(['professor_id' => $professor->professor_id], true);
-usort($forms, function($a, $b) {
+usort($forms, function ($a, $b) {
     return strtotime($b->date_created) - strtotime($a->date_created); // Assuming 'created_at' is the field for the creation date
 });
 
@@ -50,7 +50,7 @@ usort($forms, function($a, $b) {
 $itemsPerPage = 5; // Number of forms per page
 $totalForms = count($forms);
 $totalPages = ceil($totalForms / $itemsPerPage);
-$currentPage = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$currentPage = isset($_GET['page']) ? (int) $_GET['page'] : 1;
 $currentPage = max(1, min($currentPage, $totalPages)); // Ensure current page is within bounds
 $offset = ($currentPage - 1) * $itemsPerPage;
 $paginatedForms = array_slice($forms, $offset, $itemsPerPage);
@@ -93,19 +93,21 @@ $paginatedForms = array_slice($forms, $offset, $itemsPerPage);
                     <div class="my-resources-container">
                         <div class="resources-menu">
                             <div class="menu-items">
-                                <?php  $count = 0; ?>
-                                <?php foreach($menuItems as $index => $item): ?>
-                                    <div class="menu-item <?= $count === 0 ? 'active' : '' ?>" data-content="<?= $item['id'] ?>">
+                                <?php $count = 0; ?>
+                                <?php foreach ($menuItems as $index => $item): ?>
+                                    <div class="menu-item <?= $count === 0 ? 'active' : '' ?>"
+                                        data-content="<?= $item['id'] ?>">
                                         <div class="menu-item-content">
                                             <div class="icon">
                                                 <i data-feather="<?= $item['icon'] ?>"></i>
                                             </div>
                                             <span><?= $item['label'] ?></span>
                                         </div>
-                                        <?php if(isset($item['submenu'])): ?>
+                                        <?php if (isset($item['submenu'])): ?>
                                             <div class="submenu">
-                                                <?php foreach($item['submenu'] as $submenuItem): ?>
-                                                    <div class="submenu-item" data-subcontent="<?= $submenuItem['id'] ?>"><?= $submenuItem['label'] ?></div>
+                                                <?php foreach ($item['submenu'] as $submenuItem): ?>
+                                                    <div class="submenu-item" data-subcontent="<?= $submenuItem['id'] ?>">
+                                                        <?= $submenuItem['label'] ?></div>
                                                 <?php endforeach; ?>
                                             </div>
                                         <?php endif; ?>
@@ -117,27 +119,33 @@ $paginatedForms = array_slice($forms, $offset, $itemsPerPage);
                         </div>
                         <div class="resources-content">
                             <?php $count = 0; ?>
-                            <?php foreach($menuItems as $index => $item): ?>
-                                <div class="content-container <?= $count === 0 ? 'active' : '' ?>" data-content="<?= $item['id'] ?>">
-                                    <?php if(isset($item['submenu'])): ?>
-                                        <?php foreach($item['submenu'] as $subIndex => $submenuItem): ?>
-                                            <div class="subcontent <?= $subIndex === 0 ? 'active' : '' ?>" data-subcontent="<?= $submenuItem['id'] ?>">
-                                                <h3><?= $submenuItem['label'] ?> <?= $item['label'] ?></h3>
+                            <?php foreach ($menuItems as $index => $item): ?>
+                                <div class="content-container <?= $count === 0 ? 'active' : '' ?>"
+                                    data-content="<?= $item['id'] ?>">
+                                    <?php if (isset($item['submenu'])): ?>
+                                        <?php foreach ($item['submenu'] as $subIndex => $submenuItem): ?>
+                                            <div class="subcontent <?= $subIndex === 0 ? 'active' : '' ?>"
+                                                data-subcontent="<?= $submenuItem['id'] ?>">
+                                                <h3><?= $submenuItem['label'] ?>             <?= $item['label'] ?></h3>
                                                 <!-- Content for <?= $submenuItem['label'] ?> <?= $item['label'] ?> -->
 
-                                                <?php if($item['tag'] === 'section'): ?>
+                                                <?php if ($item['tag'] === 'section'): ?>
                                                     <div class="accordion">
                                                         <?php foreach ($submenuItem['resources'] as $index => $resource): ?>
-                                                            <div class="accordion-item <?= $index === 0 ? 'active' : '' ?>" data-id="<?= $resource->resources_group_id ?>" data-title="<?= $resource->title ?>">
+                                                            <div class="accordion-item <?= $index === 0 ? 'active' : '' ?>"
+                                                                data-id="<?= $resource->resources_group_id ?>"
+                                                                data-title="<?= $resource->title ?>">
                                                                 <div class="accordion-header">
                                                                     <h4><?= $resource->title ?></h4>
                                                                     <span class="accordion-icon">+</span>
                                                                 </div>
                                                                 <div class="accordion-content">
                                                                     <p><?= $resource->description ?></p>
-                                                                    <small>Date: <?= date('l, F j, Y \a\t h:i:s A', strtotime($resource->date_created)) ?></small>
+                                                                    <small>Date:
+                                                                        <?= date('l, F j, Y \a\t h:i:s A', strtotime($resource->date_created)) ?></small>
                                                                     <div class="resource-actions">
-                                                                        <div class="icon-button download-resource-group-btn" title="Download">
+                                                                        <div class="icon-button download-resource-group-btn"
+                                                                            title="Download">
                                                                             <div class="icon">
                                                                                 <i data-feather="download"></i>
                                                                             </div>
@@ -145,16 +153,18 @@ $paginatedForms = array_slice($forms, $offset, $itemsPerPage);
                                                                                 <span>Download Resource Group</span>
                                                                             </div>
                                                                         </div>
-                                                                    </div>  
+                                                                    </div>
                                                                     <?php foreach ($resource->resources as $content): ?>
-                                                                        <div class="resource-item" data-id="<?= $content->resources_id ?>" data-title="<?= $content->title ?>">
+                                                                        <div class="resource-item" data-id="<?= $content->resources_id ?>"
+                                                                            data-title="<?= $content->title ?>">
                                                                             <h5><?= $content->title ?></h5>
                                                                             <p><?= $content->description ?></p>
                                                                             <small>
-                                                                                <?= $content->file_name ?> | 
-                                                                                <?= $content->file_size ?> | 
+                                                                                <?= $content->file_name ?> |
+                                                                                <?= $content->file_size ?> |
                                                                                 Type: <?= $content->file_type ?> |
-                                                                                Date: <?= date('l, F j, Y \a\t h:i:s A', strtotime($content->date_created)) ?>
+                                                                                Date:
+                                                                                <?= date('l, F j, Y \a\t h:i:s A', strtotime($content->date_created)) ?>
                                                                             </small>
                                                                             <div class="resource-actions">
                                                                                 <div class="icon-button download-resource-btn" title="Download">
@@ -196,7 +206,8 @@ $paginatedForms = array_slice($forms, $offset, $itemsPerPage);
                                                         <div class="form-card" data-form-id="<?= $form->form_id ?>">
                                                             <div class="form-card-header">
                                                                 <div class="form-info">
-                                                                    <span class="badge <?= strtolower($form->form_type) ?>"><?= ucfirst($form->form_type) ?></span>
+                                                                    <span
+                                                                        class="badge <?= strtolower($form->form_type) ?>"><?= ucfirst($form->form_type) ?></span>
                                                                     <h4><?= $form->title ?></h4>
                                                                     <p><?= $form->description ?></p>
                                                                 </div>
@@ -206,11 +217,14 @@ $paginatedForms = array_slice($forms, $offset, $itemsPerPage);
                                                                     </button>
                                                                     <div class="dropdown-menu">
                                                                         <?php if (!$form->form_correction): ?>
-                                                                            <a href="/me/forms/corrections/<?= $form->form_id ?>" class="check-correction-btn">Add Correction</a>
+                                                                            <a href="/me/forms/corrections/<?= $form->form_id ?>"
+                                                                                class="check-correction-btn">Add Correction</a>
                                                                         <?php else: ?>
-                                                                            <a href="/me/forms/corrections/<?= $form->form_id ?>" class="check-correction-btn">View Correction</a>
+                                                                            <a href="/me/forms/corrections/<?= $form->form_id ?>"
+                                                                                class="check-correction-btn">View Correction</a>
                                                                         <?php endif ?>
-                                                                        <button class="delete-form-btn" data-id="<?= $form->form_id ?>">Remove</button>
+                                                                        <button class="delete-form-btn"
+                                                                            data-id="<?= $form->form_id ?>">Remove</button>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -229,7 +243,8 @@ $paginatedForms = array_slice($forms, $offset, $itemsPerPage);
                                                                 </div>
                                                             </div>
                                                             <div class="form-meta">
-                                                                <span>Created on <?= date('F j, Y', strtotime($form->date_created)) ?></span>
+                                                                <span>Created on
+                                                                    <?= date('F j, Y', strtotime($form->date_created)) ?></span>
                                                             </div>
                                                         </div>
                                                     <?php endforeach; ?>
@@ -237,7 +252,8 @@ $paginatedForms = array_slice($forms, $offset, $itemsPerPage);
 
                                                 <div class="pagination">
                                                     <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                                                        <a href="?page=<?= $i ?>" class="<?= $i === $currentPage ? 'active' : '' ?>"><?= $i ?></a>
+                                                        <a href="?page=<?= $i ?>"
+                                                            class="<?= $i === $currentPage ? 'active' : '' ?>"><?= $i ?></a>
                                                     <?php endfor; ?>
                                                 </div>
                                             </div>
@@ -291,13 +307,13 @@ $paginatedForms = array_slice($forms, $offset, $itemsPerPage);
                             background: white;
                             border-radius: 12px;
                             padding: 1.5rem;
-                            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
                             transition: all 0.2s;
                         }
 
                         .form-card:hover {
                             transform: translateY(-2px);
-                            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
                         }
 
                         .form-card-header {
@@ -366,7 +382,7 @@ $paginatedForms = array_slice($forms, $offset, $itemsPerPage);
                             top: 100%;
                             background: white;
                             border-radius: 8px;
-                            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
                             padding: 0.5rem;
                             display: none;
                             z-index: 10;
@@ -475,7 +491,7 @@ $paginatedForms = array_slice($forms, $offset, $itemsPerPage);
                             width: 250px;
                             background: #fff;
                             border-radius: 8px;
-                            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
                             padding: 1rem;
                             height: fit-content;
                             position: sticky;
@@ -563,7 +579,7 @@ $paginatedForms = array_slice($forms, $offset, $itemsPerPage);
                             width: 100%;
                             background: #fff;
                             border-radius: 8px;
-                            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
                             padding: 1.5rem;
                         }
 
@@ -596,9 +612,9 @@ $paginatedForms = array_slice($forms, $offset, $itemsPerPage);
 
                     <script type="module">
                         import { Resources } from "/public/assets/scripts/pages/faculty/me/classes.js";
-                        document.addEventListener('DOMContentLoaded', function() {
+                        document.addEventListener('DOMContentLoaded', function () {
                             feather.replace();
-                            
+
                             const menuItems = document.querySelectorAll('.menu-item');
                             const submenuItems = document.querySelectorAll('.submenu-item');
                             const contentContainers = document.querySelectorAll('.content-container');
@@ -636,15 +652,15 @@ $paginatedForms = array_slice($forms, $offset, $itemsPerPage);
                                     const contentId = item.dataset.content;
                                     contentContainers.forEach(container => {
                                         container.classList.remove('active');
-                                        if(container.dataset.content === contentId) {
+                                        if (container.dataset.content === contentId) {
                                             container.classList.add('active');
                                         }
                                     });
 
                                     const activeContent = document.querySelector(`.content-container[data-content="${contentId}"]`);
-                                    if(activeContent) {
+                                    if (activeContent) {
                                         const firstSubcontent = activeContent.querySelector('.subcontent');
-                                        if(firstSubcontent) {
+                                        if (firstSubcontent) {
                                             subcontents.forEach(s => s.classList.remove('active'));
                                             firstSubcontent.classList.add('active');
                                         }
@@ -655,7 +671,7 @@ $paginatedForms = array_slice($forms, $offset, $itemsPerPage);
                             submenuItems.forEach(item => {
                                 item.addEventListener('click', (e) => {
                                     e.stopPropagation();
-                                    
+
                                     const parentMenu = item.closest('.menu-item');
                                     parentMenu.querySelectorAll('.submenu-item').forEach(i => i.classList.remove('active'));
                                     item.classList.add('active');
@@ -663,7 +679,7 @@ $paginatedForms = array_slice($forms, $offset, $itemsPerPage);
                                     const subcontentId = item.dataset.subcontent;
                                     subcontents.forEach(subcontent => {
                                         subcontent.classList.remove('active');
-                                        if(subcontent.dataset.subcontent === subcontentId) {
+                                        if (subcontent.dataset.subcontent === subcontentId) {
                                             subcontent.classList.add('active');
                                         }
                                     });

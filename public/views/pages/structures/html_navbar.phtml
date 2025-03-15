@@ -5,22 +5,22 @@ $STAFF = array(
     [
         "text" => "Home",
         "path" => '/',
-        "icon" => '<i data-feather="home"></i>'
+        "icon" => UseIcon('home', 'feather')
     ],
-      [
+    [
         "text" => "Patients",
         "path" => '/patients',
-        "icon" => '<i data-feather="user"></i>',
+        "icon" => UseIcon('user', 'feather'),
         "sub-content" => [
             [
                 "text" => "Search Patients",
                 "path" => '/patients/search_patients',
-                "icon" => '<i data-feather="search"></i>'
+                "icon" => UseIcon('search', 'feather')
             ],
             [
                 "text" => "Evaluations",
                 "path" => '/patients/evaluations',
-                "icon" => '<i data-feather="clipboard"></i>'
+                "icon" => UseIcon('clipboard', 'feather')
             ],
             [
                 "text" => "Color Vision Eval",
@@ -30,78 +30,78 @@ $STAFF = array(
             [
                 "text" => "Dry Eyes Eval",
                 "path" => '/patients/dry_eyes_evaluations',
-                "icon" => '<i data-feather="droplet"></i>'
+                "icon" => UseIcon('droplet', 'feather')
             ],
         ]
     ],
     [
         "text" => "Point of Sales",
         "path" => '/pos',
-        "icon" => '<i data-feather="dollar-sign"></i>',
+        "icon" => UseIcon('dollar-sign', 'feather'),
         "sub-content" => [
             [
                 "text" => "Point of Sales",
                 "path" => '/pos/point_of_sales',
-                "icon" => '<i data-feather="credit-card"></i>'
+                "icon" => UseIcon('credit-card', 'feather')
             ],
             [
                 "text" => "Orders",
                 "path" => '/pos/orders',
-                "icon" => '<i data-feather="shopping-cart"></i>'
+                "icon" => UseIcon('shopping-cart', 'feather')
             ],
             [
                 "text" => "Lab Orders",
                 "path" => '/pos/lab_orders',
-                "icon" => '<i data-feather="flask"></i>'
+                "icon" => UseIcon('flask', 'feather')
             ],
             [
                 "text" => "Delivery",
                 "path" => '/pos/order_delivery',
-                "icon" => '<i data-feather="truck"></i>'
+                "icon" => UseIcon('truck', 'feather')
             ],
             [
                 "text" => "Payments",
                 "path" => '/pos/payments',
-                "icon" => '<i data-feather="credit-card"></i>'
+                "icon" => UseIcon('credit-card', 'feather')
             ],
         ]
     ],
     [
         "text" => "Inventory",
         "path" => '/inventory',
-        "icon" => '<i data-feather="package"></i>',
+        "icon" => UseIcon('package', 'feather'),
         "sub-content" => [
             [
                 "text" => "Products",
                 "path" => '/inventory/products',
-                "icon" => '<i data-feather="box"></i>'
+                "icon" => UseIcon('box', 'feather')
             ],
             [
                 "text" => "Packages",
                 "path" => '/inventory/packages',
-                "icon" => '<i data-feather="package"></i>'
+                "icon" => UseIcon('package', 'feather')
             ],
             [
                 "text" => "Product Types",
                 "path" => '/inventory/product_types',
-                "icon" => '<i data-feather="tag"></i>'
+                "icon" => UseIcon('tag', 'feather')
             ],
             [
                 "text" => "Suppliers",
                 "path" => '/inventory/suppliers',
-                "icon" => '<i data-feather="truck"></i>'
+                "icon" => UseIcon('truck', 'feather')
             ],
             [
                 "text" => "Categories",
                 "path" => '/inventory/categories',
-                "icon" => '<i data-feather="folder"></i>'
+                "icon" => UseIcon('folder', 'feather')
             ],
         ]
     ],
     [
         "text" => "Schedule",
         "path" => '/services/schedule',
-        "icon" => '<i data-feather="calendar"></i>'
+        "icon" => UseIcon('calendar', 'feather')
     ],
 );
 
@@ -109,81 +109,81 @@ $ADMIN = array(
     [
         "text" => "Dashboard",
         "path" => '/',
-        "icon" => '<i data-feather="activity"></i>'
+        "icon" => UseIcon('activity', 'feather')
     ],
     [
         "text" => "News Feed",
         "path" => '/newsfeed',
-        "icon" => '<i data-feather="rss"></i>'
+        "icon" => UseIcon('rss', 'feather')
     ],
     [
         "text" => "Students",
         "path" => '/students',
-        "icon" => '<i data-feather="users"></i>',
+        "icon" => UseIcon('users', 'feather'),
         "sub-content" => [
             [
                 "text" => "Students",
                 "path" => '/students/students',
-                "icon" => '<i data-feather="users"></i>'
+                "icon" => UseIcon('users', 'feather')
             ],
             [
                 "text" => "Import Students",
                 "path" => '/students/import_students',
-                "icon" => '<i data-feather="upload"></i>'
+                "icon" => UseIcon('upload', 'feather')
             ],
             [
                 "text" => "Search Students",
                 "path" => '/students/search_students',
-                "icon" => '<i data-feather="search"></i>'
+                "icon" => UseIcon('search', 'feather')
             ],
         ]
     ],
     [
         "text" => "Faculty Management",
         "path" => '/faculty',
-        "icon" => '<i data-feather="briefcase"></i>',
+        "icon" => UseIcon('briefcase', 'feather'),
         "sub-content" => [
             [
                 "text" => "Professors",
                 "path" => '/faculty/professors',
-                "icon" => '<i data-feather="user-check"></i>'
+                "icon" => UseIcon('user-check', 'feather')
             ],
         ]
     ],
     [
         "text" => "Maintenance",
         "path" => '/maintenance',
-        "icon" => '<i data-feather="tool"></i>',
+        "icon" => UseIcon('tool', 'feather'),
         "sub-content" => [
             [
                 "text" => "Sections",
                 "path" => '/maintenance/sections',
-                "icon" => '<i data-feather="grid"></i>'
+                "icon" => UseIcon('grid', 'feather')
             ],
             [
                 "text" => "Courses",
                 "path" => '/maintenance/courses',
-                "icon" => '<i data-feather="book-open"></i>'
+                "icon" => UseIcon('book-open', 'feather')
             ],
             [
                 "text" => "Subjects",
                 "path" => '/maintenance/subjects',
-                "icon" => '<i data-feather="book"></i>'
+                "icon" => UseIcon('book', 'feather')
             ],
             [
                 "text" => "Classrooms",
                 "path" => '/maintenance/classrooms',
-                "icon" => '<i data-feather="layout"></i>'
+                "icon" => UseIcon('layout', 'feather')
             ],
             [
                 "text" => "Departments",
                 "path" => '/maintenance/departments',
-                "icon" => '<i data-feather="briefcase"></i>'
+                "icon" => UseIcon('briefcase', 'feather')
             ],
             [
                 "text" => "Events",
                 "path" => '/maintenance/events',
-                "icon" => '<i data-feather="calendar"></i>'
+                "icon" => UseIcon('calendar', 'feather')
             ],
         ]
     ],
@@ -193,27 +193,27 @@ $STUDENT = array(
     [
         "text" => "Dashboard",
         "path" => '/',
-        "icon" => '<i data-feather="activity"></i>'
+        "icon" => UseIcon('activity', 'feather')
     ],
     [
         "text" => "News Feed",
         "path" => '/newsfeed',
-        "icon" => '<i data-feather="rss"></i>',
+        "icon" => UseIcon('rss', 'feather'),
         "sub-content" => [
             [
                 "text" => "Public",
                 "path" => '/newsfeed',
-                "icon" => '<i data-feather="rss"></i>',
+                "icon" => UseIcon('rss', 'feather'),
             ],
             [
                 "text" => "Subjects",
                 "path" => '/newsfeed_subjects',
-                "icon" => '<i data-feather="rss"></i>',
+                "icon" => UseIcon('rss', 'feather'),
                 "sub-content" => [
                     [
                         "text" => "Public",
                         "path" => '/newsfeed/public',
-                        "icon" => '<i data-feather="rss"></i>',
+                        "icon" => UseIcon('rss', 'feather'),
                     ],
                 ]
             ],
@@ -222,37 +222,37 @@ $STUDENT = array(
     [
         "text" => "My Classes",
         "path" => '/me/classes',
-        "icon" => '<i data-feather="book"></i>'
+        "icon" => UseIcon('book', 'feather')
     ],
 );
 
-$isProfessor =  $SESSION->user_type == 2 && !empty($SESSION->getAsProfessor());
+$isProfessor = $SESSION->user_type == 2 && !empty($SESSION->getAsProfessor());
 
 $FACULTY = array(
     [
         "text" => "Dashboard",
         "path" => '/',
-        "icon" => '<i data-feather="activity"></i>'
+        "icon" => UseIcon('activity', 'feather')
     ],
     [
         "text" => "News Feed",
         "path" => '/newsfeed',
-        "icon" => '<i data-feather="rss"></i>',
-        "sub-content" =>  [
+        "icon" => UseIcon('rss', 'feather'),
+        "sub-content" => [
             [
                 "text" => "Public",
                 "path" => '/newsfeed',
-                "icon" => '<i data-feather="rss"></i>',
+                "icon" => UseIcon('rss', 'feather'),
             ],
             ($isProfessor ? [
                 "text" => "Subjects",
                 "path" => '/newsfeed_subjects',
-                "icon" => '<i data-feather="rss"></i>',
+                "icon" => UseIcon('rss', 'feather'),
                 "sub-content" => [
                     [
                         "text" => "Public",
                         "path" => '/newsfeed/public',
-                        "icon" => '<i data-feather="rss"></i>',
+                        "icon" => UseIcon('rss', 'feather'),
                     ],
                 ]
             ] : [])
@@ -261,57 +261,57 @@ $FACULTY = array(
     ($isProfessor ? [
         "text" => "My Classes",
         "path" => '/me/classes',
-        "icon" => '<i data-feather="layout"></i>'
-    ]: []),
+        "icon" => UseIcon('layout', 'feather')
+    ] : []),
     ($isProfessor ? [
-        "text" => "My Resources", 
+        "text" => "My Resources",
         "path" => '/me/resources',
-        "icon" => '<i data-feather="folder"></i>'
-    ]: []),
+        "icon" => UseIcon('folder', 'feather')
+    ] : []),
 );
 
 $SUPERADMIN = array(
     [
         "text" => "Dashboard",
         "path" => '/',
-        "icon" => '<i data-feather="activity"></i>'
+        "icon" => UseIcon('activity', 'feather')
     ],
     [
         "text" => "News Feed",
         "path" => '/newsfeed',
-        "icon" => '<i data-feather="rss"></i>'
+        "icon" => UseIcon('rss', 'feather')
     ],
     [
         "text" => "Students",
         "path" => '/students',
-        "icon" => '<i data-feather="users"></i>',
+        "icon" => UseIcon('users', 'feather'),
         "sub-content" => [
             [
                 "text" => "Students",
                 "path" => '/students/students',
-                "icon" => '<i data-feather="users"></i>'
+                "icon" => UseIcon('users', 'feather')
             ],
             [
                 "text" => "Import Students",
                 "path" => '/students/import_students',
-                "icon" => '<i data-feather="upload"></i>'
+                "icon" => UseIcon('upload', 'feather')
             ],
             [
                 "text" => "Search Students",
                 "path" => '/students/search_students',
-                "icon" => '<i data-feather="search"></i>'
+                "icon" => UseIcon('search', 'feather')
             ],
         ]
     ],
     [
         "text" => "Faculty Management",
         "path" => '/faculty',
-        "icon" => '<i data-feather="briefcase"></i>',
+        "icon" => UseIcon('briefcase', 'feather'),
         "sub-content" => [
             [
                 "text" => "Professors",
                 "path" => '/faculty/professors',
-                "icon" => '<i data-feather="user-check"></i>'
+                "icon" => UseIcon('user-check', 'feather')
             ],
         ]
     ],
@@ -323,59 +323,59 @@ $SUPERADMIN = array(
             [
                 "text" => "Sections",
                 "path" => '/maintenance/sections',
-                "icon" => '<i data-feather="grid"></i>'
+                "icon" => UseIcon('grid', 'feather')
             ],
             [
                 "text" => "Courses",
                 "path" => '/maintenance/courses',
-                "icon" => '<i data-feather="book-open"></i>'
+                "icon" => UseIcon('book-open', 'feather')
             ],
             [
                 "text" => "Subjects",
                 "path" => '/maintenance/subjects',
-                "icon" => '<i data-feather="book"></i>'
+                "icon" => UseIcon('book', 'feather')
             ],
             [
                 "text" => "Classrooms",
                 "path" => '/maintenance/classrooms',
-                "icon" => '<i data-feather="layout"></i>'
+                "icon" => UseIcon('layout', 'feather')
             ],
             [
                 "text" => "Departments",
                 "path" => '/maintenance/departments',
-                "icon" => '<i data-feather="briefcase"></i>'
+                "icon" => UseIcon('briefcase', 'feather')
             ],
             [
                 "text" => "Events",
                 "path" => '/maintenance/events',
-                "icon" => '<i data-feather="calendar"></i>'
+                "icon" => UseIcon('calendar', 'feather')
             ],
             [
                 "text" => "Database Management",
                 "path" => '/maintenance/database_management',
-                "icon" => '<i data-feather="database"></i>'
+                "icon" => UseIcon('database', 'feather')
             ],
         ]
     ],
     [
         "text" => "Accounts",
         "path" => '/accounts',
-        "icon" => '<i data-feather="users"></i>',
+        "icon" => UseIcon('users', 'feather'),
         "sub-content" => [
             [
                 "text" => "Students",
                 "path" => '/accounts/students',
-                "icon" => '<i data-feather="user"></i>'
+                "icon" => UseIcon('user', 'feather')
             ],
             [
                 "text" => "Faculty Members",
                 "path" => '/accounts/faculty_members',
-                "icon" => '<i data-feather="user-check"></i>'
+                "icon" => UseIcon('user-check', 'feather')
             ],
             [
                 "text" => "Administrators",
                 "path" => '/accounts/administrators',
-                "icon" => '<i data-feather="user-plus"></i>'
+                "icon" => UseIcon('user-plus', 'feather')
             ],
         ]
     ],
@@ -396,16 +396,16 @@ $NAVLINKS = $ALL[$SESSION->user_type - 1];
                     ?>
                     <?php if (isset($link['sub-content'])): ?>
 
-                        <?php 
-                                $link['sub-content'] = array_filter($link['sub-content'], function($record) {
-                                    return count($record);
-                                });
+                        <?php
+                        $link['sub-content'] = array_filter($link['sub-content'], function ($record) {
+                            return count($record);
+                        });
 
-                            ?>
+                        ?>
                         <a>
-                    <?php else: ?>
-                        <a href="<?= $link['path'] ?>">
-                    <?php endif; ?>
+                        <?php else: ?>
+                            <a href="<?= $link['path'] ?>">
+                            <?php endif; ?>
                             <div class="nav-link <?= $match ? 'active' : '' ?>" data-path="<?= $link['path'] ?>">
                                 <div class="main">
                                     <div class="icon">
@@ -442,6 +442,6 @@ $NAVLINKS = $ALL[$SESSION->user_type - 1];
                         </a>
                     <?php endif; ?>
                 <?php endforeach; ?>
-            </div>
         </div>
-    </nav>
+    </div>
+</nav>
